@@ -1,0 +1,114 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "username": "admin",
+      "password": "admin",
+      "role": "admin",
+      "name": "Performanz",
+      "surname": "Admin"
+    },
+    {
+      "id": 2,
+      "username": "erkman",
+      "password": "123",
+      "role": "user",
+      "name": "Erkman",
+      "surname": "Geliş"
+    }
+  ],
+  "tasks": [
+    {
+      "id": 1,
+      "key": 1,
+      "title": "Panel UI Değiştir",
+      "description": "UI daha modern olmalı, bu doğrultuda değişecek.",
+      "category": "Web Panel",
+      "status": "Beklemede",
+      "priority": "Yüksek",
+      "progress": 60,
+      "start_date": "10.06.2024",
+      "estimated_end_date": "15.07.2024",
+      "complete_date": "17.07.2024",
+      "added_date": "10.06.2024",
+      "update_date": "17.07.2024"
+    },
+    {
+      "id": 2,
+      "key": 2,
+      "title": "Panel'e Pop-Up Eklenecek",
+      "description": "Yeni pencerede açılan eklentiler pop-up olarak değiştirilecek.",
+      "category": "Web Panel",
+      "status": "Çalışılıyor",
+      "priority": "Orta",
+      "progress": 80,
+      "start_date": "05.07.2024",
+      "estimated_end_date": "20.07.2024",
+      "complete_date": "",
+      "added_date": "05.07.2024",
+      "update_date": "18.07.2024"
+    },
+    {
+      "id": 3,
+      "key": 3,
+      "title": "Uygulama Bluetooth Bağlantı Hatası",
+      "description": "Spark cihazı bluetooth ile bağlanmaya çalışınca alınan hata düzeltilecek.",
+      "category": "Spark",
+      "status": "Ertelendi",
+      "priority": "Düşük",
+      "progress": 0,
+      "start_date": "10.07.2024",
+      "estimated_end_date": "20.09.2024",
+      "complete_date": "",
+      "added_date": "05.07.2024",
+      "update_date": "10.07.2024"
+    },
+    {
+      "id": 4,
+      "key": 4,
+      "title": "Zıpzıp Algoritması Yenilenecek",
+      "description": "Zıpzıp cihazının sporcunun havada kalma süresini hesaplayan algoritma yenilenecek.",
+      "category": "Zıpzıp",
+      "status": "Çalışılıyor",
+      "priority": "Düşük",
+      "progress": 10,
+      "start_date": "25.06.2024",
+      "estimated_end_date": "15.07.2024",
+      "complete_date": "",
+      "added_date": "09.06.2024",
+      "update_date": "10.07.2024"
+    }
+  ],
+  "categories": [
+    {
+      "id": 1,
+      "name": "Spark"
+    },
+    {
+      "id": 2,
+      "name": "Zıpzıp"
+    },
+    {
+      "id": 3,
+      "name": "Web Panel"
+    }
+  ],
+  "task-user": [
+    {
+      "user_id": "2",
+      "task_id": "1"
+    },
+    {
+      "user_id": "2",
+      "task_id": "2"
+    },
+    {
+      "user_id": "2",
+      "task_id": "3"
+    },
+    {
+      "user_id": "2",
+      "task_id": "4"
+    }
+  ]
+}
