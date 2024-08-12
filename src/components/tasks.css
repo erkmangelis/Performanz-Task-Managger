@@ -1,0 +1,21 @@
+tr th {
+  background-color: rgba(0, 0, 0, 0.3) ;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.2) !important;
+}
+
+.ant-card-actions span {
+  cursor: default !important;
+}
+
+.ant-card-actions span:hover {
+  cursor: default !important; 
+  color: rgba(0, 0, 0, 0.45) !important;
+}
+
+.ant-drawer-mask {
+  border-radius: 8px;
+}
+
+.ant-col {
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
+}

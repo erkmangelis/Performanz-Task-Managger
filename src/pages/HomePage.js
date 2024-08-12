@@ -1,20 +1,17 @@
 import React from 'react';
-import { Breadcrumb, Layout, Menu, theme, Button, Typography, Avatar, Space } from 'antd';
+import { Layout, Button, Avatar, Space, theme } from 'antd';
 import { FileAddOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons';
 import Tasks from '../components/Tasks';
 
-
 const { Header, Content } = Layout;
-const { Title, Text } = Typography;
 
 const HomePage = () => {
-
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
   return (
-    <Layout>
+    <Layout style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Header
         style={{
           backgroundColor: '#ff7d06',
@@ -23,24 +20,35 @@ const HomePage = () => {
           justifyContent: 'space-between',
           height: '10vh',
           color: 'white',
+          flexShrink: 0, // Header boyutunun değişmemesi için
         }}
       >
-        <div className='user'><Space align="baseline" size={16}><Avatar size='large' icon={<UserOutlined />} /><h6 style={{color: 'white'}}>Erkman Geliş</h6></Space></div>
-        <div className='taskAdd'><Button size="large" type="text" style={{color: 'white'}}>Görev Ekle <FileAddOutlined /></Button></div>
-        <div className='logout'><Button size="large" type="text" style={{color: 'white'}}>Çıkış Yap <LogoutOutlined /></Button></div>
+        <div className='user'>
+          <Space align="baseline" size={16}>
+            <Avatar size='large' icon={<UserOutlined />} />
+            <h6 style={{ color: 'white' }}>Erkman Geliş</h6>
+          </Space>
+        </div>
+        <div className='taskAdd'>
+          <Button size="large" type="text" style={{ color: 'white' }}>Görev Ekle <FileAddOutlined /></Button>
+        </div>
+        <div className='logout'>
+          <Button size="large" type="text" style={{ color: 'white' }}>Çıkış Yap <LogoutOutlined /></Button>
+        </div>
       </Header>
-      <Content style={{
-            margin: '24px 16px',
-            padding: 24,
-            height: '100%',
-            background: colorBgContainer,
-            borderRadius: borderRadiusLG,
-          }}>
-        <space></space>
+      <Content
+        style={{
+          flex: 1, // Kalan tüm alanı kaplaması için
+          margin: '24px 16px',
+          background: colorBgContainer,
+          borderRadius: borderRadiusLG,
+          overflow: 'hidden', // İçeriğin taşmaması için
+        }}
+      >
         <div
           style={{
             background: colorBgContainer,
-            minHeight: 280,
+            minHeight: '100%',
             borderRadius: borderRadiusLG,
           }}
         >
