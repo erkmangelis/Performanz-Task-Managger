@@ -281,8 +281,8 @@ const Tasks = () => {
             key: 'x',
             render: () =>
             <Space>
-              <a><EditTwoTone twoToneColor="#ff7d06"/></a>
-              <a><DeleteTwoTone twoToneColor="#ff7d06"/></a>
+              <a><EditTwoTone twoToneColor="#708871"/></a>
+              <a><DeleteTwoTone twoToneColor="#708871"/></a>
             </Space>,
           },
       ];
@@ -311,6 +311,7 @@ const Tasks = () => {
                 )
             }}
             dataSource={tasks}
+            rowClassName={(record, index) => (index % 2 === 1 ? 'striped-row' : '')}
         />
     );
 };

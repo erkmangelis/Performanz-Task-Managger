@@ -26,14 +26,14 @@ const HomePage = () => {
         <div className='user'>
           <Space align="baseline" size={16}>
             <Avatar size='large' icon={<UserOutlined />} />
-            <h6 style={{ color: 'white' }}>Erkman Geliş</h6>
+            <h6 style={{ color: 'white', fontWeight: '500' }}>Erkman Geliş</h6>
           </Space>
         </div>
         <div className='taskAdd'>
-          <Button size="large" type="text" style={{ color: 'white' }}>Görev Ekle <FileAddOutlined /></Button>
+          <Button size="large" type="text" style={{ color: 'white', fontWeight: '500'}}>Görev Ekle <FileAddOutlined /></Button>
         </div>
         <div className='logout'>
-          <Button size="large" type="text" style={{ color: 'white' }}>Çıkış Yap <LogoutOutlined /></Button>
+          <Button size="large" type="text" style={{ color: 'white', fontWeight: '500'}}>Çıkış Yap <LogoutOutlined /></Button>
         </div>
       </Header>
       <Content
@@ -46,6 +46,7 @@ const HomePage = () => {
         }}
       >
         <div
+          className='main-table'
           style={{
             background: colorBgContainer,
             minHeight: '100%',
