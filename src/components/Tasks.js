@@ -299,7 +299,7 @@ const Tasks = () => {
                 position: ['none', 'none']
             }}
             scroll={{
-              y: window.innerHeight * 0.7,
+              y: window.innerHeight * 0.76,
             }}
             onChange={onChange}
             showSorterTooltip={{
