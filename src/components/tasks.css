@@ -1,6 +1,10 @@
 header {
   box-shadow: rgba(0, 0, 0, 0.3) 0px 2px 4px;
-  background-color: #708871 !important;
+  background-color: #3F72AF !important;
+}
+
+.ant-layout {
+  background-color: #DBE2EF;
 }
 
 tr th {

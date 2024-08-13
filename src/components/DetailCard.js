@@ -1,6 +1,36 @@
 import React, { useState } from 'react';
-import { Card, Col, Row, Avatar, List, Button, Drawer, theme, Input } from 'antd';
-import { DeleteOutlined, ClockCircleOutlined, CloseOutlined, CommentOutlined, PlusOutlined } from '@ant-design/icons';
+import { Card, Col, Row, Avatar, List, Button, Drawer, theme, Input, Modal } from 'antd';
+import { DeleteOutlined, ClockCircleOutlined, CloseOutlined, CommentOutlined, PlusOutlined, ExclamationCircleFilled } from '@ant-design/icons';
+
+const { confirm } = Modal;
+const showCommentDeleteConfirm = () => {
+  confirm({
+    title: 'Yorumu silmek istiyor musun?',
+    icon: <ExclamationCircleFilled />,
+    content:
+    <List
+      itemLayout="horizontal"
+      headerBg="#ff7d06"
+    >
+      <List.Item>
+        <List.Item.Meta
+          avatar={<Avatar src={`https://api.dicebear.com/7.x/miniavs/svg?seed=${1}`} />}
+          title={"Username"}
+          description="Yorumlar burada olacak ve burda gözükücek."
+        />
+      </List.Item>
+    </List>,
+    okText: 'Evet',
+    okType: 'danger',
+    cancelText: 'Hayır',
+    onOk() {
+      console.log('OK');
+    },
+    onCancel() {
+      console.log('Cancel');
+    },
+  });
+};
 
 const commentData = [
   {
@@ -53,7 +83,7 @@ const DetailCard = () => {
               open={open}
               getContainer={false}
               closeIcon={<CloseOutlined />}
-              footer={<Button type='primary' style={{backgroundColor: '#708871'}} onClick={onClose}>Gönder</Button>}
+              footer={<Button type='primary' style={{backgroundColor: '#3F72AF'}} onClick={onClose}>Gönder</Button>}
             >
             <TextArea
               value={value}
@@ -69,7 +99,7 @@ const DetailCard = () => {
             headerBg="#ff7d06"
             renderItem={(item, index) => (
               <List.Item
-                actions={[<a key="delete"><DeleteOutlined/></a>]}
+                actions={[<a onClick={showCommentDeleteConfirm} key="delete"><DeleteOutlined/></a>]}
               >
                 <List.Item.Meta
                   avatar={<Avatar src={`https://api.dicebear.com/7.x/miniavs/svg?seed=${index}`} />}

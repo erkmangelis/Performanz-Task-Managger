@@ -1,13 +1,29 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Table, Space, Tag } from 'antd';
-import { EditTwoTone, DeleteTwoTone, FlagFilled } from '@ant-design/icons';
+import { Table, Space, Tag, Progress, Modal, Divider } from 'antd';
+import { EditTwoTone, DeleteTwoTone, FlagFilled, ExclamationCircleFilled } from '@ant-design/icons';
 import DetailCard from './DetailCard';
-import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
-import 'react-circular-progressbar/dist/styles.css';
 import './tasks.css'
 
+
+const { confirm } = Modal;
+const showTaskDeleteConfirm = () => {
+  confirm({
+    title: 'Görevi silmek istiyor musun?',
+    icon: <ExclamationCircleFilled />,
+    content: 'Görev bilgileri',
+    okText: 'Evet',
+    okType: 'danger',
+    cancelText: 'Hayır',
+    onOk() {
+      console.log('OK');
+    },
+    onCancel() {
+      console.log('Cancel');
+    },
+  });
+};
 
 const Tasks = () => {
     let tasks = [
@@ -59,81 +75,6 @@ const Tasks = () => {
       {
         "id": 4,
         "key": 4,
-        "title": "Zıpzıp Algoritması Yenilenecek",
-        "description": "Zıpzıp cihazının sporcunun havada kalma süresini hesaplayan algoritma yenilenecek.",
-        "category": "Zıpzıp",
-        "status": "İşlemde",
-        "priority": "Düşük",
-        "progress": 10,
-        "start_date": "25.06.2024",
-        "estimated_end_date": "15.07.2024",
-        "complete_date": "",
-        "added_date": "09.06.2024",
-        "update_date": "10.07.2024"
-      },
-      {
-        "id": 5,
-        "key": 5,
-        "title": "Zıpzıp Algoritması Yenilenecek",
-        "description": "Zıpzıp cihazının sporcunun havada kalma süresini hesaplayan algoritma yenilenecek.",
-        "category": "Zıpzıp",
-        "status": "İşlemde",
-        "priority": "Düşük",
-        "progress": 10,
-        "start_date": "25.06.2024",
-        "estimated_end_date": "15.07.2024",
-        "complete_date": "",
-        "added_date": "09.06.2024",
-        "update_date": "10.07.2024"
-      },
-      {
-        "id": 6,
-        "key": 6,
-        "title": "Zıpzıp Algoritması Yenilenecek",
-        "description": "Zıpzıp cihazının sporcunun havada kalma süresini hesaplayan algoritma yenilenecek.",
-        "category": "Zıpzıp",
-        "status": "İşlemde",
-        "priority": "Düşük",
-        "progress": 10,
-        "start_date": "25.06.2024",
-        "estimated_end_date": "15.07.2024",
-        "complete_date": "",
-        "added_date": "09.06.2024",
-        "update_date": "10.07.2024"
-      },
-      {
-        "id": 7,
-        "key": 7,
-        "title": "Zıpzıp Algoritması Yenilenecek",
-        "description": "Zıpzıp cihazının sporcunun havada kalma süresini hesaplayan algoritma yenilenecek.",
-        "category": "Zıpzıp",
-        "status": "İşlemde",
-        "priority": "Düşük",
-        "progress": 10,
-        "start_date": "25.06.2024",
-        "estimated_end_date": "15.07.2024",
-        "complete_date": "",
-        "added_date": "09.06.2024",
-        "update_date": "10.07.2024"
-      },
-      {
-        "id": 8,
-        "key": 8,
-        "title": "Zıpzıp Algoritması Yenilenecek",
-        "description": "Zıpzıp cihazının sporcunun havada kalma süresini hesaplayan algoritma yenilenecek.",
-        "category": "Zıpzıp",
-        "status": "İşlemde",
-        "priority": "Düşük",
-        "progress": 10,
-        "start_date": "25.06.2024",
-        "estimated_end_date": "15.07.2024",
-        "complete_date": "",
-        "added_date": "09.06.2024",
-        "update_date": "10.07.2024"
-      },
-      {
-        "id": 9,
-        "key": 9,
         "title": "Zıpzıp Algoritması Yenilenecek",
         "description": "Zıpzıp cihazının sporcunun havada kalma süresini hesaplayan algoritma yenilenecek.",
         "category": "Zıpzıp",
@@ -270,9 +211,9 @@ const Tasks = () => {
             dataIndex: 'progress',
             sorter: (a, b) => a.progress - b.progress,
             render: (text) => 
-                <div style={{ display: 'inline-block', width: 40, height: 40, }}>
-                    <CircularProgressbar value={text} text={`${text}%`} styles={buildStyles({textSize: '28px'})} />
-                </div>
+              <div style={{ display: 'inline-block', width: 45, height: 45 }}>
+                    <Progress type="circle" percent={text} size={45} />
+              </div>
         },
         {
             title: 'Aksiyon',
@@ -281,8 +222,9 @@ const Tasks = () => {
             key: 'x',
             render: () =>
             <Space>
-              <a><EditTwoTone twoToneColor="#708871"/></a>
-              <a><DeleteTwoTone twoToneColor="#708871"/></a>
+              <a><EditTwoTone twoToneColor="#3F72AF"/></a>
+              <Divider type="vertical" />
+              <a onClick={showTaskDeleteConfirm}><DeleteTwoTone twoToneColor="#3F72AF"/></a>
             </Space>,
           },
       ];
@@ -299,7 +241,7 @@ const Tasks = () => {
                 position: ['none', 'none']
             }}
             scroll={{
-              y: window.innerHeight * 0.76,
+              y: window.innerHeight * 0.74,
             }}
             onChange={onChange}
             showSorterTooltip={{

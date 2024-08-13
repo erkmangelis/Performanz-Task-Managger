@@ -1,11 +1,28 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Layout, Button, Avatar, Space, theme } from 'antd';
 import { FileAddOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons';
 import Tasks from '../components/Tasks';
+import TaskModal from '../components/TaskModal';
+import SimpleModalExample from '../components/SimpleModalExample';
 
 const { Header, Content } = Layout;
 
+
 const HomePage = () => {
+
+  /////////////// Task Modal ///////////////
+  const [taskModalVisible, setTaskModalVisible] = useState(false);
+
+  const showTaskModal = () => {
+    setTaskModalVisible(true);
+    console.log(taskModalVisible);
+  };
+
+  const hideTaskModal = () => {
+    setTaskModalVisible(false);
+    console.log(taskModalVisible);
+  };
+  //////////////////////////////////////////
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
@@ -30,7 +47,7 @@ const HomePage = () => {
           </Space>
         </div>
         <div className='taskAdd'>
-          <Button size="large" type="text" style={{ color: 'white', fontWeight: '500'}}>Görev Ekle <FileAddOutlined /></Button>
+          <Button size="large" type="text" style={{ color: 'white', fontWeight: '500'}} onClick={showTaskModal}>Görev Ekle <FileAddOutlined /></Button>
         </div>
         <div className='logout'>
           <Button size="large" type="text" style={{ color: 'white', fontWeight: '500'}}>Çıkış Yap <LogoutOutlined /></Button>
@@ -45,6 +62,7 @@ const HomePage = () => {
           overflow: 'hidden', // İçeriğin taşmaması için
         }}
       >
+        <TaskModal onOpenTaskModal={taskModalVisible} onCloseTaskModal={hideTaskModal} />
         <div
           className='main-table'
           style={{
