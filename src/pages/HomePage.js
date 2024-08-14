@@ -3,26 +3,36 @@ import { Layout, Button, Avatar, Space, theme } from 'antd';
 import { FileAddOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons';
 import Tasks from '../components/Tasks';
 import TaskModal from '../components/TaskModal';
-import SimpleModalExample from '../components/SimpleModalExample';
+import { data } from './data.js';
 
 const { Header, Content } = Layout;
 
 
 const HomePage = () => {
-
+  
   /////////////// Task Modal ///////////////
   const [taskModalVisible, setTaskModalVisible] = useState(false);
+  const [editingTask, setEditingTask] = useState(null);
 
-  const showTaskModal = () => {
-    setTaskModalVisible(true);
-    console.log(taskModalVisible);
+  // Görev Ekle butonuna basıldığında çalışacak fonksiyon
+  const handleAddTask = () => {
+    setEditingTask(null); // Yeni görev için formu boş başlat
+    setTaskModalVisible(true); // Modal'ı aç
   };
 
-  const hideTaskModal = () => {
+  // Düzenleme butonuna basıldığında çalışacak fonksiyon
+  const handleEditTask = (task) => {
+    setEditingTask(task); // Düzenlenecek görev verisini ayarla
+    setTaskModalVisible(true); // Modal'ı aç
+  };
+
+  // Modal'ı kapatma fonksiyonu
+  const handleCloseModal = () => {
     setTaskModalVisible(false);
-    console.log(taskModalVisible);
+    setEditingTask(null);
   };
   //////////////////////////////////////////
+
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
@@ -47,7 +57,7 @@ const HomePage = () => {
           </Space>
         </div>
         <div className='taskAdd'>
-          <Button size="large" type="text" style={{ color: 'white', fontWeight: '500'}} onClick={showTaskModal}>Görev Ekle <FileAddOutlined /></Button>
+          <Button size="large" type="text" style={{ color: 'white', fontWeight: '500'}} onClick={handleAddTask}>Görev Ekle <FileAddOutlined /></Button>
         </div>
         <div className='logout'>
           <Button size="large" type="text" style={{ color: 'white', fontWeight: '500'}}>Çıkış Yap <LogoutOutlined /></Button>
@@ -62,7 +72,7 @@ const HomePage = () => {
           overflow: 'hidden', // İçeriğin taşmaması için
         }}
       >
-        <TaskModal onOpenTaskModal={taskModalVisible} onCloseTaskModal={hideTaskModal} />
+        <TaskModal onOpen={taskModalVisible} task={editingTask} onClose={handleCloseModal} />
         <div
           className='main-table'
           style={{
@@ -71,7 +81,7 @@ const HomePage = () => {
             borderRadius: borderRadiusLG,
           }}
         >
-          <Tasks />
+          <Tasks userId={data.user.id} userRole={data.user.role} data={data.tasks} onEditTask={handleEditTask}/>
         </div>
       </Content>
     </Layout>

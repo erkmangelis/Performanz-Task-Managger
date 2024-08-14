@@ -1,36 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import { Card, Col, Row, Avatar, List, Button, Drawer, theme, Input, Modal } from 'antd';
 import { DeleteOutlined, ClockCircleOutlined, CloseOutlined, CommentOutlined, PlusOutlined, ExclamationCircleFilled } from '@ant-design/icons';
 
 const { confirm } = Modal;
-const showCommentDeleteConfirm = () => {
-  confirm({
-    title: 'Yorumu silmek istiyor musun?',
-    icon: <ExclamationCircleFilled />,
-    content:
-    <List
-      itemLayout="horizontal"
-      headerBg="#ff7d06"
-    >
-      <List.Item>
-        <List.Item.Meta
-          avatar={<Avatar src={`https://api.dicebear.com/7.x/miniavs/svg?seed=${1}`} />}
-          title={"Username"}
-          description="Yorumlar burada olacak ve burda gözükücek."
-        />
-      </List.Item>
-    </List>,
-    okText: 'Evet',
-    okType: 'danger',
-    cancelText: 'Hayır',
-    onOk() {
-      console.log('OK');
-    },
-    onCancel() {
-      console.log('Cancel');
-    },
-  });
-};
 
 const commentData = [
   {
@@ -49,7 +21,42 @@ const commentData = [
 
 const { TextArea } = Input;
 
-const DetailCard = () => {
+const DetailCard = memo(({ data }) => {
+  const [commentList, setCommentList] = useState(data.comments);
+
+  const onDeleteComment = (comment) => {
+    confirm({
+      title: 'Yorumu silmek istiyor musun?',
+      icon: <ExclamationCircleFilled />,
+      content:
+      <List
+        itemLayout="horizontal"
+        headerbg="#ff7d06"
+      >
+        <List.Item>
+          <List.Item.Meta
+            avatar={<Avatar src={comment.user.url} />}
+            title={comment.user.name + " " + comment.user.surname}
+            description={comment.content}
+          />
+        </List.Item>
+      </List>,
+      okText: 'Evet',
+      okType: 'danger',
+      cancelText: 'Hayır',
+      onOk() {
+        handleDeleteComment(comment.id);
+      },
+      onCancel() {
+        console.log('Silme işlemi iptal edildi.');
+      },
+    });
+  };
+
+  const handleDeleteComment = (commentId) => {
+    console.log(commentId);
+    setCommentList(prevComments => prevComments.filter(comment => comment.id !== commentId));
+  };
 
   const [value, setValue] = useState('');
 
@@ -66,10 +73,10 @@ const DetailCard = () => {
     return (
       <Row gutter={5} style={{ margin: '0px', padding: '0px'}}>
         <Col span={10}>
-          <Card title="Detaylar" bordered={false} style={{ color: 'white', minHeight: '100%' }} extra={<span>2 Gün<ClockCircleOutlined style={{marginLeft: '4px'}}/></span>} actions={["updatedTime", "addedTime"]}>
+          <Card title="Detaylar" bordered={false} style={{ color: 'white', minHeight: '100%' }} extra={<span>2 Gün<ClockCircleOutlined style={{marginLeft: '4px'}}/></span>} actions={[<span>Eklenme: {data.addedDate}</span>, <span>Güncellenme: {data.updateDate}</span>]}>
             <Card.Meta 
               style={{ height: '150px' }}
-              description={<span style={{ color: 'black'}}>Bu alanda kullanıcının girdiği göreve ait detay mesajları bulunacak ve bu şekilde gözükecektir.</span>}
+              description={<span style={{ color: 'black'}}>{data.description}</span>}
             />
           </Card>
         </Col>
@@ -93,18 +100,18 @@ const DetailCard = () => {
             />
             </Drawer>
           <List
-            style={{ maxHeight: '210px', overflowY: 'scroll', marginTop: '-20px' }}
+            style={{ minHeight: '210px', maxHeight: '210px', overflowY: 'scroll', marginTop: '-20px' }}
             itemLayout="horizontal"
-            dataSource={commentData}
-            headerBg="#ff7d06"
-            renderItem={(item, index) => (
+            dataSource={commentList}
+            headerbg="#ff7d06"
+            renderItem={(comment, index) => (
               <List.Item
-                actions={[<a onClick={showCommentDeleteConfirm} key="delete"><DeleteOutlined/></a>]}
+                actions={[<a onClick={() => onDeleteComment(comment)} key={comment.id}><DeleteOutlined/></a>]}
               >
                 <List.Item.Meta
-                  avatar={<Avatar src={`https://api.dicebear.com/7.x/miniavs/svg?seed=${index}`} />}
-                  title={"Username"}
-                  description="Yorumlar burada olacak ve burda gözükücek."
+                  avatar={<Avatar src={comment.user.url} />}
+                  title={comment.user.name + " " +comment.user.surname}
+                  description={comment.content}
                 />
               </List.Item>
             )}>
@@ -113,7 +120,7 @@ const DetailCard = () => {
         </Col>
       </Row>
     );
-};
+});
 
 export default DetailCard;
 

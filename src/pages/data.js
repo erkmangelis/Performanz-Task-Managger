@@ -1,42 +1,228 @@
-const data = [
+export const data = {
+  "user": {
+    "id": 2,
+    "role": "User",
+    "name": "Erkman",
+    "surname": "Geliş",
+    "url": "https://api.dicebear.com/7.x/miniavs/svg?seed=$10"
+  },
+  "tasks": [
     {
-      key: 1,
-      title: 'Finish the task1',
-      category: 'Zıpzıp',
-      endDate: 'Aug 14 2024',
-      status: 'In Preview',
-      priority: 'High',
-      progress: 90,
-      description: 'Lorem ipsum sit amet.',
+      "id": 1,
+      "title": "Görev1",
+      "description": "Görev1 açıklaması",
+      "category": "Spark",
+      "priority": "Orta",
+	    "status": "İşlemde",
+      "progress": 60,
+      "addedUser": {
+        "user": {
+          "id": 2,
+          "role": "User",
+          "name": "Erkman",
+          "surname": "Geliş",
+          "url": "https://api.dicebear.com/7.x/miniavs/svg?seed=$10"
+        }
+      },
+      "addedDate": "10.08.2024",
+      "estimatedCompleteDate": "18.08.2024",
+      "completeDate": "19.08.2024",
+      "updateDate": "14.08.2024",
+      "comments": [
+        {
+          "user": {
+            "id": 1,
+            "role": "Admin",
+            "name": "Okan",
+            "surname": "Eştürk",
+            "url": "https://api.dicebear.com/7.x/miniavs/svg?seed=$2"
+          },
+          "content": "Yorum içeriği1",
+          "id": 1
+        },
+        {
+          "user": {
+            "id": 2,
+            "role": "User",
+            "name": "Erkman",
+            "surname": "Geliş",
+            "url": "https://api.dicebear.com/7.x/miniavs/svg?seed=$10"
+          },
+          "content": "Yorum içeriği2",
+          "id": 2
+        },
+        {
+          "user": {
+            "id": 2,
+            "role": "User",
+            "name": "Erkman",
+            "surname": "Geliş",
+            "url": "https://api.dicebear.com/7.x/miniavs/svg?seed=$10"
+          },
+          "content": "Yorum içeriği3",
+          "id": 3
+        }
+      ]
     },
     {
-      key: 2,
-      title: 'Finish the task2',
-      category: 'Spark',
-      endDate: 'Aug 27 2024',
-      status: 'Not Started',
-      priority: 'High',
-      progress: 0,
-      description: 'Lorem ipsum sit amet.',
+      "id": 2,
+      "title": "Görev2",
+      "description": "Görev2 açıklaması",
+      "category": "Zıpzıp",
+      "priority": "Yüksek",
+	    "status": "Beklemede",
+      "progress": 10,
+      "addedUser": {
+        "user": {
+          "id": 2,
+          "role": "User",
+          "name": "Erkman",
+          "surname": "Geliş",
+          "url": "https://api.dicebear.com/7.x/miniavs/svg?seed=$10"
+        }
+      },
+      "addedDate": "10.08.2024",
+      "estimatedCompleteDate": "18.08.2024",
+      "completeDate": "19.08.2024",
+      "updateDate": "14.08.2024",
+      "comments": [
+        {
+          "user": {
+            "id": 2,
+            "role": "User",
+            "name": "Erkman",
+            "surname": "Geliş",
+            "url": "https://api.dicebear.com/7.x/miniavs/svg?seed=$10"
+          },
+          "content": "Yorum içeriği4",
+          "id": 4
+        },
+        {
+          "user": {
+            "id": 1,
+            "role": "Admin",
+            "name": "Okan",
+            "surname": "Eştürk",
+            "url": "https://api.dicebear.com/7.x/miniavs/svg?seed=$2"
+          },
+          "content": "Yorum içeriği5",
+          "id": 5
+        },
+        {
+          "user": {
+            "id": 2,
+            "role": "User",
+            "name": "Erkman",
+            "surname": "Geliş",
+            "url": "https://api.dicebear.com/7.x/miniavs/svg?seed=$10"
+          },
+          "content": "Yorum içeriği6",
+          "id": 6
+        }
+      ]
     },
     {
-      key: 3,
-      title: 'Make the window pop',
-      category: 'WebPanel',
-      endDate: 'Sep 7 2024',
-      status: 'In Progress',
-      priority: 'Normal',
-      progress: 40,
-      description: <div>deneme</div>,
+      "id": 3,
+      "title": "Görev3",
+      "description": "Görev3 açıklaması",
+      "category": "Web Panel",
+      "priority": "Düşük",
+	    "status": "Tamamlandı",
+      "progress": 100,
+      "addedUser": {
+        "user": {
+          "id": 1,
+          "role": "Admin",
+          "name": "Okan",
+          "surname": "Eştürk",
+          "url": "https://api.dicebear.com/7.x/miniavs/svg?seed=$2"
+        }
+      },
+      "addedDate": "10.08.2024",
+      "estimatedCompleteDate": "16.08.2024",
+      "completeDate": "14.08.2024",
+      "updateDate": "14.08.2024",
+      "comments": [
+        {
+          "user": {
+            "id": 2,
+            "role": "User",
+            "name": "Erkman",
+            "surname": "Geliş",
+            "url": "https://api.dicebear.com/7.x/miniavs/svg?seed=$10"
+          },
+          "content": "Yorum içeriği7",
+          "id": 7
+        },
+        {
+          "user": {
+            "id": 2,
+            "role": "User",
+            "name": "Erkman",
+            "surname": "Geliş",
+            "url": "https://api.dicebear.com/7.x/miniavs/svg?seed=$10"
+          },
+          "content": "Yorum içeriği8",
+          "id": 8
+        }
+      ]
     },
     {
-      key: 4,
-      title: 'Get the job done',
-      category: 'Spark',
-      endDate: 'Aug 4 2024',
-      status: 'Completed',
-      priority: 'Low',
-      progress: 80,
-      description: 'Lorem ipsum sit amet.',
-    },
-  ];
+      "id": 4,
+      "title": "Görev4",
+      "description": "Görev4 açıklaması",
+      "category": "Web Panel",
+      "priority": "Düşük",
+	    "status": "Ertelendi",
+      "progress": 0,
+      "addedUser": {
+        "user": {
+          "id": 2,
+          "role": "User",
+          "name": "Erkman",
+          "surname": "Geliş",
+          "url": "https://api.dicebear.com/7.x/miniavs/svg?seed=$10"
+        }
+      },
+      "addedDate": "10.08.2024",
+      "estimatedCompleteDate": "18.08.2024",
+      "completeDate": "19.08.2024",
+      "updateDate": "14.08.2024",
+      "comments": [
+        {
+          "user": {
+            "id": 2,
+            "role": "User",
+            "name": "Erkman",
+            "surname": "Geliş",
+            "url": "https://api.dicebear.com/7.x/miniavs/svg?seed=$10"
+          },
+          "content": "Yorum içeriği9",
+          "id": 9
+        },
+        {
+          "user": {
+            "id": 2,
+            "role": "User",
+            "name": "Erkman",
+            "surname": "Geliş",
+            "url": "https://api.dicebear.com/7.x/miniavs/svg?seed=$10"
+          },
+          "content": "Yorum içeriği10",
+          "id": 10
+        },
+        {
+          "user": {
+            "id": 1,
+            "role": "Admin",
+            "name": "Okan",
+            "surname": "Eştürk",
+            "url": "https://api.dicebear.com/7.x/miniavs/svg?seed=$2"
+          },
+          "content": "Yorum içeriği11",
+          "id": 11
+        }
+      ]
+    }
+  ]
+}

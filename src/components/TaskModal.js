@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Modal, DatePicker, Input, Select, Slider, Form, Row, Col } from 'antd';
 
 
@@ -7,16 +7,26 @@ const { TextArea } = Input;
 const { Option } = Select;
 
 
-const TaskModal = ({ onOpenTaskModal, onCloseTaskModal }) => {
+const TaskModal = ({ onOpen, task, onClose }) => {
+    const [form] = Form.useForm();
+
+    useEffect(() => {
+        if (task) {
+            form.setFieldsValue(task); // Düzenleme işlemi için formu doldur
+        } else {
+            form.resetFields(); // Yeni görev için formu sıfırla
+        }
+    }, [task, form]);
+
     return (
         <Modal
             centered
             okText='Ekle'
             cancelText='İptal'
             destroyOnClose='true'
-            open={onOpenTaskModal}
-            onOk={onCloseTaskModal}
-            onCancel={onCloseTaskModal}
+            open={onOpen}
+            onOk={onClose}
+            onCancel={onClose}
             title={
                 <div
                     style={{
@@ -25,7 +35,7 @@ const TaskModal = ({ onOpenTaskModal, onCloseTaskModal }) => {
                         alignItems: 'center'
                     }}>
 
-                    <span>Görev Ekle</span>
+                    <span>{task ? "Görevi Düzenle" : "Görev Oluştur"}</span>
                     <Select mode="multiple" defaultValue="erkman" disabled style={{ width: 250, marginRight: '40px' }}>
                         <Option value="erkman">Erkman</Option>
                         <Option value="onur">Onur</Option>
@@ -35,19 +45,20 @@ const TaskModal = ({ onOpenTaskModal, onCloseTaskModal }) => {
             }
         >
             <Form
+                form={form}
                 layout="vertical"
                 style={{ marginTop: '30px'}}
             >
 
-                <Form.Item label="Görev" name="input">
+                <Form.Item label="Görev" name="title">
                     <Input placeholder="Görev giriniz" />
                 </Form.Item>
           
-                <Form.Item label="Detay" name="textarea">
+                <Form.Item label="Detay" name="description">
                     <TextArea rows={5} placeholder="Detay bilgisi giriniz" />
                 </Form.Item>
           
-                <Form.Item>
+                <Form.Item name="start_date">
                     <Row>
                         <Col span={12}>
                             <label>Başlangıç Tarihi</label>
@@ -61,7 +72,7 @@ const TaskModal = ({ onOpenTaskModal, onCloseTaskModal }) => {
           
                 <Row gutter={16}>
                     <Col span={12}>
-                        <Form.Item label="Öncelik" name="select">
+                        <Form.Item label="Öncelik" name="priority">
                             <Select defaultValue="medium">
                                 <Option value="low">Düşük</Option>
                                 <Option value="medium">Orta</Option>
@@ -71,7 +82,7 @@ const TaskModal = ({ onOpenTaskModal, onCloseTaskModal }) => {
                     </Col>
                     
                     <Col span={12}>
-                        <Form.Item label="Durum" name="slider">
+                        <Form.Item label="Durum" name="progress">
                             <Slider
                                 min={0}
                                 max={100}

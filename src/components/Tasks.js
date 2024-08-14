@@ -1,18 +1,19 @@
-import React from 'react';
-import { useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import axios from 'axios';
-import { Table, Space, Tag, Progress, Modal, Divider } from 'antd';
+import { Table, Space, Tag, Progress, Modal, Divider, Button } from 'antd';
 import { EditTwoTone, DeleteTwoTone, FlagFilled, ExclamationCircleFilled } from '@ant-design/icons';
 import DetailCard from './DetailCard';
 import './tasks.css'
+import TaskModal from './TaskModal';
 
 
 const { confirm } = Modal;
-const showTaskDeleteConfirm = () => {
+
+const onDeleteTask = (record) => {
   confirm({
     title: 'Görevi silmek istiyor musun?',
     icon: <ExclamationCircleFilled />,
-    content: 'Görev bilgileri',
+    content: <span>{record.title}</span>,
     okText: 'Evet',
     okType: 'danger',
     cancelText: 'Hayır',
@@ -25,69 +26,32 @@ const showTaskDeleteConfirm = () => {
   });
 };
 
-const Tasks = () => {
-    let tasks = [
-      {
-        "id": 1,
-        "key": 1,
-        "title": "Panel UI Değiştir",
-        "description": "UI daha modern olmalı, bu doğrultuda değişecek.",
-        "category": "Web Panel",
-        "status": "Beklemede",
-        "priority": "Yüksek",
-        "progress": 60,
-        "start_date": "10.06.2024",
-        "estimated_end_date": "15.07.2024",
-        "complete_date": "17.07.2024",
-        "added_date": "10.06.2024",
-        "update_date": "17.07.2024"
-      },
-      {
-        "id": 2,
-        "key": 2,
-        "title": "Panel'e Pop-Up Eklenecek",
-        "description": "Yeni pencerede açılan eklentiler pop-up olarak değiştirilecek.",
-        "category": "Web Panel",
-        "status": "Tamamlandı",
-        "priority": "Orta",
-        "progress": 100,
-        "start_date": "05.07.2024",
-        "estimated_end_date": "20.07.2024",
-        "complete_date": "",
-        "added_date": "05.07.2024",
-        "update_date": "18.07.2024"
-      },
-      {
-        "id": 3,
-        "key": 3,
-        "title": "Uygulama Bluetooth Bağlantı Hatası",
-        "description": "Spark cihazı bluetooth ile bağlanmaya çalışınca alınan hata düzeltilecek.",
-        "category": "Spark",
-        "status": "Ertelendi",
-        "priority": "Düşük",
-        "progress": 0,
-        "start_date": "10.07.2024",
-        "estimated_end_date": "20.09.2024",
-        "complete_date": "",
-        "added_date": "05.07.2024",
-        "update_date": "10.07.2024"
-      },
-      {
-        "id": 4,
-        "key": 4,
-        "title": "Zıpzıp Algoritması Yenilenecek",
-        "description": "Zıpzıp cihazının sporcunun havada kalma süresini hesaplayan algoritma yenilenecek.",
-        "category": "Zıpzıp",
-        "status": "İşlemde",
-        "priority": "Düşük",
-        "progress": 10,
-        "start_date": "25.06.2024",
-        "estimated_end_date": "15.07.2024",
-        "complete_date": "",
-        "added_date": "09.06.2024",
-        "update_date": "10.07.2024"
+const Tasks = ({ userId, userRole, data, onEditTask }) => {
+  const [expandedRowKey, setExpandedRowKey] = useState(null);
+  const [expandedRowData, setExpandedRowData] = useState(null);
+  const rowRefs = useRef({});
+
+  const handleExpand = (expanded, record) => {
+    if (expanded) {
+      setExpandedRowKey(record.id);
+      setExpandedRowData(record);
+
+      setTimeout(() => {
+        const rowElement = rowRefs.current[record.id];
+        if (rowElement) {
+          rowElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 0);
+
+    } else {
+      // Eğer collapse ediliyorsa ve başka bir satır expand edilmiyorsa state'i sıfırla
+      if (expandedRowKey === record.id) {
+        setExpandedRowKey(null);
+        setExpandedRowData(null);
+    }
+  };
       }
-    ];
+
     const user_id = 2;
 
     const columns = [
@@ -121,7 +85,7 @@ const Tasks = () => {
         {
           title: 'Tahmini Bitiş Tarihi',
           align: 'center',
-          dataIndex: 'estimated_end_date',
+          dataIndex: 'estimatedFinishDate',
           defaultSortOrder: 'descend',
         },
         {
@@ -220,12 +184,25 @@ const Tasks = () => {
             align: 'center',
             dataIndex: '',
             key: 'x',
-            render: () =>
-            <Space>
-              <a><EditTwoTone twoToneColor="#3F72AF"/></a>
-              <Divider type="vertical" />
-              <a onClick={showTaskDeleteConfirm}><DeleteTwoTone twoToneColor="#3F72AF"/></a>
-            </Space>,
+            render: (text, record) => {
+              const canDelete = ((userId === record.addedUser.user.id) || (userRole === "Admin"));
+
+              if (canDelete) {
+                return (
+                  <Space>
+                    <Button type="text" shape="circle" onClick={() => onEditTask(record)}><EditTwoTone twoToneColor="#3F72AF"/></Button>
+                    <Divider type="vertical" />
+                    <Button type="text" shape="circle" onClick={() => onDeleteTask(record)}><DeleteTwoTone twoToneColor="#3F72AF"/></Button>
+                  </Space>);
+              } else {
+                return (
+                  <Space>
+                    <Button type="text" shape="circle" onClick={() => onEditTask(record)}><EditTwoTone twoToneColor="#3F72AF"/></Button>
+                    <Divider type="vertical" />
+                    <Button style={{cursor: 'default', visible: 'none'}} type="link" shape="circle"></Button>
+                  </Space>);
+              };
+            }
           },
       ];
         
@@ -248,11 +225,17 @@ const Tasks = () => {
             target: 'sorter-icon',
             }}
             expandable={{
-                expandedRowRender: (record) => (
-                  <DetailCard />
-                )
+              expandedRowRender: (record) => (
+              <div ref={(el) => (rowRefs.current[record.id] = el)}>
+                <DetailCard
+                  data={expandedRowData && expandedRowData.id === record.id ? expandedRowData : ''}
+                /></div>
+              ),
+              onExpand: handleExpand,
+              expandedRowKeys: expandedRowKey ? [expandedRowKey] : [],
             }}
-            dataSource={tasks}
+            dataSource={data}
+            rowKey='id'
             rowClassName={(record, index) => (index % 2 === 1 ? 'striped-row' : '')}
         />
     );
