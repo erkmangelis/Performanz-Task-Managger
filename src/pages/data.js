@@ -25,7 +25,8 @@ export const data = {
         }
       },
       "addedDate": "10.08.2024",
-      "estimatedCompleteDate": "18.08.2024",
+      "startDate": "12.08.2024",
+      "estimatedCompleteDate": "15.08.2024",
       "completeDate": "19.08.2024",
       "updateDate": "14.08.2024",
       "comments": [
@@ -82,9 +83,10 @@ export const data = {
         }
       },
       "addedDate": "10.08.2024",
-      "estimatedCompleteDate": "18.08.2024",
+      "startDate": "10.08.2024",
+      "estimatedCompleteDate": "13.08.2024",
       "completeDate": "19.08.2024",
-      "updateDate": "14.08.2024",
+      "updateDate": "13.08.2024",
       "comments": [
         {
           "user": {
@@ -139,9 +141,10 @@ export const data = {
         }
       },
       "addedDate": "10.08.2024",
+      "startDate": "13.08.2024",
       "estimatedCompleteDate": "16.08.2024",
-      "completeDate": "14.08.2024",
-      "updateDate": "14.08.2024",
+      "completeDate": "15.08.2024",
+      "updateDate": "15.08.2024",
       "comments": [
         {
           "user": {
@@ -177,15 +180,16 @@ export const data = {
       "progress": 0,
       "addedUser": {
         "user": {
-          "id": 2,
-          "role": "User",
-          "name": "Erkman",
-          "surname": "Geliş",
-          "url": "https://api.dicebear.com/7.x/miniavs/svg?seed=$10"
+          "id": 1,
+          "role": "Admin",
+          "name": "Okan",
+          "surname": "Eştürk",
+          "url": "https://api.dicebear.com/7.x/miniavs/svg?seed=$2"
         }
       },
       "addedDate": "10.08.2024",
-      "estimatedCompleteDate": "18.08.2024",
+      "startDate": "10.08.2024",
+      "estimatedCompleteDate": "20.08.2024",
       "completeDate": "19.08.2024",
       "updateDate": "14.08.2024",
       "comments": [

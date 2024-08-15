@@ -1,6 +1,8 @@
 import React, { useState, useEffect, memo } from 'react';
-import { Card, Col, Row, Avatar, List, Button, Drawer, theme, Input, Modal } from 'antd';
+import { Card, Col, Row, Avatar, List, Button, Drawer, theme, Input, Modal, Tag } from 'antd';
 import { DeleteOutlined, ClockCircleOutlined, CloseOutlined, CommentOutlined, PlusOutlined, ExclamationCircleFilled } from '@ant-design/icons';
+import moment from 'moment';
+
 
 const { confirm } = Modal;
 
@@ -21,7 +23,7 @@ const commentData = [
 
 const { TextArea } = Input;
 
-const DetailCard = memo(({ data }) => {
+const DetailCard = memo(({ isCompleted, userId, userRole, data }) => {
   const [commentList, setCommentList] = useState(data.comments);
 
   const onDeleteComment = (comment) => {
@@ -58,6 +60,36 @@ const DetailCard = memo(({ data }) => {
     setCommentList(prevComments => prevComments.filter(comment => comment.id !== commentId));
   };
 
+  const leftTime = (targetDate) => {
+
+    if (data.progress != 100) {
+      const date1 = moment(data.estimatedCompleteDate, 'DD.MM.YYYY').endOf('day');
+      const date2 = moment(moment(), 'DD.MM.YYYY').endOf('day');
+      const diffDays = date1.diff(date2, 'days');
+      if (diffDays > 0) {
+        console.log(diffDays);
+        return <span><Tag color='#88D66C'>{diffDays} gün kaldı <ClockCircleOutlined style={{ marginLeft: '6px' }} /></Tag></span>;
+      } else if (diffDays < 0) {
+        return <span><Tag color='#F94A29'>{Math.abs(diffDays)} gün geçti <ClockCircleOutlined style={{ marginLeft: '6px' }} /></Tag></span>;
+      } else {
+        return <span><Tag color='#ff8812'>Bugün <ClockCircleOutlined style={{ marginLeft: '6px' }} /></Tag></span>;
+      }
+    } else {
+      const date1 = moment(data.estimatedCompleteDate, 'DD.MM.YYYY').endOf('day');
+      const date2 = moment(data.completeDate, 'DD.MM.YYYY').endOf('day');
+      const diffDays = date1.diff(date2, 'days');
+      if (diffDays > 0) {
+        return <span><Tag color='#88D66C'>{diffDays} gün erken bitti <ClockCircleOutlined style={{ marginLeft: '6px' }} /></Tag></span>;
+      } else if (diffDays < 0) {
+        return <span><Tag color='#F94A29'>{Math.abs(diffDays)} gün geç bitti <ClockCircleOutlined style={{ marginLeft: '6px' }} /></Tag></span>;
+      } else {
+        return <span><Tag color='#ff8812'>Bugün bitti <ClockCircleOutlined style={{ marginLeft: '6px' }} /></Tag></span>;
+      }
+    }
+  };
+
+  const estimatedFinishDate = leftTime(data.estimatedCompleteDate);
+
   const [value, setValue] = useState('');
 
   // Drawwer
@@ -73,7 +105,16 @@ const DetailCard = memo(({ data }) => {
     return (
       <Row gutter={5} style={{ margin: '0px', padding: '0px'}}>
         <Col span={10}>
-          <Card title="Detaylar" bordered={false} style={{ color: 'white', minHeight: '100%' }} extra={<span>2 Gün<ClockCircleOutlined style={{marginLeft: '4px'}}/></span>} actions={[<span>Eklenme: {data.addedDate}</span>, <span>Güncellenme: {data.updateDate}</span>]}>
+          <Card
+            title="Detaylar"
+            bordered={false}
+            style={{ color: 'white', minHeight: '100%' }}
+            extra={estimatedFinishDate}
+            actions={[
+              <span key="addedDate">Eklenme: {data.addedDate}</span>,
+              <span key="updateDate">Güncellenme: {data.updateDate}</span>
+            ]}
+          >
             <Card.Meta 
               style={{ height: '150px' }}
               description={<span style={{ color: 'black'}}>{data.description}</span>}
@@ -106,11 +147,15 @@ const DetailCard = memo(({ data }) => {
             headerbg="#ff7d06"
             renderItem={(comment, index) => (
               <List.Item
-                actions={[<a onClick={() => onDeleteComment(comment)} key={comment.id}><DeleteOutlined/></a>]}
+                actions={
+                  (!isCompleted && (userId === comment.user.id) || (userRole === 'Admin'))
+                    ? [<a onClick={() => onDeleteComment(comment)} key={comment.id}><DeleteOutlined /></a>]
+                    : []
+              }
               >
                 <List.Item.Meta
                   avatar={<Avatar src={comment.user.url} />}
-                  title={comment.user.name + " " +comment.user.surname}
+                  title={comment.user.name + " " + comment.user.surname}
                   description={comment.content}
                 />
               </List.Item>

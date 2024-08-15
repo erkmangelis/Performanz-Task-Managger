@@ -51,9 +51,9 @@ const HomePage = () => {
         }}
       >
         <div className='user'>
-          <Space align="baseline" size={16}>
-            <Avatar size='large' icon={<UserOutlined />} />
-            <h6 style={{ color: 'white', fontWeight: '500' }}>Erkman Geliş</h6>
+          <Space align="baseline" size={10}>
+            <Avatar shape='square' style={{ backgroundColor: '#78bf9b', verticalAlign: 'middle', marginTop: '-5px'}} size='large' icon={<UserOutlined />} src={data.user.url}>{data.user.name}</Avatar>
+            <h6 style={{ color: 'white', fontWeight: '500' }}>{data.user.name} {data.user.surname}</h6>
           </Space>
         </div>
         <div className='taskAdd'>
@@ -72,7 +72,7 @@ const HomePage = () => {
           overflow: 'hidden', // İçeriğin taşmaması için
         }}
       >
-        <TaskModal onOpen={taskModalVisible} task={editingTask} onClose={handleCloseModal} />
+        <TaskModal user={data.user} onOpen={taskModalVisible} task={editingTask} onClose={handleCloseModal} />
         <div
           className='main-table'
           style={{
