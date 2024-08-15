@@ -1,5 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useRef, useState } from 'react';
 import { Table, Space, Tag, Progress, Modal, Divider, Button, Avatar } from 'antd';
 import { EditTwoTone, DeleteTwoTone, FlagFilled, ExclamationCircleFilled } from '@ant-design/icons';
 import DetailCard from './DetailCard';
@@ -52,7 +51,6 @@ const Tasks = ({ userId, userRole, data, onEditTask }) => {
   };
       }
 
-    const user_id = 2;
 
     const columns = [
       {
@@ -86,7 +84,6 @@ const Tasks = ({ userId, userRole, data, onEditTask }) => {
         title: 'Tahmini Bitiş Tarihi',
         align: 'center',
         dataIndex: 'estimatedCompleteDate',
-        defaultSortOrder: 'descend',
         sorter: (a, b) => {
           const dateFormat = 'DD.MM.YYYY';
           return moment(a.estimatedCompleteDate, dateFormat).diff(moment(b.estimatedCompleteDate, dateFormat));

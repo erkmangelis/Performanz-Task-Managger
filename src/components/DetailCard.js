@@ -1,25 +1,10 @@
-import React, { useState, useEffect, memo } from 'react';
-import { Card, Col, Row, Avatar, List, Button, Drawer, theme, Input, Modal, Tag } from 'antd';
+import React, { useState, memo } from 'react';
+import { Card, Col, Row, Avatar, List, Button, Drawer, Input, Modal, Tag } from 'antd';
 import { DeleteOutlined, ClockCircleOutlined, CloseOutlined, CommentOutlined, PlusOutlined, ExclamationCircleFilled } from '@ant-design/icons';
 import moment from 'moment';
 
 
 const { confirm } = Modal;
-
-const commentData = [
-  {
-    title: 'Ant Design Title 1',
-  },
-  {
-    title: 'Ant Design Title 2',
-  },
-  {
-    title: 'Ant Design Title 3',
-  },
-  {
-    title: 'Ant Design Title 4',
-  },
-];
 
 const { TextArea } = Input;
 
@@ -62,7 +47,7 @@ const DetailCard = memo(({ isCompleted, userId, userRole, data }) => {
 
   const leftTime = (targetDate) => {
 
-    if (data.progress != 100) {
+    if (data.progress !== 100) {
       const date1 = moment(data.estimatedCompleteDate, 'DD.MM.YYYY').endOf('day');
       const date2 = moment(moment(), 'DD.MM.YYYY').endOf('day');
       const diffDays = date1.diff(date2, 'days');
@@ -93,7 +78,6 @@ const DetailCard = memo(({ isCompleted, userId, userRole, data }) => {
   const [value, setValue] = useState('');
 
   // Drawwer
-  const { token } = theme.useToken();
   const [open, setOpen] = useState(false);
   const showDrawer = () => {
     setOpen(true);
@@ -148,8 +132,8 @@ const DetailCard = memo(({ isCompleted, userId, userRole, data }) => {
             renderItem={(comment, index) => (
               <List.Item
                 actions={
-                  (!isCompleted && (userId === comment.user.id) || (userRole === 'Admin'))
-                    ? [<a onClick={() => onDeleteComment(comment)} key={comment.id}><DeleteOutlined /></a>]
+                  (!isCompleted && ((userId === comment.user.id) || (userRole === 'Admin')))
+                    ? [<Button type="text" shape="circle" onClick={() => onDeleteComment(comment)} key={comment.id}><DeleteOutlined /></Button>]
                     : []
               }
               >

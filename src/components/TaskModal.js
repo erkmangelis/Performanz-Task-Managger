@@ -10,7 +10,6 @@ const { Option } = Select;
 
 const TaskModal = ({ user, onOpen, task, onClose }) => {
     const [form] = Form.useForm();
-    console.log(user.name);
     useEffect(() => {
         if (task) {
             task.dateRange = [moment(task.startDate, "DD.MM.YYYY"), moment(task.estimatedCompleteDate, "DD.MM.YYYY")];

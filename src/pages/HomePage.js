@@ -41,7 +41,6 @@ const HomePage = () => {
     <Layout style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Header
         style={{
-          backgroundColor: '#ff7d06',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -53,14 +52,14 @@ const HomePage = () => {
         <div className='user'>
           <Space align="baseline" size={10}>
             <Avatar shape='square' style={{ backgroundColor: '#78bf9b', verticalAlign: 'middle', marginTop: '-5px'}} size='large' icon={<UserOutlined />} src={data.user.url}>{data.user.name}</Avatar>
-            <h6 style={{ color: 'white', fontWeight: '500' }}>{data.user.name} {data.user.surname}</h6>
+            <h1 style={{ color: 'white', fontWeight: '500', fontSize: '16px' }}>{data.user.name} {data.user.surname}</h1>
           </Space>
         </div>
         <div className='taskAdd'>
-          <Button size="large" type="text" style={{ color: 'white', fontWeight: '500'}} onClick={handleAddTask}>Görev Ekle <FileAddOutlined /></Button>
+          <Button size="large" type="text" style={{ color: 'white', fontWeight: '500', fontSize: '16px'}} onClick={handleAddTask}>Görev Ekle <FileAddOutlined /></Button>
         </div>
         <div className='logout'>
-          <Button size="large" type="text" style={{ color: 'white', fontWeight: '500'}}>Çıkış Yap <LogoutOutlined /></Button>
+          <Button size="large" type="text" style={{ color: 'white', fontWeight: '500', fontSize: '16px' }}>Çıkış Yap <LogoutOutlined /></Button>
         </div>
       </Header>
       <Content
