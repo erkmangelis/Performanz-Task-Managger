@@ -1,12 +1,42 @@
 import React from 'react';
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
-import { Button, Form, Input, Row, Col, Card } from 'antd';
+import { Button, Form, Input, Row, Col, Card, message } from 'antd';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const LoginPage = () => {
     const [form] = Form.useForm();
+    const navigate = useNavigate();
 
-    const onFinish = (values) => {
-        console.log('Success:', values);
+    const onFinish = async (values) => {
+        
+        try {
+            // DENEME
+            let user;
+            if (values.username === "erkman" && values.password === "123") {
+                user = { "id": 2, "username": "erkman", "name": "Erkman", "surname": "Geliş", "url": "https://api.dicebear.com/7.x/miniavs/svg?seed=$10", "role": "User"};
+              } else if (values.username === "okan" && values.password === "123") {
+                user = { "id": 1, "username": "okan", "name": "Okan", "surname": "Eştürk", "url": "https://api.dicebear.com/7.x/miniavs/svg?seed=$2", "role": "Admin"};
+              }
+            if (user) {localStorage.setItem("user", JSON.stringify(user));
+            navigate('/');}
+
+            // API
+            // const response = await axios.post('/api/login', values);
+
+            // if (response.status === 200) {
+            //     const { id, username, name, surname, url, role } = response.data.user;
+            //     localStorage.setItem('user', JSON.stringify({ id, username, name, surname, url, role }));
+
+            //     navigate('/');
+            // }
+        } catch (error) {
+            if (error.response) {
+                message.error(error.response.data.message || 'Giriş başarısız.');
+            } else {
+                message.error('Bir hata oluştu. Lütfen tekrar deneyin.');
+            }
+        }
     };
 
     const onFinishFailed = (errorInfo) => {

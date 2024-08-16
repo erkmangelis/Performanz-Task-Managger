@@ -2,14 +2,16 @@ import React, { useState, memo } from 'react';
 import { Card, Col, Row, Avatar, List, Button, Drawer, Input, Modal, Tag } from 'antd';
 import { DeleteOutlined, ClockCircleOutlined, CloseOutlined, CommentOutlined, PlusOutlined, ExclamationCircleFilled } from '@ant-design/icons';
 import moment from 'moment';
+import { useUser } from '../contexts/UserContext';
 
 
 const { confirm } = Modal;
 
 const { TextArea } = Input;
 
-const DetailCard = memo(({ isCompleted, userId, userRole, data }) => {
+const DetailCard = memo(({ isCompleted, data }) => {
   const [commentList, setCommentList] = useState(data.comments);
+  const user = useUser();
 
   const onDeleteComment = (comment) => {
     confirm({
@@ -132,7 +134,7 @@ const DetailCard = memo(({ isCompleted, userId, userRole, data }) => {
             renderItem={(comment, index) => (
               <List.Item
                 actions={
-                  (!isCompleted && ((userId === comment.user.id) || (userRole === 'Admin')))
+                  (!isCompleted && ((user.id === comment.user.id) || (user.role === 'Admin')))
                     ? [<Button type="text" shape="circle" onClick={() => onDeleteComment(comment)} key={comment.id}><DeleteOutlined /></Button>]
                     : []
               }

@@ -4,31 +4,35 @@ import { EditTwoTone, DeleteTwoTone, FlagFilled, ExclamationCircleFilled } from 
 import DetailCard from './DetailCard';
 import './tasks.css'
 import moment from 'moment';
+import { useUser } from '../contexts/UserContext';
+import { PRIORITY, STATUS } from '../config/Config.js';
 
 
 const { confirm } = Modal;
 
-const onDeleteTask = (record) => {
-  confirm({
-    title: 'Görevi silmek istiyor musun?',
-    icon: <ExclamationCircleFilled />,
-    content: <span>{record.title}</span>,
-    okText: 'Evet',
-    okType: 'danger',
-    cancelText: 'Hayır',
-    onOk() {
-      console.log('OK');
-    },
-    onCancel() {
-      console.log('Cancel');
-    },
-  });
-};
-
-const Tasks = ({ userId, userRole, data, onEditTask }) => {
+const Tasks = ({ tasks, onEditTask, addTask, updateTask, deleteTask}) => {
   const [expandedRowKey, setExpandedRowKey] = useState(null);
   const [expandedRowData, setExpandedRowData] = useState(null);
   const rowRefs = useRef({});
+  const user = useUser();
+  
+  const handleDeleteTask = (record) => {
+    confirm({
+      title: 'Görevi silmek istiyor musun?',
+      icon: <ExclamationCircleFilled />,
+      content: <span>{record.title}</span>,
+      okText: 'Evet',
+      okType: 'danger',
+      cancelText: 'Hayır',
+      onOk() {
+        console.log('OK');
+        deleteTask(record.id);
+      },
+      onCancel() {
+        console.log('Cancel');
+      },
+    });
+  };
 
   const handleExpand = (expanded, record) => {
     if (expanded) {
@@ -87,7 +91,7 @@ const Tasks = ({ userId, userRole, data, onEditTask }) => {
         sorter: (a, b) => {
           const dateFormat = 'DD.MM.YYYY';
           return moment(a.estimatedCompleteDate, dateFormat).diff(moment(b.estimatedCompleteDate, dateFormat));
-        }
+        },
       },
       {
         title: 'Durum',
@@ -111,21 +115,21 @@ const Tasks = ({ userId, userRole, data, onEditTask }) => {
             value: 'Tamamlandı',
           },
         ],
-        onFilter: (value, record) => record.status.indexOf(value) === 0,
-        render: (text) => {
+        onFilter: (value, record) => STATUS[record.status].indexOf(value) === 0,
+        render: (i) => {
           let color;
-    
-          if (text === 'Beklemede') {
+
+          if (STATUS[i] === "Beklemede") {
             color = '#FFEA20';
-          } else if (text === 'Ertelendi') {
+          } else if (STATUS[i] === 'Ertelendi') {
             color = '#F94A29';
-          } else if (text === 'İşlemde') {
+          } else if (STATUS[i] === 'İşlemde') {
             color = '#008DDA';
-          } else if (text === 'Tamamlandı') {
+          } else if (STATUS[i] === 'Tamamlandı') {
             color = '#88D66C';
           }
     
-          return <Tag color={color}>{text}</Tag>;
+          return <Tag color={color}>{STATUS[i]}</Tag>;
         },
       },
       {
@@ -146,21 +150,21 @@ const Tasks = ({ userId, userRole, data, onEditTask }) => {
             value: 'Yüksek',
           },
         ],
-        onFilter: (value, record) => record.priority.indexOf(value) === 0,
-        render: (text) => {
+        onFilter: (value, record) => PRIORITY[record.priority].indexOf(value) === 0,
+        render: (i) => {
           let color;
     
-          if (text === 'Düşük') {
+          if (PRIORITY[i] === 'Düşük') {
             color = 'warning';
-          } else if (text === 'Orta') {
+          } else if (PRIORITY[i]=== 'Orta') {
             color = 'orange';
-          } else if (text === 'Yüksek') {
+          } else if (PRIORITY[i] === 'Yüksek') {
             color = 'volcano';
           }
     
           return (
             <Tag color={color}>
-              <FlagFilled style={{ marginRight: '5px' }} /> {text}
+              <FlagFilled style={{ marginRight: '5px' }} /> {PRIORITY[i]}
             </Tag>
           );
         },
@@ -179,9 +183,19 @@ const Tasks = ({ userId, userRole, data, onEditTask }) => {
       {
         title: 'Ekleyen',
         align: 'center',
-        dataIndex: 'addedUser',
-        render: (text) => (
-          <Avatar style={{ backgroundColor: '#78bf9b', verticalAlign: 'middle'}} size='large' src={text.user.url}>{text.user.name}</Avatar>
+        dataIndex: 'creator',
+        render: (item) => (
+          <Avatar style={{ backgroundColor: '#78bf9b', verticalAlign: 'middle'}} size='large' src={item.url}>{item.name}</Avatar>
+        ),
+      },
+      {
+        title: 'Görev Sahibi',
+        align: 'center',
+        dataIndex: 'owners',
+        render: (owners) => (
+          <div>
+            
+          </div>
         ),
       },
       {
@@ -190,7 +204,7 @@ const Tasks = ({ userId, userRole, data, onEditTask }) => {
         dataIndex: '',
         key: 'x',
         render: (text, record) => {
-          const canDelete = (userId === record.addedUser.user.id) || (userRole === 'Admin');
+          const canDelete = true;
     
           if (record.progress !== 100) {
             return (
@@ -202,7 +216,7 @@ const Tasks = ({ userId, userRole, data, onEditTask }) => {
                 <Divider type="vertical" />
     
                 {canDelete ? (
-                  <Button type="text" shape="circle" onClick={() => onDeleteTask(record)}>
+                  <Button type="text" shape="circle" onClick={() => handleDeleteTask(record)}>
                     <DeleteTwoTone twoToneColor="#3F72AF" />
                   </Button>
                 ) : (
@@ -240,8 +254,6 @@ const Tasks = ({ userId, userRole, data, onEditTask }) => {
               expandedRowRender: (record) => (
               <div ref={(el) => (rowRefs.current[record.id] = el)}>
                 <DetailCard
-                  userId={userId}
-                  userRole={userRole}
                   isCompleted={record.progress === 100}
                   data={expandedRowData && expandedRowData.id === record.id ? expandedRowData : ''}
                 /></div>
@@ -249,7 +261,7 @@ const Tasks = ({ userId, userRole, data, onEditTask }) => {
               onExpand: handleExpand,
               expandedRowKeys: expandedRowKey ? [expandedRowKey] : [],
             }}
-            dataSource={data}
+            dataSource={tasks}
             rowKey='id'
             rowClassName={(record, index) => (index % 2 === 1 ? 'striped-row' : '')}
         />
