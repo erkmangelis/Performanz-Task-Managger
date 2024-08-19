@@ -7,8 +7,8 @@ export const PRIORITY = {
 };
 
 export const STATUS = {
-    "1": "Ertelendi", 
-    "2": "İşlemde",
-    "3": "Beklemede",
-    "4": "Tamamlandı"
+    1: "Ertelendi", 
+    2: "İşlemde",
+    3: "Beklemede",
+    4: "Tamamlandı"
 };

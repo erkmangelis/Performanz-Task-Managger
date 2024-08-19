@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { useUser } from '../contexts/UserContext';
 import axios from 'axios';
 import { API_URL } from '../config/Config.js';
+import moment from 'moment';
 
 
 const { Header, Content } = Layout;
@@ -47,31 +48,68 @@ const HomePage = () => {
   //////////////////////////////////////////
   
   /////////////// Add Tasks ///////////////
-  const addTask = (newTask) => {
-    axios.post('/api/tasks', newTask, {
-      headers: {
-        Authorization: `Bearer ${user.token}`
-      }
-    })
-    .then(response => {
-      setTasks(prevTasks => [...prevTasks, response.data]);
-    })
-    .catch(error => {
-      console.error('Görev ekleme başarısız:', error);
-    });
-  };
+  const handleSaveTask = (task) => {
+    if (task.id) {
+        // Update existing task
+        console.log(task);
+        const newData = {
+          "id": task.id,
+          "title": task.title,
+          "description": task.description,
+          "priority": 1,
+          "status": 1,
+          "progress": task.progress,
 
-  /////////////// Update Tasks ///////////////
-  const updateTask = (updatedTask) => {
-    axios.put(`/api/tasks/${updatedTask.id}`, updatedTask)
-      .then(response => {
-        setTasks(prevTasks => prevTasks.map(task =>
-          task.id === updatedTask.id ? response.data : task
-        ));
-      })
-      .catch(error => {
-        console.error('Görev güncelleme başarısız:', error);
-      });
+          "createdByUserId": task.createdByUser.id,
+          "createdByUser": {
+            "id": 1,
+            "role": task.createdByUser.role,
+            "name": task.createdByUser.name,
+            "surname": task.createdByUser.surname,
+            "url": task.createdByUser.url,
+            "password": "123",
+            "username": "erkman"
+          }
+        }
+
+        axios.put(API_URL+`TaskItems/${task.id}`, newData)
+            .then(response => {
+                setTasks(prevTasks => 
+                    prevTasks.map(t => t.id === newData.id ? task : t)
+                );
+            })
+            .catch(error => {
+                console.error('Error updating task:', error);
+            });
+    } else {
+        // Create new task
+        const newData = {
+          "title": "Task Deneme",
+          "description": "Task deneme description",
+          "priority": 1,
+          "status": 1,
+          "progress": 100,
+
+          "createdByUserId": 3,
+          "createdByUser": {
+            "id": 3,
+            "role": 2,
+            "name": "Erkman",
+            "surname": "Geliş",
+            "url": "asd",
+            "password": "123",
+            "username": "erkman"
+          }
+        }
+
+        axios.post(API_URL+'TaskItems', newData)
+            .then(response => {
+                setTasks(prevTasks => [...prevTasks, task]);
+            })
+            .catch(error => {
+                console.error('Error creating task:', error);
+            });
+    }
   };
 
   /////////////// Delete Tasks ///////////////
@@ -93,22 +131,18 @@ const HomePage = () => {
   const [taskModalVisible, setTaskModalVisible] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
 
-  // Görev Ekle butonuna basıldığında çalışacak fonksiyon
   const handleAddTask = () => {
-    setEditingTask(null); // Yeni görev için formu boş başlat
-    setTaskModalVisible(true); // Modal'ı aç
+    setEditingTask(null);
+    setTaskModalVisible(true);
   };
 
-  // Düzenleme butonuna basıldığında çalışacak fonksiyon
   const handleEditTask = (task) => {
-    setEditingTask(task); // Düzenlenecek görev verisini ayarla
-    setTaskModalVisible(true); // Modal'ı aç
+    setEditingTask(task);
+    setTaskModalVisible(true);
   };
 
-  // Modal'ı kapatma fonksiyonu
   const handleCloseModal = () => {
     setTaskModalVisible(false);
-    setEditingTask(null);
   };
   //////////////////////////////////////////
 
@@ -154,6 +188,7 @@ const HomePage = () => {
           onOpen={taskModalVisible}
           task={editingTask}
           onClose={handleCloseModal}
+          onSave={handleSaveTask}
         />
         <div
           className='main-table'
@@ -167,8 +202,6 @@ const HomePage = () => {
           <Tasks 
             tasks={tasks}
             onEditTask={handleEditTask}
-            addTask={addTask}
-            updateTask={updateTask}
             deleteTask={deleteTask}
           /> )}
         </div>

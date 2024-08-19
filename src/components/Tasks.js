@@ -10,7 +10,7 @@ import { PRIORITY, STATUS } from '../config/Config.js';
 
 const { confirm } = Modal;
 
-const Tasks = ({ tasks, onEditTask, addTask, updateTask, deleteTask}) => {
+const Tasks = ({ tasks, onEditTask, deleteTask}) => {
   const [expandedRowKey, setExpandedRowKey] = useState(null);
   const [expandedRowData, setExpandedRowData] = useState(null);
   const rowRefs = useRef({});
@@ -185,16 +185,27 @@ const Tasks = ({ tasks, onEditTask, addTask, updateTask, deleteTask}) => {
         align: 'center',
         dataIndex: 'creator',
         render: (item) => (
-          <Avatar style={{ backgroundColor: '#78bf9b', verticalAlign: 'middle'}} size='large' src={item.url}>{item.name}</Avatar>
+          <Avatar style={{ backgroundColor: '#78bf9b', verticalAlign: 'middle'}} size='large' src={"item.url"}>{"item.name"}</Avatar>
         ),
       },
       {
         title: 'Görev Sahibi',
         align: 'center',
         dataIndex: 'owners',
-        render: (owners) => (
+        render: (items) => (
           <div>
-            
+            {items && items.length > 0 ? (
+              items.map((item, index) => (
+                <Avatar
+                  key={index}
+                  style={{ backgroundColor: '#78bf9b', verticalAlign: 'middle' }}
+                  size='large'
+                  src={item.url}
+                >
+                  {item.name}
+                </Avatar>
+              ))
+            ) : ''} 
           </div>
         ),
       },

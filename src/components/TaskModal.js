@@ -20,7 +20,12 @@ const TaskModal = ({ onOpen, task, onClose, onSave }) => {
             let holder = [task.status, task.priority];
             task.status = STATUS[task.status];
             task.priority = PRIORITY[task.priority];
-            task.dateRange = [moment(task.startDate, "DD.MM.YYYY"), moment(task.estimatedCompleteDate, "DD.MM.YYYY")];
+            if (task.startDate && task.estimatedCompleteDate) {
+                task.dateRange = [
+                    moment(task.startDate, 'DD.MM.YYYY'), 
+                    moment(task.estimatedCompleteDate, 'DD.MM.YYYY')
+                  ];
+            }
             form.setFieldsValue(task);
             task.status = holder[0];
             task.priority = holder[1];
@@ -30,25 +35,23 @@ const TaskModal = ({ onOpen, task, onClose, onSave }) => {
     }, [task, form]);
 
     const handleOk = () => {
-        
+        let newTask = task;
         form.validateFields()
           .then(values => {
             const newTask = {
+                ...task,
               title: values.title,
               description: values.description,
-              //category: values.category,
-              priority: values.priority,
-              status: values.status,
+              category: values.category,
+              priority: Number(values.priority),
+              status: Number(values.status),
               progress: values.progress,
               startDate: values.dateRange[0].format("DD.MM.YYYY"),
               estimatedCompleteDate: values.dateRange[1].format("DD.MM.YYYY"),
             };
 
-            if (task) {
-                newTask.id = task.id;
-            };
-            //onSave(newTask);
-            console.log(newTask)
+            onSave(newTask);
+            console.log("Editlenmiş Task: ", newTask);
             onClose();
             form.resetFields();
           })
@@ -75,7 +78,7 @@ const TaskModal = ({ onOpen, task, onClose, onSave }) => {
                     }}>
 
                     <span>{task ? "Görevi Düzenle" : "Görev Oluştur"}</span>
-                    <Select mode="multiple" defaultValue={user.role !== "Admin" ? [user.name] : []} disabled={(task !==null || user.role !== "Admin")} style={{ width: 250, marginRight: '40px' }}>
+                    <Select name="deneme" mode="multiple" defaultValue={user.role !== "Admin" ? [user.name] : []} disabled={(task !==null || user.role !== "Admin")} style={{ width: 250, marginRight: '40px' }}>
                         <Option value="erkman">Erkman</Option>
                         <Option value="onur">Onur</Option>
                         <Option value="iliya">İliya</Option>
@@ -90,8 +93,8 @@ const TaskModal = ({ onOpen, task, onClose, onSave }) => {
                 requiredMark={false}
                 initialValues={{
                     progress: 0,
-                    priority: 'Orta',
-                    status: 'İşlemde',
+                    priority: 2,
+                    status: 2,
                   }}
             >
 
@@ -117,18 +120,27 @@ const TaskModal = ({ onOpen, task, onClose, onSave }) => {
                 </Form.Item>
           
                 <Row gutter={16}>
-                    <Col span={12}>
+                    <Col span={8}>
+                        <Form.Item label="Kategori" name="category">
+                            <Select>
+                                <Option value="1">Zıpzıp</Option>
+                                <Option value="2">Web Panel</Option>
+                                <Option value="3">Spark</Option>
+                            </Select>
+                        </Form.Item>
+                    </Col>
+                    <Col span={8}>
                         <Form.Item label="Öncelik" name="priority">
-                            <Select defaultValue="Orta">
+                            <Select>
                                 <Option value="1">Düşük</Option>
                                 <Option value="2">Orta</Option>
                                 <Option value="3">Yüksek</Option>
                             </Select>
                         </Form.Item>
                     </Col>
-                    <Col span={12}>
+                    <Col span={8}>
                         <Form.Item label="Durum" name="status">
-                            <Select defaultValue="İşlemde">
+                            <Select>
                                 <Option value="1">Ertelendi</Option>
                                 <Option value="3">Beklemede</Option>
                                 <Option value="2">İşlemde</Option>

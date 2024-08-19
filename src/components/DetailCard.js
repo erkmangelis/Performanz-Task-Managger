@@ -2,7 +2,9 @@ import React, { useState, memo } from 'react';
 import { Card, Col, Row, Avatar, List, Button, Drawer, Input, Modal, Tag } from 'antd';
 import { DeleteOutlined, ClockCircleOutlined, CloseOutlined, CommentOutlined, PlusOutlined, ExclamationCircleFilled } from '@ant-design/icons';
 import moment from 'moment';
+import 'moment/locale/tr'; 
 import { useUser } from '../contexts/UserContext';
+
 
 
 const { confirm } = Modal;
@@ -10,6 +12,7 @@ const { confirm } = Modal;
 const { TextArea } = Input;
 
 const DetailCard = memo(({ isCompleted, data }) => {
+  moment.locale('tr');
   const [commentList, setCommentList] = useState(data.comments);
   const user = useUser();
 
@@ -97,8 +100,8 @@ const DetailCard = memo(({ isCompleted, data }) => {
             style={{ color: 'white', minHeight: '100%' }}
             extra={estimatedFinishDate}
             actions={[
-              <span key="addedDate">Eklenme: {data.addedDate}</span>,
-              <span key="updateDate">Güncellenme: {data.updateDate}</span>
+              <span key="addedDate">Eklenme: {moment(data.addedDate).format('DD MMMM YY, HH:mm')}</span>,
+              <span key="updateDate">Güncellenme: {moment(data.updateDate).format('DD MMMM YY, HH:mm')}</span>
             ]}
           >
             <Card.Meta 
