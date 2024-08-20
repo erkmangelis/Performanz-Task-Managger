@@ -29,10 +29,11 @@ const HomePage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [tasks, setTasks] = useState([]);
+  const [categories, setCategories] = useState([]);
 
   useEffect(() => {
     if (user) {
-      axios.get(API_URL+`TaskItems`)
+      axios.get(user.role === 1 ? (API_URL+'TaskItems') : (API_URL+'TaskItems/ByUserId/'+user.id))
         .then(response => {
           console.log(response.data);
           setTasks(response.data);
@@ -42,6 +43,15 @@ const HomePage = () => {
           console.error('API isteği başarısız:', error);
           setError(error);
           setLoading(false);
+        });
+
+        axios.get(API_URL+'Categories')
+        .then(response => {
+          console.log(response.data);
+          setCategories(response.data);
+        })
+        .catch(error => {
+          console.error('API isteği başarısız:', error);
         });
     }
   }, [user]);
@@ -200,6 +210,7 @@ const HomePage = () => {
         >
           {!loading && !error && (
           <Tasks 
+            categories={categories}
             tasks={tasks}
             onEditTask={handleEditTask}
             deleteTask={deleteTask}

@@ -13,7 +13,7 @@ const { TextArea } = Input;
 
 const DetailCard = memo(({ isCompleted, data }) => {
   moment.locale('tr');
-  const [commentList, setCommentList] = useState(data.comments);
+  const [commentList, setCommentList] = useState(data.notes);
   const user = useUser();
 
   const onDeleteComment = (comment) => {
@@ -52,8 +52,8 @@ const DetailCard = memo(({ isCompleted, data }) => {
 
   const leftTime = (targetDate) => {
 
-    if (data.progress !== 100) {
-      const date1 = moment(data.estimatedCompleteDate, 'DD.MM.YYYY').endOf('day');
+    if (data.task.progress !== 100) {
+      const date1 = moment(data.task.estimatedCompleteDate, 'DD.MM.YYYY').endOf('day');
       const date2 = moment(moment(), 'DD.MM.YYYY').endOf('day');
       const diffDays = date1.diff(date2, 'days');
       if (diffDays > 0) {
@@ -65,8 +65,8 @@ const DetailCard = memo(({ isCompleted, data }) => {
         return <span><Tag color='#ff8812'>Bugün <ClockCircleOutlined style={{ marginLeft: '6px' }} /></Tag></span>;
       }
     } else {
-      const date1 = moment(data.estimatedCompleteDate, 'DD.MM.YYYY').endOf('day');
-      const date2 = moment(data.completeDate, 'DD.MM.YYYY').endOf('day');
+      const date1 = moment(data.task.estimatedCompleteDate, 'DD.MM.YYYY').endOf('day');
+      const date2 = moment(data.task.completeDate, 'DD.MM.YYYY').endOf('day');
       const diffDays = date1.diff(date2, 'days');
       if (diffDays > 0) {
         return <span><Tag color='#88D66C'>{diffDays} gün erken bitti <ClockCircleOutlined style={{ marginLeft: '6px' }} /></Tag></span>;
@@ -78,7 +78,7 @@ const DetailCard = memo(({ isCompleted, data }) => {
     }
   };
 
-  const estimatedFinishDate = leftTime(data.estimatedCompleteDate);
+  const estimatedFinishDate = leftTime(data.task.estimatedCompleteDate);
 
   const [value, setValue] = useState('');
 
@@ -100,13 +100,13 @@ const DetailCard = memo(({ isCompleted, data }) => {
             style={{ color: 'white', minHeight: '100%' }}
             extra={estimatedFinishDate}
             actions={[
-              <span key="addedDate">Eklenme: {moment(data.addedDate).format('DD MMMM YY, HH:mm')}</span>,
-              <span key="updateDate">Güncellenme: {moment(data.updateDate).format('DD MMMM YY, HH:mm')}</span>
+              <span key="addedDate">Eklenme: {moment(data.task.addedDate).format('DD MMMM YY, HH:mm')}</span>,
+              <span key="updateDate">Güncellenme: {moment(data.task.updateDate).format('DD MMMM YY, HH:mm')}</span>
             ]}
           >
             <Card.Meta 
               style={{ height: '150px' }}
-              description={<span style={{ color: 'black'}}>{data.description}</span>}
+              description={<span style={{ color: 'black'}}>{data.task.description}</span>}
             />
           </Card>
         </Col>

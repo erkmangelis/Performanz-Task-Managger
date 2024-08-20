@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
-import { Table, Space, Tag, Progress, Modal, Divider, Button, Avatar } from 'antd';
-import { EditTwoTone, DeleteTwoTone, FlagFilled, ExclamationCircleFilled } from '@ant-design/icons';
+import { Table, Space, Tag, Progress, Modal, Divider, Button, Avatar, Tooltip } from 'antd';
+import { EditTwoTone, DeleteTwoTone, FlagFilled, ExclamationCircleFilled, AntDesignOutlined, UserOutlined } from '@ant-design/icons';
 import DetailCard from './DetailCard';
 import './tasks.css'
 import moment from 'moment';
@@ -10,9 +10,8 @@ import { PRIORITY, STATUS } from '../config/Config.js';
 
 const { confirm } = Modal;
 
-const Tasks = ({ tasks, onEditTask, deleteTask}) => {
-  const [expandedRowKey, setExpandedRowKey] = useState(null);
-  const [expandedRowData, setExpandedRowData] = useState(null);
+const Tasks = ({ categories, tasks, onEditTask, deleteTask}) => {
+  const [expandedRowKeys, setExpandedRowKeys] = useState([]);
   const rowRefs = useRef({});
   const user = useUser();
   
@@ -36,58 +35,60 @@ const Tasks = ({ tasks, onEditTask, deleteTask}) => {
 
   const handleExpand = (expanded, record) => {
     if (expanded) {
-      setExpandedRowKey(record.id);
-      setExpandedRowData(record);
-
+      setExpandedRowKeys([record.task.id]); // Sadece tıklanan satırı genişlet
       setTimeout(() => {
-        const rowElement = rowRefs.current[record.id];
+        const rowElement = rowRefs.current[record.task.id];
         if (rowElement) {
           rowElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
-      }, 0);
-
+        }, 0);
     } else {
-      // Eğer collapse ediliyorsa ve başka bir satır expand edilmiyorsa state'i sıfırla
-      if (expandedRowKey === record.id) {
-        setExpandedRowKey(null);
-        setExpandedRowData(null);
+      setExpandedRowKeys([]); // Satırı daralt
     }
   };
-      }
+
+  // const handleExpand = (expanded, record) => {
+  //   if (expanded) {
+  //     setExpandedRowKey([record.task.id]);
+  //     setTimeout(() => {
+  //       const rowElement = rowRefs.current[record.task.id];
+  //       if (rowElement) {
+  //         rowElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  //       }
+  //     }, 0);
+  //   } else {
+  //     setExpandedRowKey([]);
+  //   }
+  // };
 
 
     const columns = [
       {
         title: 'Görev',
         align: 'center',
-        dataIndex: 'title',
+        dataIndex: ['task', 'title'],
         sorter: (a, b) => a.title.length - b.title.length,
         sortDirections: ['descend'],
       },
       {
         title: 'Kategori',
         align: 'center',
-        dataIndex: 'category',
-        filters: [
-          {
-            text: 'Spark',
-            value: 'Spark',
-          },
-          {
-            text: 'Zıpzıp',
-            value: 'Zıpzıp',
-          },
-          {
-            text: 'Web Panel',
-            value: 'Web Panel',
-          },
-        ],
-        onFilter: (value, record) => record.category.indexOf(value) === 0,
+        dataIndex: ['categories', 0, 'name'],
+        filters: categories.map(category => ({
+          text: category.name,
+          value: category.id,
+        })),
+        onFilter: (value, record) => {
+          return record.categories.some(category => category.id === value);
+        },
       },
       {
         title: 'Tahmini Bitiş Tarihi',
         align: 'center',
-        dataIndex: 'estimatedCompleteDate',
+        dataIndex: ['task', 'estimatedCompleteDate'],
+        render: (date) => {
+          return date ? moment(date).format('DD.MM.YYYY') : 'Bilgi Yok';
+        },
         sorter: (a, b) => {
           const dateFormat = 'DD.MM.YYYY';
           return moment(a.estimatedCompleteDate, dateFormat).diff(moment(b.estimatedCompleteDate, dateFormat));
@@ -96,7 +97,7 @@ const Tasks = ({ tasks, onEditTask, deleteTask}) => {
       {
         title: 'Durum',
         align: 'center',
-        dataIndex: 'status',
+        dataIndex: ['task', 'status'],
         filters: [
           {
             text: 'Ertelendi',
@@ -135,7 +136,7 @@ const Tasks = ({ tasks, onEditTask, deleteTask}) => {
       {
         title: 'Öncelik',
         align: 'center',
-        dataIndex: 'priority',
+        dataIndex: ['task', 'priority'],
         filters: [
           {
             text: 'Düşük',
@@ -172,7 +173,7 @@ const Tasks = ({ tasks, onEditTask, deleteTask}) => {
       {
         title: 'İlerleme',
         align: 'center',
-        dataIndex: 'progress',
+        dataIndex: ['task', 'progress'],
         sorter: (a, b) => a.progress - b.progress,
         render: (text) => (
           <div style={{ display: 'inline-block', width: 45, height: 45 }}>
@@ -185,28 +186,33 @@ const Tasks = ({ tasks, onEditTask, deleteTask}) => {
         align: 'center',
         dataIndex: 'creator',
         render: (item) => (
-          <Avatar style={{ backgroundColor: '#78bf9b', verticalAlign: 'middle'}} size='large' src={"item.url"}>{"item.name"}</Avatar>
+          <Avatar style={{ backgroundColor: '#78bf9b', verticalAlign: 'middle'}} size='large' src={item.url}>{item.name}</Avatar>
         ),
       },
       {
         title: 'Görev Sahibi',
         align: 'center',
-        dataIndex: 'owners',
+        dataIndex: 'assignedUsers',
         render: (items) => (
-          <div>
+          <Avatar.Group
+            size="large"
+            max={{
+              count: 2,
+              style: { fontWeight: '500', color: '#3F72AF', backgroundColor: '#f2dac8' },
+            }}
+          >
             {items && items.length > 0 ? (
               items.map((item, index) => (
                 <Avatar
-                  key={index}
-                  style={{ backgroundColor: '#78bf9b', verticalAlign: 'middle' }}
-                  size='large'
+                  key={item.id}
+                  style={{ backgroundColor: '#78bf9b' }}
                   src={item.url}
                 >
                   {item.name}
                 </Avatar>
               ))
             ) : ''} 
-          </div>
+          </Avatar.Group>
         ),
       },
       {
@@ -263,17 +269,16 @@ const Tasks = ({ tasks, onEditTask, deleteTask}) => {
             }}
             expandable={{
               expandedRowRender: (record) => (
-              <div ref={(el) => (rowRefs.current[record.id] = el)}>
                 <DetailCard
-                  isCompleted={record.progress === 100}
-                  data={expandedRowData && expandedRowData.id === record.id ? expandedRowData : ''}
-                /></div>
+                  isCompleted={record.task.progress === 100}
+                  data={record}
+                />
               ),
+              expandedRowKeys: expandedRowKeys,
               onExpand: handleExpand,
-              expandedRowKeys: expandedRowKey ? [expandedRowKey] : [],
             }}
             dataSource={tasks}
-            rowKey='id'
+            rowKey={(record) => record.task.id}
             rowClassName={(record, index) => (index % 2 === 1 ? 'striped-row' : '')}
         />
     );
