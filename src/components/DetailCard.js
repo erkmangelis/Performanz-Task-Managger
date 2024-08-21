@@ -1,20 +1,50 @@
-import React, { useState, memo } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import { Card, Col, Row, Avatar, List, Button, Drawer, Input, Modal, Tag } from 'antd';
 import { DeleteOutlined, ClockCircleOutlined, CloseOutlined, CommentOutlined, PlusOutlined, ExclamationCircleFilled } from '@ant-design/icons';
 import moment from 'moment';
 import 'moment/locale/tr'; 
 import { useUser } from '../contexts/UserContext';
+import axios from 'axios';
+import { API_URL } from '../config/Config.js';
 
 
 
 const { confirm } = Modal;
-
 const { TextArea } = Input;
 
-const DetailCard = memo(({ isCompleted, data }) => {
+const DetailCard = memo(({ users, data }) => {
   moment.locale('tr');
-  const [commentList, setCommentList] = useState(data.notes);
+  const [commentList, setCommentList] = useState();
   const user = useUser();
+
+  useEffect(() => {
+    const fetchUserDetails = async () => {
+      const updatedNotes = await Promise.all(
+        data.notes.map(async (note) => {
+
+          const matchedUser = users.find(user => user.id === note.userId);
+          
+          if (matchedUser) {
+            const user = {
+              id: matchedUser.id,
+              name: matchedUser.name,
+              surname: matchedUser.surname,
+              role: matchedUser.role,
+              url: matchedUser.url,
+            };
+            
+            return { ...note, user };
+          } else {
+            return note;
+          }
+        })
+      );
+      
+      setCommentList(updatedNotes);
+    };
+  
+    fetchUserDetails();
+  }, [data.notes, users]);
 
   const onDeleteComment = (comment) => {
     confirm({
@@ -27,7 +57,7 @@ const DetailCard = memo(({ isCompleted, data }) => {
       >
         <List.Item>
           <List.Item.Meta
-            avatar={<Avatar src={comment.user.url} />}
+            avatar={<Avatar style={{ backgroundColor: '#78bf9b', verticalAlign: 'middle'}} size='large' src={comment.user.url} />}
             title={comment.user.name + " " + comment.user.surname}
             description={comment.content}
           />
@@ -45,9 +75,47 @@ const DetailCard = memo(({ isCompleted, data }) => {
     });
   };
 
-  const handleDeleteComment = (commentId) => {
-    console.log(commentId);
-    setCommentList(prevComments => prevComments.filter(comment => comment.id !== commentId));
+  const handleSendComment = async () => {
+
+      let comment = {
+        taskId: data.task.id,
+        userId: user.id,
+        date: new Date().toISOString(),
+        content: value,
+        user: {
+          id: user.id,
+          name: user.name,
+          surname: user.surname,
+          role: user.role,
+          url: user.url
+        }
+      }
+
+      await axios.post(API_URL+'Notes', comment)
+      .then(response => {
+        onClose();
+
+        comment = {
+          ...comment,
+          id: response.data.id,
+        };
+        
+        setCommentList(prevComments => [
+          ...prevComments, comment
+        ]);
+      })
+      .catch(error => {
+        console.error("Yorum gönderilirken hata oluştu:", error);
+      });
+  };
+
+  const handleDeleteComment = async (commentId) => {
+    try {
+      await axios.delete(API_URL+'Notes/'+commentId);
+      setCommentList(prevComments => prevComments.filter(comment => comment.id !== commentId));
+    } catch (error) {
+      console.error("Yorum silinirken hata oluştu:", error);
+    }
   };
 
   const leftTime = (targetDate) => {
@@ -88,6 +156,7 @@ const DetailCard = memo(({ isCompleted, data }) => {
     setOpen(true);
   };
   const onClose = () => {
+    setValue("");
     setOpen(false);
   };
 
@@ -120,7 +189,7 @@ const DetailCard = memo(({ isCompleted, data }) => {
               open={open}
               getContainer={false}
               closeIcon={<CloseOutlined />}
-              footer={<Button type='primary' style={{backgroundColor: '#3F72AF'}} onClick={onClose}>Gönder</Button>}
+              footer={<Button type='primary' style={{backgroundColor: '#3F72AF'}} onClick={handleSendComment}>Gönder</Button>}
             >
             <TextArea
               value={value}
@@ -137,14 +206,14 @@ const DetailCard = memo(({ isCompleted, data }) => {
             renderItem={(comment, index) => (
               <List.Item
                 actions={
-                  (!isCompleted && ((user.id === comment.user.id) || (user.role === 'Admin')))
-                    ? [<Button type="text" shape="circle" onClick={() => onDeleteComment(comment)} key={comment.id}><DeleteOutlined /></Button>]
+                  ((data.task.progress !== 100) && ((user.id === comment.user.id) || (user.role === 1)))
+                    ? [<Button type="text" shape="circle" onClick={() => onDeleteComment(comment)} key={comment.user.id}><DeleteOutlined /></Button>]
                     : []
               }
               >
                 <List.Item.Meta
-                  avatar={<Avatar src={comment.user.url} />}
-                  title={comment.user.name + " " + comment.user.surname}
+                  avatar={<Avatar style={{ backgroundColor: '#78bf9b', verticalAlign: 'middle'}} size='large' src={comment.user.url} />}
+                  title={comment.user.name + " " +comment.user.surname}
                   description={comment.content}
                 />
               </List.Item>

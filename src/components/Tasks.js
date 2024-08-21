@@ -10,7 +10,7 @@ import { PRIORITY, STATUS } from '../config/Config.js';
 
 const { confirm } = Modal;
 
-const Tasks = ({ categories, tasks, onEditTask, deleteTask}) => {
+const Tasks = ({ users, categories, tasks, onEditTask, deleteTask}) => {
   const [expandedRowKeys, setExpandedRowKeys] = useState([]);
   const rowRefs = useRef({});
   const user = useUser();
@@ -19,47 +19,34 @@ const Tasks = ({ categories, tasks, onEditTask, deleteTask}) => {
     confirm({
       title: 'Görevi silmek istiyor musun?',
       icon: <ExclamationCircleFilled />,
-      content: <span>{record.title}</span>,
+      content: <span>{record.task.title}</span>,
       okText: 'Evet',
       okType: 'danger',
       cancelText: 'Hayır',
       onOk() {
-        console.log('OK');
-        deleteTask(record.id);
+        deleteTask(record.task.id);
       },
       onCancel() {
-        console.log('Cancel');
+        console.log('Silme işlemi iptal edildi.');
       },
     });
   };
 
   const handleExpand = (expanded, record) => {
     if (expanded) {
-      setExpandedRowKeys([record.task.id]); // Sadece tıklanan satırı genişlet
+      setExpandedRowKeys([record.task.id]);
+
       setTimeout(() => {
         const rowElement = rowRefs.current[record.task.id];
         if (rowElement) {
           rowElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
         }, 0);
+
     } else {
-      setExpandedRowKeys([]); // Satırı daralt
+      setExpandedRowKeys([]);
     }
   };
-
-  // const handleExpand = (expanded, record) => {
-  //   if (expanded) {
-  //     setExpandedRowKey([record.task.id]);
-  //     setTimeout(() => {
-  //       const rowElement = rowRefs.current[record.task.id];
-  //       if (rowElement) {
-  //         rowElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  //       }
-  //     }, 0);
-  //   } else {
-  //     setExpandedRowKey([]);
-  //   }
-  // };
 
 
     const columns = [
@@ -221,9 +208,9 @@ const Tasks = ({ categories, tasks, onEditTask, deleteTask}) => {
         dataIndex: '',
         key: 'x',
         render: (text, record) => {
-          const canDelete = true;
+          const canDelete = ((user.id === record.creator.id) || (user.role === 1));
     
-          if (record.progress !== 100) {
+          if (record.task.progress !== 100) {
             return (
               <Space>
                 <Button type="text" shape="circle" onClick={() => onEditTask(record)}>
@@ -269,10 +256,13 @@ const Tasks = ({ categories, tasks, onEditTask, deleteTask}) => {
             }}
             expandable={{
               expandedRowRender: (record) => (
+                <div ref={(el) => (rowRefs.current[record.task.id] = el)}>
                 <DetailCard
-                  isCompleted={record.task.progress === 100}
+                  categories={categories}
+                  users={users}
                   data={record}
                 />
+                </div>
               ),
               expandedRowKeys: expandedRowKeys,
               onExpand: handleExpand,

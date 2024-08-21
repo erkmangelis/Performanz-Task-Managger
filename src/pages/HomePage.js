@@ -30,12 +30,13 @@ const HomePage = () => {
   const [error, setError] = useState(null);
   const [tasks, setTasks] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [users, setUsers] = useState([]);
 
   useEffect(() => {
     if (user) {
       axios.get(user.role === 1 ? (API_URL+'TaskItems') : (API_URL+'TaskItems/ByUserId/'+user.id))
         .then(response => {
-          console.log(response.data);
+          console.log("Tasks: ", response.data);
           setTasks(response.data);
           setLoading(false);
         })
@@ -47,8 +48,17 @@ const HomePage = () => {
 
         axios.get(API_URL+'Categories')
         .then(response => {
-          console.log(response.data);
+          console.log("Categories: ", response.data);
           setCategories(response.data);
+        })
+        .catch(error => {
+          console.error('API isteği başarısız:', error);
+        });
+
+        axios.get(API_URL+'Users')
+        .then(response => {
+          console.log("Users: ", response.data);
+          setUsers(response.data);
         })
         .catch(error => {
           console.error('API isteği başarısız:', error);
@@ -58,79 +68,50 @@ const HomePage = () => {
   //////////////////////////////////////////
   
   /////////////// Add Tasks ///////////////
-  const handleSaveTask = (task) => {
-    if (task.id) {
-        // Update existing task
-        console.log(task);
-        const newData = {
-          "id": task.id,
-          "title": task.title,
-          "description": task.description,
-          "priority": 1,
-          "status": 1,
-          "progress": task.progress,
+  const handleSaveTask = (task, taskUser, taskCategories) => {
+    let taskUserStr = taskUser.map(String).join(',');
+    let taskCategoriesStr = taskCategories.map(String).join(',');
+    let taskId;
 
-          "createdByUserId": task.createdByUser.id,
-          "createdByUser": {
-            "id": 1,
-            "role": task.createdByUser.role,
-            "name": task.createdByUser.name,
-            "surname": task.createdByUser.surname,
-            "url": task.createdByUser.url,
-            "password": "123",
-            "username": "erkman"
-          }
-        }
-
-        axios.put(API_URL+`TaskItems/${task.id}`, newData)
-            .then(response => {
-                setTasks(prevTasks => 
-                    prevTasks.map(t => t.id === newData.id ? task : t)
-                );
-            })
-            .catch(error => {
-                console.error('Error updating task:', error);
-            });
+    if (task.id === 0) {
+    // CREATING TASK
+    axios.post(API_URL + "TaskItems", task)
+    .then(response => {
+      taskId = response.data.id;
+      
+      // TaskUsers POST işlemi
+      return axios.post(API_URL + "TaskUsers", taskId, taskUserStr);
+    })
+    .then(() => {
+      // TaskCategories POST işlemi
+      return axios.post(API_URL + "TaskCategories", taskId, taskCategoriesStr);
+    })
+    .then(() => {
+      console.log("Başarılı: ", task);
+      setTasks(prevTasks => 
+        prevTasks.map(t => t.id === task.id ? task : t)
+      );
+    })
+    .catch(error => {
+      console.error('Error creating task:', error);
+    });
     } else {
-        // Create new task
-        const newData = {
-          "title": "Task Deneme",
-          "description": "Task deneme description",
-          "priority": 1,
-          "status": 1,
-          "progress": 100,
-
-          "createdByUserId": 3,
-          "createdByUser": {
-            "id": 3,
-            "role": 2,
-            "name": "Erkman",
-            "surname": "Geliş",
-            "url": "asd",
-            "password": "123",
-            "username": "erkman"
-          }
-        }
-
-        axios.post(API_URL+'TaskItems', newData)
-            .then(response => {
-                setTasks(prevTasks => [...prevTasks, task]);
-            })
-            .catch(error => {
-                console.error('Error creating task:', error);
-            });
+    // UPDATING TASK
+      axios.post(API_URL+'TaskItems', task)
+        .then(response => {
+          setTasks(prevTasks => [...prevTasks, task]);
+        })
+        .catch(error => {
+          console.error('Error creating task:', error);
+        });
     }
   };
 
   /////////////// Delete Tasks ///////////////
   const deleteTask = (taskId) => {
-    axios.delete(`/api/tasks/${taskId}`, {
-      headers: {
-        Authorization: `Bearer ${user.token}`
-      }
-    })
+    axios.delete(API_URL+"TaskItems/"+taskId)
     .then(() => {
-      setTasks(prevTasks => prevTasks.filter(task => task.id !== taskId));
+      setTasks(prevTasks => prevTasks.filter(task => task.task.id !== taskId));
     })
     .catch(error => {
       console.error('Görev silme başarısız:', error);
@@ -195,8 +176,10 @@ const HomePage = () => {
         }}
       >
         <TaskModal
+          users={users}
+          categories={categories}
           onOpen={taskModalVisible}
-          task={editingTask}
+          data={editingTask}
           onClose={handleCloseModal}
           onSave={handleSaveTask}
         />
@@ -210,6 +193,7 @@ const HomePage = () => {
         >
           {!loading && !error && (
           <Tasks 
+            users={users}
             categories={categories}
             tasks={tasks}
             onEditTask={handleEditTask}

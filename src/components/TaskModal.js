@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, DatePicker, Input, Select, Slider, Form, Row, Col } from 'antd';
 import moment from 'moment';
 import { useUser } from '../contexts/UserContext';
@@ -10,48 +10,47 @@ const { TextArea } = Input;
 const { Option } = Select;
 
 
-const TaskModal = ({ onOpen, task, onClose, onSave }) => {
-
+const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
     const user = useUser();
     const [form] = Form.useForm();
+    const [assignedUser, setAssignedUser] = useState([]);
+
     
     useEffect(() => {
-        if (task) {
-            let holder = [task.status, task.priority];
-            task.status = STATUS[task.status];
-            task.priority = PRIORITY[task.priority];
-            if (task.startDate && task.estimatedCompleteDate) {
-                task.dateRange = [
-                    moment(task.startDate, 'DD.MM.YYYY'), 
-                    moment(task.estimatedCompleteDate, 'DD.MM.YYYY')
-                  ];
-            }
-            form.setFieldsValue(task);
-            task.status = holder[0];
-            task.priority = holder[1];
+        if (data) {
+            form.setFieldsValue(data.task);
         } else {
             form.resetFields();
         }
-    }, [task, form]);
+    }, [data, form]);
 
     const handleOk = () => {
-        let newTask = task;
         form.validateFields()
           .then(values => {
-            const newTask = {
-                ...task,
-              title: values.title,
-              description: values.description,
-              category: values.category,
-              priority: Number(values.priority),
-              status: Number(values.status),
-              progress: values.progress,
-              startDate: values.dateRange[0].format("DD.MM.YYYY"),
-              estimatedCompleteDate: values.dateRange[1].format("DD.MM.YYYY"),
-            };
+            let newTask = {
+                id: 0,
+                title: values.title,
+                description: values.description,
+                priority: values.priority,
+                status: values.status,
+                progress: values.progress,
+                addedDate: new Date().toISOString(),
+                startDate: values.dateRange[0],
+                estimatedCompleteDate: values.dateRange[1],
+                updateDate: new Date().toISOString(),
+                createdByUserId: user.id,
+                ...(values.progress === 100 && { completeDate: new Date().toISOString() }),
+              };
 
-            onSave(newTask);
-            console.log("Editlenmiş Task: ", newTask);
+            if (data) {
+                newTask = {
+                    ...newTask,
+                    id: data.task.id,
+                    addedDate: data.task.addedDate,
+                    createdByUserId: data.creator.id,
+                };
+            }
+            onSave(newTask, assignedUser, values.categories);
             onClose();
             form.resetFields();
           })
@@ -63,7 +62,7 @@ const TaskModal = ({ onOpen, task, onClose, onSave }) => {
     return (
         <Modal
             centered
-            okText={task ? 'Kaydet' : 'Ekle'}
+            okText={data ? 'Kaydet' : 'Ekle'}
             cancelText='İptal'
             destroyOnClose={true}
             open={onOpen}
@@ -77,11 +76,17 @@ const TaskModal = ({ onOpen, task, onClose, onSave }) => {
                         alignItems: 'center'
                     }}>
 
-                    <span>{task ? "Görevi Düzenle" : "Görev Oluştur"}</span>
-                    <Select name="deneme" mode="multiple" defaultValue={user.role !== "Admin" ? [user.name] : []} disabled={(task !==null || user.role !== "Admin")} style={{ width: 250, marginRight: '40px' }}>
-                        <Option value="erkman">Erkman</Option>
-                        <Option value="onur">Onur</Option>
-                        <Option value="iliya">İliya</Option>
+                    <span>{data ? "Görevi Düzenle" : "Görev Oluştur"}</span>
+                    <Select
+                        mode="multiple"
+                        defaultValue={data ? data.assignedUsers.map(assignedUser => assignedUser.name) : (user.role !==1 ? user.name : [])}
+                        disabled={data !== null || user.role !== 1}
+                        style={{ width: 250, marginRight: '40px' }}
+                        onChange={(value) => setAssignedUser(value)}
+                    >
+                        {users.map(user => (
+                            <Option key={user.id} value={user.id}> {user.name} </Option>
+                        ))}
                     </Select>
                 </div>
             }
@@ -121,8 +126,8 @@ const TaskModal = ({ onOpen, task, onClose, onSave }) => {
           
                 <Row gutter={16}>
                     <Col span={8}>
-                        <Form.Item label="Kategori" name="category">
-                            <Select>
+                        <Form.Item label="Kategoriler" name="categories">
+                            <Select mode="multiple">
                                 <Option value="1">Zıpzıp</Option>
                                 <Option value="2">Web Panel</Option>
                                 <Option value="3">Spark</Option>
@@ -150,7 +155,7 @@ const TaskModal = ({ onOpen, task, onClose, onSave }) => {
                     </Col>
                 </Row>
 
-                <Form.Item label="Durum" name="progress">
+                <Form.Item label="İlerleme" name="progress">
                             <Slider
                                 min={0}
                                 max={100}
