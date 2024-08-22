@@ -244,9 +244,7 @@ const Tasks = ({ users, categories, tasks, onEditTask, deleteTask}) => {
         <Table
             sticky={true}
             columns={columns}
-            pagination={{
-                position: ['none', 'none']
-            }}
+            pagination={false}
             scroll={{
               y: window.innerHeight * 0.74,
             }}

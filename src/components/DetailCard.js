@@ -180,7 +180,7 @@ const DetailCard = memo(({ users, data }) => {
           </Card>
         </Col>
         <Col span={14} >
-          <Card title={<span>Yorumlar <CommentOutlined /></span>} extra={<Button type='text' onClick={showDrawer}>Yorum Ekle<PlusOutlined style={{marginLeft: '4px'}} /></Button>} bordered={false}>
+          <Card title={<span>Yorumlar <CommentOutlined /></span>} extra={<Button disabled={data.task.progress === 100} type='text' onClick={showDrawer}>Yorum Ekle<PlusOutlined style={{marginLeft: '4px'}} /></Button>} bordered={false}>
             <Drawer
               title="Yorum Ekle"
               placement="right"

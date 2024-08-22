@@ -3,7 +3,6 @@ import { Layout, Button, Avatar, Space, theme } from 'antd';
 import { FileAddOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons';
 import Tasks from '../components/Tasks';
 import TaskModal from '../components/TaskModal';
-import { data } from './data.js';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../contexts/UserContext';
 import axios from 'axios';
@@ -73,6 +72,7 @@ const HomePage = () => {
     let taskCategoriesStr = taskCategories.map(String).join(',');
     let taskId;
 
+
     if (task.id === 0) {
     // CREATING TASK
     axios.post(API_URL + "TaskItems", task)
@@ -80,30 +80,47 @@ const HomePage = () => {
       taskId = response.data.id;
       
       // TaskUsers POST işlemi
-      return axios.post(API_URL + "TaskUsers", taskId, taskUserStr);
+      return axios.post(API_URL + "TaskUsers?taskId=" + taskId + "&userIds=" + taskUserStr);
     })
     .then(() => {
       // TaskCategories POST işlemi
-      return axios.post(API_URL + "TaskCategories", taskId, taskCategoriesStr);
+      return axios.post(API_URL + "TaskCategories?taskId=" + taskId + "&categorieIds=" + taskCategoriesStr);
     })
     .then(() => {
-      console.log("Başarılı: ", task);
-      setTasks(prevTasks => 
-        prevTasks.map(t => t.id === task.id ? task : t)
-      );
+      return axios.get(API_URL + "TaskItems/" + taskId);
+    })
+    .then(response => {
+      setTasks(prevTasks => [...prevTasks, response.data]);
+      console.log("Görev oluşturma başarılı.");
     })
     .catch(error => {
       console.error('Error creating task:', error);
     });
     } else {
     // UPDATING TASK
-      axios.post(API_URL+'TaskItems', task)
-        .then(response => {
-          setTasks(prevTasks => [...prevTasks, task]);
-        })
-        .catch(error => {
-          console.error('Error creating task:', error);
-        });
+    axios.post(API_URL + "TaskItems", task)
+    .then(response => {
+      // TaskUsers POST işlemi
+      return axios.post(API_URL + "TaskUsers?taskId=" + task.id + "&userIds=" + taskUserStr);
+    })
+    .then(() => {
+      // TaskCategories POST işlemi
+      return axios.post(API_URL + "TaskCategories?taskId=" + task.id + "&categorieIds=" + taskCategoriesStr);
+    })
+    .then(() => {
+      return axios.get(API_URL + "TaskItems/" + task.id);
+    })
+    .then(response => {
+      setTasks(prevTasks => 
+        prevTasks.map(t => 
+          t.task.id === response.data.task.id ? { ...response.data } : t
+        )
+      );
+      console.log("Görev Güncelleme Başarılı.");
+    })
+    .catch(error => {
+      console.error('Error creating task:', error);
+    });
     }
   };
 

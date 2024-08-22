@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, DatePicker, Input, Select, Slider, Form, Row, Col } from 'antd';
-import moment from 'moment';
+//import moment from 'moment';
+import moment from 'moment-timezone';
 import { useUser } from '../contexts/UserContext';
 import { PRIORITY, STATUS } from '../config/Config.js';
 
@@ -18,7 +19,20 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
     
     useEffect(() => {
         if (data) {
-            form.setFieldsValue(data.task);
+            let startDate = moment.utc(data.task.startDate);
+            let estimatedCompleteDate = moment.utc(data.task.estimatedCompleteDate);
+            const formValues = {
+                title: data.task.title,
+                description: data.task.description,
+                dateRange: [startDate, estimatedCompleteDate],
+                categories: data.task.categories,
+                priority: PRIORITY[data.task.priority],
+                status: STATUS[data.task.status],
+                progress: data.task.progress
+            }
+            console.log("Data: ",[data.task.startDate, data.task.estimatedCompleteDate]);
+            console.log("Form: ",formValues.dateRange);
+            form.setFieldsValue(formValues);
         } else {
             form.resetFields();
         }
@@ -39,7 +53,8 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
                 estimatedCompleteDate: values.dateRange[1],
                 updateDate: new Date().toISOString(),
                 createdByUserId: user.id,
-                ...(values.progress === 100 && { completeDate: new Date().toISOString() }),
+                completeDate: (values.progress === 100 || values.status === 4) ? new Date().toISOString() : null
+                //...((values.progress === 100 || values.status === 4) && { completeDate: new Date().toISOString() }),
               };
 
             if (data) {
@@ -121,7 +136,7 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
                     }
                     rules={[{ required: true }]}
                 >
-                    <RangePicker format="DD.MM.YYYY" style={{ width: '100%' }} />
+                    <RangePicker style={{ width: '100%' }} />
                 </Form.Item>
           
                 <Row gutter={16}>
