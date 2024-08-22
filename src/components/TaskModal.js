@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, DatePicker, Input, Select, Slider, Form, Row, Col } from 'antd';
-//import moment from 'moment';
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 import { useUser } from '../contexts/UserContext';
 import { PRIORITY, STATUS } from '../config/Config.js';
 
@@ -19,19 +18,15 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
     
     useEffect(() => {
         if (data) {
-            let startDate = moment.utc(data.task.startDate);
-            let estimatedCompleteDate = moment.utc(data.task.estimatedCompleteDate);
             const formValues = {
                 title: data.task.title,
                 description: data.task.description,
-                dateRange: [startDate, estimatedCompleteDate],
+                dateRange: [dayjs(data.task.startDate, 'YYYY-MM-DD'), dayjs(data.task.estimatedCompleteDate, 'YYYY-MM-DD')],
                 categories: data.task.categories,
                 priority: PRIORITY[data.task.priority],
                 status: STATUS[data.task.status],
                 progress: data.task.progress
             }
-            console.log("Data: ",[data.task.startDate, data.task.estimatedCompleteDate]);
-            console.log("Form: ",formValues.dateRange);
             form.setFieldsValue(formValues);
         } else {
             form.resetFields();
@@ -42,27 +37,28 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
         form.validateFields()
           .then(values => {
             let newTask = {
-                id: 0,
-                title: values.title,
-                description: values.description,
-                priority: values.priority,
-                status: values.status,
-                progress: values.progress,
-                addedDate: new Date().toISOString(),
-                startDate: values.dateRange[0],
-                estimatedCompleteDate: values.dateRange[1],
-                updateDate: new Date().toISOString(),
-                createdByUserId: user.id,
-                completeDate: (values.progress === 100 || values.status === 4) ? new Date().toISOString() : null
-                //...((values.progress === 100 || values.status === 4) && { completeDate: new Date().toISOString() }),
-              };
+                "id": 0,
+                "title": values.title,
+                "description": values.description,
+                "priority": values.priority,
+                "status": values.status,
+                "progress": values.progress,
+                "addedDate": "2024-08-22T14:27:07.909Z",
+                "startDate": "2024-08-22T14:27:07.909Z",
+                "estimatedCompleteDate": "2024-08-22T14:27:07.909Z",
+                "completeDate": "2024-08-22T14:27:07.909Z",
+                "updateDate": "2024-08-22T14:27:07.909Z",
+                "createdByUserId": user.id,
+            };
 
             if (data) {
                 newTask = {
                     ...newTask,
-                    id: data.task.id,
-                    addedDate: data.task.addedDate,
-                    createdByUserId: data.creator.id,
+                    "id": data.task.id,
+                    "status": typeof newTask.status === 'string' ? data.task.status : values.status,
+                    "priority": typeof newTask.priority === 'string' ? data.task.priority : values.priority,
+                    "addedDate": "2024-08-22T14:27:07.909Z",
+                    "createdByUserId": data.creator.id,
                 };
             }
             onSave(newTask, assignedUser, values.categories);
@@ -136,7 +132,7 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
                     }
                     rules={[{ required: true }]}
                 >
-                    <RangePicker style={{ width: '100%' }} />
+                    <RangePicker format={"DD.MM.YYYY"} style={{ width: '100%' }} />
                 </Form.Item>
           
                 <Row gutter={16}>

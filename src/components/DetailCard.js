@@ -2,7 +2,6 @@ import React, { useState, useEffect, memo } from 'react';
 import { Card, Col, Row, Avatar, List, Button, Drawer, Input, Modal, Tag } from 'antd';
 import { DeleteOutlined, ClockCircleOutlined, CloseOutlined, CommentOutlined, PlusOutlined, ExclamationCircleFilled } from '@ant-design/icons';
 import moment from 'moment';
-import 'moment/locale/tr'; 
 import { useUser } from '../contexts/UserContext';
 import axios from 'axios';
 import { API_URL } from '../config/Config.js';
@@ -13,7 +12,6 @@ const { confirm } = Modal;
 const { TextArea } = Input;
 
 const DetailCard = memo(({ users, data }) => {
-  moment.locale('tr');
   const [commentList, setCommentList] = useState();
   const user = useUser();
 

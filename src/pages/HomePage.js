@@ -72,7 +72,7 @@ const HomePage = () => {
     let taskCategoriesStr = taskCategories.map(String).join(',');
     let taskId;
 
-
+    console.log(task);
     if (task.id === 0) {
     // CREATING TASK
     axios.post(API_URL + "TaskItems", task)
