@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, DatePicker, Input, Select, Slider, Form, Row, Col } from 'antd';
+import { Modal, DatePicker, Input, Select, Slider, Form, Row, Col, message } from 'antd';
 import dayjs from 'dayjs';
 import { useUser } from '../contexts/UserContext';
 import { PRIORITY, STATUS } from '../config/Config.js';
@@ -18,22 +18,34 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
     
     useEffect(() => {
         if (data) {
+            setAssignedUser([data.assignedUsers.map(x => x.id)]);
             const formValues = {
                 title: data.task.title,
                 description: data.task.description,
                 dateRange: [dayjs(data.task.startDate, 'YYYY-MM-DD'), dayjs(data.task.estimatedCompleteDate, 'YYYY-MM-DD')],
-                categories: data.task.categories,
+                categories: data.categories.map(category => (category.id)),
                 priority: PRIORITY[data.task.priority],
                 status: STATUS[data.task.status],
                 progress: data.task.progress
             }
             form.setFieldsValue(formValues);
         } else {
+            if (user.role !== 1) {
+                setAssignedUser([user.id]);
+            };
             form.resetFields();
         }
     }, [data, form]);
 
+    function isInteger(value) {
+        const parsed = Number(value);
+        return !isNaN(parsed) && Number.isInteger(parsed);
+      }
+
     const handleOk = () => {
+        if (assignedUser.length === 0) {
+            message.error('Görev Atanacak Kullanıcı Seçiniz!');
+            return;}
         form.validateFields()
           .then(values => {
             let newTask = {
@@ -43,11 +55,11 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
                 "priority": values.priority,
                 "status": values.status,
                 "progress": values.progress,
-                "addedDate": "2024-08-22T14:27:07.909Z",
-                "startDate": "2024-08-22T14:27:07.909Z",
-                "estimatedCompleteDate": "2024-08-22T14:27:07.909Z",
-                "completeDate": "2024-08-22T14:27:07.909Z",
-                "updateDate": "2024-08-22T14:27:07.909Z",
+                "addedDate": new Date().toISOString(),
+                "startDate": values.dateRange[0],
+                "estimatedCompleteDate": values.dateRange[1],
+                "completeDate": null,
+                "updateDate": new Date().toISOString(),
                 "createdByUserId": user.id,
             };
 
@@ -55,19 +67,27 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
                 newTask = {
                     ...newTask,
                     "id": data.task.id,
-                    "status": typeof newTask.status === 'string' ? data.task.status : values.status,
-                    "priority": typeof newTask.priority === 'string' ? data.task.priority : values.priority,
-                    "addedDate": "2024-08-22T14:27:07.909Z",
+                    "status": isInteger(newTask.status) ? values.status : data.task.status,
+                    "priority": isInteger(newTask.priority) ? values.priority : data.task.priority,
                     "createdByUserId": data.creator.id,
+                    "addedDate": new Date(data.task.addedDate).toISOString(),
+                    "completeDate": (newTask.progress === 100 || newTask.status === "4") ? new Date().toISOString() : null,
                 };
             }
             onSave(newTask, assignedUser, values.categories);
             onClose();
+            setAssignedUser([]);
             form.resetFields();
           })
           .catch(errorInfo => {
             console.error('Form validation failed:', errorInfo);
           });
+      };
+
+      const handleCancel = () => {
+            onClose();
+            setAssignedUser([]);
+            form.resetFields();
       };
 
     return (
@@ -78,7 +98,7 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
             destroyOnClose={true}
             open={onOpen}
             onOk={handleOk}
-            onCancel={onClose}
+            onCancel={handleCancel}
             title={
                 <div
                     style={{
@@ -89,9 +109,11 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
 
                     <span>{data ? "Görevi Düzenle" : "Görev Oluştur"}</span>
                     <Select
+                        rules={[{ required: true }]}
+                        placeholder="Kullanıcı seçiniz"
                         mode="multiple"
-                        defaultValue={data ? data.assignedUsers.map(assignedUser => assignedUser.name) : (user.role !==1 ? user.name : [])}
-                        disabled={data !== null || user.role !== 1}
+                        defaultValue={data ? data.assignedUsers.map(assignedUser => assignedUser.id) : (user.role !==1 ? user.id : [])}
+                        disabled={ user.role !== 1}
                         style={{ width: 250, marginRight: '40px' }}
                         onChange={(value) => setAssignedUser(value)}
                     >
@@ -109,8 +131,6 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
                 requiredMark={false}
                 initialValues={{
                     progress: 0,
-                    priority: 2,
-                    status: 2,
                   }}
             >
 
@@ -132,22 +152,22 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
                     }
                     rules={[{ required: true }]}
                 >
-                    <RangePicker format={"DD.MM.YYYY"} style={{ width: '100%' }} />
+                    <RangePicker placeholder={['Başlangıç giriniz', 'Bitiş giriniz']} format={"DD.MM.YYYY"} style={{ width: '100%' }} />
                 </Form.Item>
           
                 <Row gutter={16}>
                     <Col span={8}>
-                        <Form.Item label="Kategoriler" name="categories">
-                            <Select mode="multiple">
-                                <Option value="1">Zıpzıp</Option>
-                                <Option value="2">Web Panel</Option>
-                                <Option value="3">Spark</Option>
+                        <Form.Item label="Kategoriler" name="categories" rules={[{ required: true }]}>
+                            <Select mode="multiple" placeholder="Seçin">
+                            {categories.map(category => (
+                                <Option key={category.id} value={category.id}> {category.name} </Option>
+                            ))}
                             </Select>
                         </Form.Item>
                     </Col>
                     <Col span={8}>
-                        <Form.Item label="Öncelik" name="priority">
-                            <Select>
+                        <Form.Item label="Öncelik" name="priority" rules={[{ required: true }]}>
+                            <Select placeholder="Seçin">
                                 <Option value="1">Düşük</Option>
                                 <Option value="2">Orta</Option>
                                 <Option value="3">Yüksek</Option>
@@ -155,8 +175,8 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
                         </Form.Item>
                     </Col>
                     <Col span={8}>
-                        <Form.Item label="Durum" name="status">
-                            <Select>
+                        <Form.Item label="Durum" name="status" rules={[{ required: true }]}>
+                            <Select placeholder="Seçin">
                                 <Option value="1">Ertelendi</Option>
                                 <Option value="3">Beklemede</Option>
                                 <Option value="2">İşlemde</Option>

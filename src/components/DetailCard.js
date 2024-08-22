@@ -116,35 +116,41 @@ const DetailCard = memo(({ users, data }) => {
     }
   };
 
-  const leftTime = (targetDate) => {
 
+  function calculateDays() {
+    const targetDate = new Date(data.task.estimatedCompleteDate);
+    targetDate.setHours(0, 0, 0, 0);
+    
     if (data.task.progress !== 100) {
-      const date1 = moment(data.task.estimatedCompleteDate, 'DD.MM.YYYY').endOf('day');
-      const date2 = moment(moment(), 'DD.MM.YYYY').endOf('day');
-      const diffDays = date1.diff(date2, 'days');
-      if (diffDays > 0) {
-        console.log(diffDays);
-        return <span><Tag color='#88D66C'>{diffDays} gün kaldı <ClockCircleOutlined style={{ marginLeft: '6px' }} /></Tag></span>;
-      } else if (diffDays < 0) {
-        return <span><Tag color='#F94A29'>{Math.abs(diffDays)} gün geçti <ClockCircleOutlined style={{ marginLeft: '6px' }} /></Tag></span>;
+      const currentDate = new Date();
+      currentDate.setHours(0, 0, 0, 0);
+      const timeDifference = targetDate - currentDate;
+      const daysDifference = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+    
+      if (daysDifference > 0) {
+        return <span><Tag color='#88D66C'>{daysDifference} gün kaldı <ClockCircleOutlined style={{ marginLeft: '6px' }} /></Tag></span>;
+      } else if (daysDifference < 0) {
+        return <span><Tag color='#F94A29'>{Math.abs(daysDifference)} gün geçti <ClockCircleOutlined style={{ marginLeft: '6px' }} /></Tag></span>;
       } else {
-        return <span><Tag color='#ff8812'>Bugün <ClockCircleOutlined style={{ marginLeft: '6px' }} /></Tag></span>;
+        return <span><Tag color='#ff8812'> Bugün <ClockCircleOutlined style={{ marginLeft: '6px' }} /></Tag></span>;
       }
     } else {
-      const date1 = moment(data.task.estimatedCompleteDate, 'DD.MM.YYYY').endOf('day');
-      const date2 = moment(data.task.completeDate, 'DD.MM.YYYY').endOf('day');
-      const diffDays = date1.diff(date2, 'days');
-      if (diffDays > 0) {
-        return <span><Tag color='#88D66C'>{diffDays} gün erken bitti <ClockCircleOutlined style={{ marginLeft: '6px' }} /></Tag></span>;
-      } else if (diffDays < 0) {
-        return <span><Tag color='#F94A29'>{Math.abs(diffDays)} gün geç bitti <ClockCircleOutlined style={{ marginLeft: '6px' }} /></Tag></span>;
+      const completionDate = new Date(data.task.completeDate);
+      completionDate.setHours(0, 0, 0, 0);
+      const timeDifference = completionDate - targetDate;
+      const daysDifference = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+
+      if (daysDifference > 0) {
+        return <span><Tag color='#88D66C'>{daysDifference} gün erken bitti <ClockCircleOutlined style={{ marginLeft: '6px' }} /></Tag></span>;
+      } else if (daysDifference < 0) {
+        return <span><Tag color='#F94A29'>{Math.abs(daysDifference)} gün geç bitti <ClockCircleOutlined style={{ marginLeft: '6px' }} /></Tag></span>;
       } else {
         return <span><Tag color='#ff8812'>Bugün bitti <ClockCircleOutlined style={{ marginLeft: '6px' }} /></Tag></span>;
       }
     }
-  };
+  }
 
-  const estimatedFinishDate = leftTime(data.task.estimatedCompleteDate);
+  const estimatedFinishDate = calculateDays();
 
   const [value, setValue] = useState('');
 
