@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Table, Space, Tag, Progress, Modal, Divider, Button, Avatar } from 'antd';
+import { Table, Space, Tag, Progress, Modal, Divider, Button, Avatar, Tooltip } from 'antd';
 import { EditTwoTone, DeleteTwoTone, FlagFilled, ExclamationCircleFilled } from '@ant-design/icons';
 import DetailCard from './DetailCard';
 import './tasks.css'
@@ -48,26 +48,50 @@ const Tasks = ({ users, categories, tasks, onEditTask, deleteTask}) => {
     }
   };
 
-
     const columns = [
       {
         title: 'Görev',
         align: 'center',
         dataIndex: ['task', 'title'],
-        sorter: (a, b) => a.title.length - b.title.length,
-        sortDirections: ['descend'],
+        sorter: (a, b) => {
+          return a.task.title.localeCompare(b.task.title, 'tr', { sensitivity: 'base' });
+        },
+        sortDirections: ['ascend', 'descend'],
       },
       {
         title: 'Kategori',
         align: 'center',
-        dataIndex: ['categories', 0, 'name'],
+        dataIndex: 'categories',
         filters: categories.map(category => ({
           text: category.name,
           value: category.id,
         })),
         onFilter: (value, record) => {
-          return record.categories.some(category => category.id === value);
+          return record.categories.some(cat => cat.id === value);
         },
+        render: (items) => (
+          <Avatar.Group
+            shape="square"
+            size="medium"
+            max={{
+              count: 1,
+              style: { fontWeight: '500', color: '#3F72AF', backgroundColor: 'rgba(0,0,0,0)', borderColor: 'rgba(0,0,0,0)' },
+            }}
+          >
+            {items && items.length > 0 ? (
+              items.map((item) => (
+                <Avatar
+                  shape="square"
+                  size="large"
+                  key={item.id}
+                  style={{ backgroundColor: 'rgba(0,0,0,0)', color: 'black', borderColor: 'rgba(0,0,0,0)', fontSize: '14px', fontWeight: '400', transform: '1' }}
+                >
+                  {item.name.length <= 6 ? (item.name) : (item.name.slice(0, 5) + '..')}
+                </Avatar>
+              ))
+            ) : ''} 
+          </Avatar.Group>
+        ),
       },
       {
         title: 'Tahmini Bitiş Tarihi',
@@ -77,8 +101,13 @@ const Tasks = ({ users, categories, tasks, onEditTask, deleteTask}) => {
           return date ? dayjs(date).format('DD.MM.YYYY') : 'Bilgi Yok';
         },
         sorter: (a, b) => {
-          const dateFormat = 'DD.MM.YYYY';
-          return dayjs(a.estimatedCompleteDate, dateFormat).diff(dayjs(b.estimatedCompleteDate, dateFormat));
+          const dateFormat = 'YYYY-MM-DD';
+          const dateA = dayjs(a.task.estimatedCompleteDate, dateFormat);
+          const dateB = dayjs(b.task.estimatedCompleteDate, dateFormat);
+          
+          if (dateA.isBefore(dateB)) return -1;
+          if (dateA.isAfter(dateB)) return 1;
+          return 0;
         },
       },
       {
@@ -88,22 +117,22 @@ const Tasks = ({ users, categories, tasks, onEditTask, deleteTask}) => {
         filters: [
           {
             text: 'Ertelendi',
-            value: 'Ertelendi',
+            value: 1,
           },
           {
             text: 'İşlemde',
-            value: 'İşlemde',
+            value: 2,
           },
           {
             text: 'Beklemede',
-            value: 'Beklemede',
+            value: 3,
           },
           {
             text: 'Tamamlandı',
-            value: 'Tamamlandı',
+            value: 4,
           },
         ],
-        onFilter: (value, record) => STATUS[record.status].indexOf(value) === 0,
+        onFilter: (value, record) => record.task.status === value,
         render: (i) => {
           let color;
 
@@ -127,18 +156,18 @@ const Tasks = ({ users, categories, tasks, onEditTask, deleteTask}) => {
         filters: [
           {
             text: 'Düşük',
-            value: 'Düşük',
+            value: 1,
           },
           {
             text: 'Orta',
-            value: 'Orta',
+            value: 2,
           },
           {
             text: 'Yüksek',
-            value: 'Yüksek',
+            value: 3,
           },
         ],
-        onFilter: (value, record) => PRIORITY[record.priority].indexOf(value) === 0,
+        onFilter: (value, record) => record.task.priority === value,
         render: (i) => {
           let color;
     
@@ -161,7 +190,7 @@ const Tasks = ({ users, categories, tasks, onEditTask, deleteTask}) => {
         title: 'İlerleme',
         align: 'center',
         dataIndex: ['task', 'progress'],
-        sorter: (a, b) => a.progress - b.progress,
+        sorter: (a, b) => a.task.progress - b.task.progress,
         render: (text) => (
           <div style={{ display: 'inline-block', width: 45, height: 45 }}>
             <Progress type="circle" percent={text} size={45} />
@@ -172,6 +201,11 @@ const Tasks = ({ users, categories, tasks, onEditTask, deleteTask}) => {
         title: 'Görev Sahibi',
         align: 'center',
         dataIndex: 'creator',
+        filters: users.map(user => ({
+          text: user.name,
+          value: user.id,
+        })),
+        onFilter: (value, record) => record.creator.id === value,
         render: (item) => (
           <Avatar style={{ backgroundColor: '#78bf9b', verticalAlign: 'middle'}} size='large' src={item.url}>{item.name}</Avatar>
         ),
@@ -180,6 +214,13 @@ const Tasks = ({ users, categories, tasks, onEditTask, deleteTask}) => {
         title: 'Görevli Kişiler',
         align: 'center',
         dataIndex: 'assignedUsers',
+        filters: users.map(user => ({
+          text: user.name,
+          value: user.id,
+        })),
+        onFilter: (value, record) => {
+          return record.assignedUsers.some(aUser => aUser.id === value);
+        },
         render: (items) => (
           <Avatar.Group
             size="large"
