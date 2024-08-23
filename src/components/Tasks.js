@@ -1,8 +1,7 @@
 import React, { useRef, useState } from 'react';
-import { Table, Space, Tag, Progress, Modal, Divider, Button, Avatar, Tooltip } from 'antd';
+import { Table, Space, Tag, Progress, Modal, Divider, Button, Avatar } from 'antd';
 import { EditTwoTone, DeleteTwoTone, FlagFilled, ExclamationCircleFilled } from '@ant-design/icons';
 import DetailCard from './DetailCard';
-import './tasks.css'
 import dayjs from 'dayjs';
 import { useUser } from '../contexts/UserContext';
 import { PRIORITY, STATUS } from '../config/Config.js';
@@ -14,6 +13,11 @@ const Tasks = ({ users, categories, tasks, onEditTask, deleteTask}) => {
   const [expandedRowKeys, setExpandedRowKeys] = useState([]);
   const rowRefs = useRef({});
   const user = useUser();
+  const [statusFilter, setStatusFilter] = useState([1, 2, 3]); 
+  const [categoriesFilter, setCategoriesFilter] = useState([]);
+  const [priorityFilter, setPriorityFilter] = useState([]);
+  const [creatorFilter, setCreatorFilter] = useState([]);
+  const [assignedUsersFilter, setAssignedUsersFilter] = useState([]);
   
   const handleDeleteTask = (record) => {
     confirm({
@@ -69,9 +73,10 @@ const Tasks = ({ users, categories, tasks, onEditTask, deleteTask}) => {
         onFilter: (value, record) => {
           return record.categories.some(cat => cat.id === value);
         },
+        filteredValue: categoriesFilter,
         render: (items) => (
           <Avatar.Group
-            shape="square"
+            shape="circle"
             size="medium"
             max={{
               count: 1,
@@ -133,6 +138,7 @@ const Tasks = ({ users, categories, tasks, onEditTask, deleteTask}) => {
           },
         ],
         onFilter: (value, record) => record.task.status === value,
+        filteredValue: statusFilter,
         render: (i) => {
           let color;
 
@@ -168,6 +174,7 @@ const Tasks = ({ users, categories, tasks, onEditTask, deleteTask}) => {
           },
         ],
         onFilter: (value, record) => record.task.priority === value,
+        filteredValue: priorityFilter,
         render: (i) => {
           let color;
     
@@ -206,6 +213,7 @@ const Tasks = ({ users, categories, tasks, onEditTask, deleteTask}) => {
           value: user.id,
         })),
         onFilter: (value, record) => record.creator.id === value,
+        filteredValue: creatorFilter,
         render: (item) => (
           <Avatar style={{ backgroundColor: '#78bf9b', verticalAlign: 'middle'}} size='large' src={item.url}>{item.name}</Avatar>
         ),
@@ -221,6 +229,7 @@ const Tasks = ({ users, categories, tasks, onEditTask, deleteTask}) => {
         onFilter: (value, record) => {
           return record.assignedUsers.some(aUser => aUser.id === value);
         },
+        filteredValue: assignedUsersFilter,
         render: (items) => (
           <Avatar.Group
             size="large"
@@ -277,12 +286,29 @@ const Tasks = ({ users, categories, tasks, onEditTask, deleteTask}) => {
     ];
     
     const onChange = (filters, sorter, extra) => {
-      console.log('params', filters, sorter, extra);
+      setStatusFilter(sorter['task.status'] || []);
+      setPriorityFilter(sorter['task.priority'] || []);
+      setCreatorFilter(sorter['creator'] || []);
+      setAssignedUsersFilter(sorter['assignedUsers'] || []);
+      setCategoriesFilter(sorter['categories'] || []);
     };
     
+    const locale = {
+      filterTitle: 'Filtre Menüsü',
+      filterConfirm: 'Tamam',
+      filterReset: 'Sıfırla',
+      emptyText: 'Veri Bulunamadı',
+      selectAll: 'Tümünü Seç',
+      selectInvert: 'Seçimi Ters Çevir',
+      sortTitle: 'Sıralama',
+      triggerAsc: 'Artan sırayla sıralamak için tıklayın',
+      triggerDesc: 'Azalan sırayla sıralamak için tıklayın', 
+      cancelSort: 'Sıralamayı iptal etmek için tıklayın',
+    };
 
     return (
         <Table
+            locale={locale}
             sticky={true}
             columns={columns}
             pagination={false}

@@ -149,6 +149,7 @@ const HomePage = () => {
   };
 
   const handleCloseModal = () => {
+    setEditingTask(null);
     setTaskModalVisible(false);
   };
   //////////////////////////////////////////

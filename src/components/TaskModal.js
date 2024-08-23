@@ -22,22 +22,22 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
         if (data) {
             setAssignedUser([data.assignedUsers.map(x => x.id)]);
             const formValues = {
-                title: data.task.title,
-                description: data.task.description,
-                dateRange: [dayjs(data.task.startDate, 'YYYY-MM-DD'), dayjs(data.task.estimatedCompleteDate, 'YYYY-MM-DD')],
-                categories: data.categories.map(category => (category.id)),
-                priority: PRIORITY[data.task.priority],
-                status: STATUS[data.task.status],
-                progress: data.task.progress
-            }
+                "title": data.task.title,
+                "description": data.task.description,
+                "dateRange": [dayjs(data.task.startDate, 'YYYY-MM-DD'), dayjs(data.task.estimatedCompleteDate, 'YYYY-MM-DD')],
+                "categories": data.categories.map(category => (category.id)),
+                "priority": PRIORITY[data.task.priority],
+                "status": STATUS[data.task.status],
+                "progress": data.task.progress
+            };
             form.setFieldsValue(formValues);
         } else {
+            form.resetFields();
             if (user.role !== 1) {
                 setAssignedUser([user.id]);
-            };
-            form.resetFields();
+            };   
         }
-    }, [data, form, user]);
+    }, [data]);
 
     function isInteger(value) {
         const parsed = Number(value);
@@ -78,8 +78,6 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
             }
             onSave(newTask, assignedUser, values.categories);
             onClose();
-            setAssignedUser([]);
-            form.resetFields();
           })
           .catch(errorInfo => {
             console.error('Form validation failed:', errorInfo);
@@ -88,8 +86,6 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
 
       const handleCancel = () => {
             onClose();
-            setAssignedUser([]);
-            form.resetFields();
       };
 
     return (

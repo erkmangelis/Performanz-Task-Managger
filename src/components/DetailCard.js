@@ -57,7 +57,7 @@ const DetailCard = memo(({ users, data }) => {
       >
         <List.Item>
           <List.Item.Meta
-            avatar={<Avatar style={{ backgroundColor: '#78bf9b', verticalAlign: 'middle'}} size='large' src={comment.user.url} />}
+            avatar={<Avatar style={{ backgroundColor: '#78bf9b', verticalAlign: 'middle'}} size='large' src={comment.user.url}>{comment.user.name}</Avatar>}
             title={comment.user.name + " " + comment.user.surname}
             description={comment.content}
           />
