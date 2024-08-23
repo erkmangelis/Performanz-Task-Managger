@@ -1,9 +1,9 @@
 import React, { useRef, useState } from 'react';
-import { Table, Space, Tag, Progress, Modal, Divider, Button, Avatar, Tooltip } from 'antd';
-import { EditTwoTone, DeleteTwoTone, FlagFilled, ExclamationCircleFilled, AntDesignOutlined, UserOutlined } from '@ant-design/icons';
+import { Table, Space, Tag, Progress, Modal, Divider, Button, Avatar } from 'antd';
+import { EditTwoTone, DeleteTwoTone, FlagFilled, ExclamationCircleFilled } from '@ant-design/icons';
 import DetailCard from './DetailCard';
 import './tasks.css'
-import moment from 'moment';
+import dayjs from 'dayjs';
 import { useUser } from '../contexts/UserContext';
 import { PRIORITY, STATUS } from '../config/Config.js';
 
@@ -74,11 +74,11 @@ const Tasks = ({ users, categories, tasks, onEditTask, deleteTask}) => {
         align: 'center',
         dataIndex: ['task', 'estimatedCompleteDate'],
         render: (date) => {
-          return date ? moment(date).format('DD.MM.YYYY') : 'Bilgi Yok';
+          return date ? dayjs(date).format('DD.MM.YYYY') : 'Bilgi Yok';
         },
         sorter: (a, b) => {
           const dateFormat = 'DD.MM.YYYY';
-          return moment(a.estimatedCompleteDate, dateFormat).diff(moment(b.estimatedCompleteDate, dateFormat));
+          return dayjs(a.estimatedCompleteDate, dateFormat).diff(dayjs(b.estimatedCompleteDate, dateFormat));
         },
       },
       {
@@ -169,7 +169,7 @@ const Tasks = ({ users, categories, tasks, onEditTask, deleteTask}) => {
         ),
       },
       {
-        title: 'Ekleyen',
+        title: 'Görev Sahibi',
         align: 'center',
         dataIndex: 'creator',
         render: (item) => (
@@ -177,7 +177,7 @@ const Tasks = ({ users, categories, tasks, onEditTask, deleteTask}) => {
         ),
       },
       {
-        title: 'Görev Sahibi',
+        title: 'Görevli Kişiler',
         align: 'center',
         dataIndex: 'assignedUsers',
         render: (items) => (

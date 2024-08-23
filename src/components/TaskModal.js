@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, DatePicker, Input, Select, Slider, Form, Row, Col, message } from 'antd';
+import { ConfigProvider, Modal, DatePicker, Input, Select, Slider, Form, Row, Col, message } from 'antd';
 import dayjs from 'dayjs';
+import 'dayjs/locale/tr';
+import trTR from 'antd/lib/locale/tr_TR';
 import { useUser } from '../contexts/UserContext';
 import { PRIORITY, STATUS } from '../config/Config.js';
 
@@ -35,7 +37,7 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
             };
             form.resetFields();
         }
-    }, [data, form]);
+    }, [data, form, user]);
 
     function isInteger(value) {
         const parsed = Number(value);
@@ -141,20 +143,22 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
                 <Form.Item label="Detay" name="description" rules={[{ required: true }]}>
                     <TextArea rows={4} placeholder="Detay bilgisi giriniz" />
                 </Form.Item>
-          
-                <Form.Item
-                    name="dateRange"
-                    label= {
-                        <span>
-                            <label>Başlangıç Tarihi</label>
-                            <label style={{marginLeft: '150px'}}>Tahmini Bitiş Tarihi</label>
-                        </span>
-                    }
-                    rules={[{ required: true }]}
-                >
-                    <RangePicker placeholder={['Başlangıç giriniz', 'Bitiş giriniz']} format={"DD.MM.YYYY"} style={{ width: '100%' }} />
-                </Form.Item>
-          
+                
+                <ConfigProvider locale={trTR}>
+                    <Form.Item
+                        name="dateRange"
+                        label= {
+                            <span>
+                                <label>Başlangıç Tarihi</label>
+                                <label style={{marginLeft: '150px'}}>Tahmini Bitiş Tarihi</label>
+                            </span>
+                        }
+                        rules={[{ required: true }]}
+                    >
+                        <RangePicker placeholder={['Başlangıç giriniz', 'Bitiş giriniz']} format={"DD.MM.YYYY"} style={{ width: '100%' }} />
+                    </Form.Item>
+                </ConfigProvider>
+
                 <Row gutter={16}>
                     <Col span={8}>
                         <Form.Item label="Kategoriler" name="categories" rules={[{ required: true }]}>

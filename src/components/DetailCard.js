@@ -1,15 +1,17 @@
 import React, { useState, useEffect, memo } from 'react';
 import { Card, Col, Row, Avatar, List, Button, Drawer, Input, Modal, Tag } from 'antd';
 import { DeleteOutlined, ClockCircleOutlined, CloseOutlined, CommentOutlined, PlusOutlined, ExclamationCircleFilled } from '@ant-design/icons';
-import moment from 'moment';
 import { useUser } from '../contexts/UserContext';
 import axios from 'axios';
 import { API_URL } from '../config/Config.js';
+import dayjs from 'dayjs';
+import 'dayjs/locale/tr'; 
 
 
 
 const { confirm } = Modal;
 const { TextArea } = Input;
+dayjs.locale('tr'); 
 
 const DetailCard = memo(({ users, data }) => {
   const [commentList, setCommentList] = useState();
@@ -173,8 +175,8 @@ const DetailCard = memo(({ users, data }) => {
             style={{ color: 'white', minHeight: '100%' }}
             extra={estimatedFinishDate}
             actions={[
-              <span key="addedDate">Eklenme: {moment(data.task.addedDate).format('DD MMMM YY, HH:mm')}</span>,
-              <span key="updateDate">Güncellenme: {moment(data.task.updateDate).format('DD MMMM YY, HH:mm')}</span>
+              <span key="addedDate">Eklenme: {dayjs(data.task.addedDate).format('DD MMM YY, HH:mm')}</span>,
+              <span key="updateDate">Güncellenme: {dayjs(data.task.updateDate).format('DD MMM YY, HH:mm')}</span>
             ]}
           >
             <Card.Meta 
