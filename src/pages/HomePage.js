@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { useUser } from '../contexts/UserContext';
 import axios from 'axios';
 import { API_URL } from '../config/Config.js';
+import openNotificationWithIcon from '../services/notificationService';
 
 
 const { Header, Content } = Layout;
@@ -71,7 +72,6 @@ const HomePage = () => {
     let taskCategoriesStr = taskCategories.map(String).join(',');
     let taskId;
 
-    console.log(task);
     if (task.id === 0) {
     // CREATING TASK
     axios.post(API_URL + "TaskItems", task)
@@ -90,10 +90,20 @@ const HomePage = () => {
     })
     .then(response => {
       setTasks(prevTasks => [...prevTasks, response.data]);
-      console.log("Görev oluşturma başarılı.");
+
+      openNotificationWithIcon({
+        type: 'success',
+        title: 'Görev Oluşturma Başarılı',
+        description: '"'+task.title+'" adlı görevi oluşturma işlemi başarıyla gerçekleştirildi.',
+      });
     })
     .catch(error => {
       console.error('Error creating task:', error);
+      openNotificationWithIcon({
+        type: 'error',
+        title: 'Görev Oluşturma Başarısız',
+        description: '"'+task.title+'" adlı görevi oluşturma işlemi gerçekleştirilemedi.',
+      });
     });
     } else {
     // UPDATING TASK
@@ -115,10 +125,19 @@ const HomePage = () => {
           t.task.id === response.data.task.id ? { ...response.data } : t
         )
       );
-      console.log("Görev Güncelleme Başarılı.");
+      openNotificationWithIcon({
+        type: 'success',
+        title: 'Görev Düzenleme Başarılı',
+        description: '"'+task.title+'" adlı görevi düzenleme işlemi başarıyla gerçekleştirildi.',
+      });
     })
     .catch(error => {
       console.error('Error creating task:', error);
+      openNotificationWithIcon({
+        type: 'error',
+        title: 'Görev Düzenleme Başarısız',
+        description: '"'+task.title+'" adlı görevi düzenleme işlemi gerçekleştirilemedi.',
+      });
     });
     }
   };
@@ -128,9 +147,19 @@ const HomePage = () => {
     axios.delete(API_URL+"TaskItems/"+taskId)
     .then(() => {
       setTasks(prevTasks => prevTasks.filter(task => task.task.id !== taskId));
+      openNotificationWithIcon({
+        type: 'info',
+        title: 'Görev Silme Başarılı',
+        description: 'Görevi silme işlemi başarıyla gerçekleştirildi.',
+      });
     })
     .catch(error => {
       console.error('Görev silme başarısız:', error);
+      openNotificationWithIcon({
+        type: 'error',
+        title: 'Görev Silme Başarısız',
+        description: 'Görevi silme işlemi gerçekleştirilemedi.',
+      });
     });
   };
 

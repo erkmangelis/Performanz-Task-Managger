@@ -1,10 +1,11 @@
 import React, { useRef, useState } from 'react';
 import { Table, Space, Tag, Progress, Modal, Divider, Button, Avatar } from 'antd';
-import { EditTwoTone, DeleteTwoTone, FlagFilled, ExclamationCircleFilled } from '@ant-design/icons';
+import { EditTwoTone, DeleteTwoTone, FlagFilled, ExclamationCircleFilled, ClockCircleOutlined } from '@ant-design/icons';
 import DetailCard from './DetailCard';
 import dayjs from 'dayjs';
 import { useUser } from '../contexts/UserContext';
 import { PRIORITY, STATUS } from '../config/Config.js';
+import { calculateRemainingTime } from '../services/remainingTimeService';
 
 
 const { confirm } = Modal;
@@ -103,7 +104,13 @@ const Tasks = ({ users, categories, tasks, onEditTask, deleteTask}) => {
         align: 'center',
         dataIndex: ['task', 'estimatedCompleteDate'],
         render: (date) => {
-          return date ? dayjs(date).format('DD.MM.YYYY') : 'Bilgi Yok';
+          const dateInfo = calculateRemainingTime(date);
+          return date ? (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+              <span>{dayjs(date).format('DD.MM.YYYY')}</span>
+              <span style={{fontSize: '10px'}}> {dateInfo.status} <ClockCircleOutlined /> </span>
+            </div>
+          ) : 'Bilgi Yok';
         },
         sorter: (a, b) => {
           const dateFormat = 'YYYY-MM-DD';
@@ -260,7 +267,6 @@ const Tasks = ({ users, categories, tasks, onEditTask, deleteTask}) => {
         render: (text, record) => {
           const canDelete = ((user.id === record.creator.id) || (user.role === 1));
     
-          if (record.task.progress !== 100) {
             return (
               <Space>
                 <Button type="text" shape="circle" onClick={() => onEditTask(record)}>
@@ -269,7 +275,7 @@ const Tasks = ({ users, categories, tasks, onEditTask, deleteTask}) => {
     
                 <Divider type="vertical" />
     
-                {canDelete ? (
+                {(canDelete && record.task.progress !== 100) ? (
                   <Button type="text" shape="circle" onClick={() => handleDeleteTask(record)}>
                     <DeleteTwoTone twoToneColor="#3F72AF" />
                   </Button>
@@ -278,9 +284,6 @@ const Tasks = ({ users, categories, tasks, onEditTask, deleteTask}) => {
                 )}
               </Space>
             );
-          } else {
-            return null;
-          }
         },
       },
     ];

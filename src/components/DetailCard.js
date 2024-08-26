@@ -1,12 +1,12 @@
 import React, { useState, useEffect, memo } from 'react';
-import { Card, Col, Row, Avatar, List, Button, Drawer, Input, Modal, Tag } from 'antd';
-import { DeleteOutlined, ClockCircleOutlined, CloseOutlined, CommentOutlined, PlusOutlined, ExclamationCircleFilled } from '@ant-design/icons';
+import { Card, Col, Row, Avatar, List, Button, Drawer, Input, Modal, Tag, Form } from 'antd';
+import { DeleteTwoTone, ClockCircleOutlined, CloseOutlined, CommentOutlined, PlusOutlined, ExclamationCircleFilled } from '@ant-design/icons';
 import { useUser } from '../contexts/UserContext';
 import axios from 'axios';
 import { API_URL } from '../config/Config.js';
 import dayjs from 'dayjs';
 import 'dayjs/locale/tr'; 
-
+import { calculateRemainingTime } from '../services/remainingTimeService';
 
 
 const { confirm } = Modal;
@@ -16,6 +16,7 @@ dayjs.locale('tr');
 const DetailCard = memo(({ users, data }) => {
   const [commentList, setCommentList] = useState();
   const user = useUser();
+  const [form] = Form.useForm();
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -48,7 +49,7 @@ const DetailCard = memo(({ users, data }) => {
 
   const onDeleteComment = (comment) => {
     confirm({
-      title: 'Yorumu silmek istiyor musun?',
+      title: 'Notu silmek istiyor musun?',
       icon: <ExclamationCircleFilled />,
       content:
       <List
@@ -75,46 +76,45 @@ const DetailCard = memo(({ users, data }) => {
     });
   };
 
-  const handleSendComment = async () => {
-
-      let comment = {
-        taskId: data.task.id,
-        userId: user.id,
-        date: new Date().toISOString(),
-        content: value,
-        user: {
-          id: user.id,
-          name: user.name,
-          surname: user.surname,
-          role: user.role,
-          url: user.url
-        }
-      }
-
-      await axios.post(API_URL+'Notes', comment)
-      .then(response => {
-        onClose();
-
+  const handleSendComment = () => {
+    let comment;
+  
+    form.validateFields()
+      .then(values => {
         comment = {
-          ...comment,
-          id: response.data.id,
+          taskId: data.task.id,
+          userId: user.id,
+          date: new Date().toISOString(),
+          content: values.comment,
+          user: {
+            id: user.id,
+            name: user.name,
+            surname: user.surname,
+            role: user.role,
+            url: user.url,
+          },
         };
-        
-        setCommentList(prevComments => [
-          ...prevComments, comment
-        ]);
+        onClose();
+        form.resetFields();
+        return axios.post(API_URL + 'Notes', comment);
+      })
+      .then(response => {
+        comment.id = response.data.id;
+  
+        setCommentList(prevComments => [...prevComments, comment]);
       })
       .catch(error => {
-        console.error("Yorum gönderilirken hata oluştu:", error);
+        console.error("Not gönderilirken hata oluştu:", error);
       });
   };
+  
 
   const handleDeleteComment = async (commentId) => {
     try {
       await axios.delete(API_URL+'Notes/'+commentId);
       setCommentList(prevComments => prevComments.filter(comment => comment.id !== commentId));
     } catch (error) {
-      console.error("Yorum silinirken hata oluştu:", error);
+      console.error("Not silinirken hata oluştu:", error);
     }
   };
 
@@ -186,9 +186,9 @@ const DetailCard = memo(({ users, data }) => {
           </Card>
         </Col>
         <Col span={14} >
-          <Card title={<span>Yorumlar <CommentOutlined /></span>} extra={<Button disabled={data.task.progress === 100} type='text' onClick={showDrawer}>Yorum Ekle<PlusOutlined style={{marginLeft: '4px'}} /></Button>} bordered={false}>
+          <Card title={<span>Notlar <CommentOutlined /></span>} extra={<Button disabled={data.task.progress === 100} type='text' onClick={showDrawer}>Not Ekle<PlusOutlined style={{marginLeft: '4px'}} /></Button>} bordered={false}>
             <Drawer
-              title="Yorum Ekle"
+              title="Not Ekle"
               placement="right"
               closable={false}
               onClose={onClose}
@@ -197,12 +197,18 @@ const DetailCard = memo(({ users, data }) => {
               closeIcon={<CloseOutlined />}
               footer={<Button type='primary' style={{backgroundColor: '#3F72AF'}} onClick={handleSendComment}>Gönder</Button>}
             >
-            <TextArea
-              value={value}
-              onChange={(e) => setValue(e.target.value)}
-              placeholder="Yorum giriniz..."
-              autoSize={{ minRows: 5, maxRows: 5 }}
-            />
+              <Form
+                form={form}
+                layout="vertical"
+                requiredMark={false}
+              >
+                <Form.Item form={form} name="comment" rules={[{ required: true, message: 'Boş bırakılamaz' }]}>
+                  <TextArea
+                    placeholder="Not giriniz..."
+                    autoSize={{ minRows: 5, maxRows: 5 }}
+                  />
+                </Form.Item>
+              </Form>
             </Drawer>
           <List
             style={{ minHeight: '210px', maxHeight: '210px', overflowY: 'scroll', marginTop: '-20px' }}
@@ -213,7 +219,7 @@ const DetailCard = memo(({ users, data }) => {
               <List.Item
                 actions={
                   ((data.task.progress !== 100) && ((user.id === comment.user.id) || (user.role === 1)))
-                    ? [<Button type="text" shape="circle" onClick={() => onDeleteComment(comment)} key={comment.user.id}><DeleteOutlined /></Button>]
+                    ? [<Button type="text" shape="circle" onClick={() => onDeleteComment(comment)} key={comment.user.id}><DeleteTwoTone twoToneColor="#F94A29" /></Button>]
                     : []
               }
               >

@@ -1,4 +1,4 @@
-export const API_URL = "http://lab.performa.nz:3012/api/";
+export const API_URL = "http://192.168.1.100:3012/api/";
 
 export const PRIORITY = {
     1: "Düşük",

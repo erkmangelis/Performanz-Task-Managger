@@ -132,11 +132,11 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
                   }}
             >
 
-                <Form.Item label="Görev" name="title" rules={[{ required: true }]}>
+                <Form.Item label="Görev" name="title" rules={[{ required: true, message: 'Görev Adı zorunludur' }]}>
                     <Input placeholder="Görev giriniz" />
                 </Form.Item>
           
-                <Form.Item label="Detay" name="description" rules={[{ required: true }]}>
+                <Form.Item label="Detay" name="description" rules={[{ required: true, message: 'Görev Detayı zorunludur' }]}>
                     <TextArea rows={4} placeholder="Detay bilgisi giriniz" />
                 </Form.Item>
                 
@@ -149,7 +149,7 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
                                 <label style={{marginLeft: '150px'}}>Tahmini Bitiş Tarihi</label>
                             </span>
                         }
-                        rules={[{ required: true }]}
+                        rules={[{ required: true, message: 'Tarih zorunludur' }]}
                     >
                         <RangePicker placeholder={['Başlangıç giriniz', 'Bitiş giriniz']} format={"DD.MM.YYYY"} style={{ width: '100%' }} />
                     </Form.Item>
@@ -157,7 +157,7 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
 
                 <Row gutter={16}>
                     <Col span={8}>
-                        <Form.Item label="Kategoriler" name="categories" rules={[{ required: true }]}>
+                        <Form.Item label="Kategoriler" name="categories" rules={[{ required: true, message: 'Kategori zorunludur' }]}>
                             <Select mode="multiple" placeholder="Seçin">
                             {categories.map(category => (
                                 <Option key={category.id} value={category.id}> {category.name} </Option>
@@ -166,7 +166,7 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
                         </Form.Item>
                     </Col>
                     <Col span={8}>
-                        <Form.Item label="Öncelik" name="priority" rules={[{ required: true }]}>
+                        <Form.Item label="Öncelik" name="priority" rules={[{ required: true, message: 'Öncelik zorunludur' }]}>
                             <Select placeholder="Seçin">
                                 <Option value="1">Düşük</Option>
                                 <Option value="2">Orta</Option>
@@ -175,7 +175,7 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
                         </Form.Item>
                     </Col>
                     <Col span={8}>
-                        <Form.Item label="Durum" name="status" rules={[{ required: true }]}>
+                        <Form.Item label="Durum" name="status" rules={[{ required: true, message: 'Durum zorunludur' }]}>
                             <Select placeholder="Seçin">
                                 <Option value="1">Ertelendi</Option>
                                 <Option value="3">Beklemede</Option>
