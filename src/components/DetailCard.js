@@ -118,41 +118,7 @@ const DetailCard = memo(({ users, data }) => {
     }
   };
 
-
-  function calculateDays() {
-    const targetDate = new Date(data.task.estimatedCompleteDate);
-    targetDate.setHours(0, 0, 0, 0);
-    
-    if (data.task.progress !== 100) {
-      const currentDate = new Date();
-      currentDate.setHours(0, 0, 0, 0);
-      const timeDifference = targetDate - currentDate;
-      const daysDifference = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
-    
-      if (daysDifference > 0) {
-        return <span><Tag color='#88D66C'>{daysDifference} gün kaldı <ClockCircleOutlined style={{ marginLeft: '6px' }} /></Tag></span>;
-      } else if (daysDifference < 0) {
-        return <span><Tag color='#F94A29'>{Math.abs(daysDifference)} gün geçti <ClockCircleOutlined style={{ marginLeft: '6px' }} /></Tag></span>;
-      } else {
-        return <span><Tag color='#ff8812'> Bugün <ClockCircleOutlined style={{ marginLeft: '6px' }} /></Tag></span>;
-      }
-    } else {
-      const completionDate = new Date(data.task.completeDate);
-      completionDate.setHours(0, 0, 0, 0);
-      const timeDifference = completionDate - targetDate;
-      const daysDifference = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
-
-      if (daysDifference > 0) {
-        return <span><Tag color='#88D66C'>{daysDifference} gün erken bitti <ClockCircleOutlined style={{ marginLeft: '6px' }} /></Tag></span>;
-      } else if (daysDifference < 0) {
-        return <span><Tag color='#F94A29'>{Math.abs(daysDifference)} gün geç bitti <ClockCircleOutlined style={{ marginLeft: '6px' }} /></Tag></span>;
-      } else {
-        return <span><Tag color='#ff8812'>Bugün bitti <ClockCircleOutlined style={{ marginLeft: '6px' }} /></Tag></span>;
-      }
-    }
-  }
-
-  const estimatedFinishDate = calculateDays();
+  const calculatedTime = calculateRemainingTime(data.task.estimatedCompleteDate, data.task.completeDate);
 
   const [value, setValue] = useState('');
 
@@ -173,7 +139,7 @@ const DetailCard = memo(({ users, data }) => {
             title="Detaylar"
             bordered={false}
             style={{ color: 'white', minHeight: '100%' }}
-            extra={estimatedFinishDate}
+            extra={<span><Tag color={calculatedTime.color}>{calculatedTime.status}<ClockCircleOutlined style={{ marginLeft: '6px' }} /></Tag></span>}
             actions={[
               <span key="addedDate">Eklenme: {dayjs(data.task.addedDate).format('DD MMM YY, HH:mm')}</span>,
               <span key="updateDate">Güncellenme: {dayjs(data.task.updateDate).format('DD MMM YY, HH:mm')}</span>
@@ -221,11 +187,16 @@ const DetailCard = memo(({ users, data }) => {
                   ((data.task.progress !== 100) && ((user.id === comment.user.id) || (user.role === 1)))
                     ? [<Button type="text" shape="circle" onClick={() => onDeleteComment(comment)} key={comment.user.id}><DeleteTwoTone twoToneColor="#F94A29" /></Button>]
                     : []
-              }
+                }
               >
                 <List.Item.Meta
                   avatar={<Avatar style={{ backgroundColor: '#78bf9b', verticalAlign: 'middle'}} size='large' src={comment.user.url} />}
-                  title={comment.user.name + " " +comment.user.surname}
+                  title={
+                    <span style={{display: 'flex', alignItems: 'flex-end'}}>
+                      <div>{comment.user.name + " " +comment.user.surname}</div>
+                      <div style={{marginLeft: '10px', fontSize: '12px', fontWeight: '400', color: 'rgba(0, 0, 0, 0.45)'}}>{dayjs(comment.date).format('DD MMM YY, HH:mm')}</div>
+                    </span>
+                  }
                   description={comment.content}
                 />
               </List.Item>

@@ -37,7 +37,6 @@ const HomePage = () => {
         .then(response => {
           console.log("Tasks: ", response.data);
           setTasks(response.data);
-          setLoading(false);
         })
         .catch(error => {
           console.error('API isteği başarısız:', error);
@@ -52,15 +51,18 @@ const HomePage = () => {
         })
         .catch(error => {
           console.error('API isteği başarısız:', error);
+          setLoading(false);
         });
 
         axios.get(API_URL+'Users')
         .then(response => {
           console.log("Users: ", response.data);
           setUsers(response.data);
+          setLoading(false);
         })
         .catch(error => {
           console.error('API isteği başarısız:', error);
+          setLoading(false);
         });
     }
   }, [user]);
@@ -71,7 +73,7 @@ const HomePage = () => {
     let taskUserStr = taskUser.map(String).join(',');
     let taskCategoriesStr = taskCategories.map(String).join(',');
     let taskId;
-
+ 
     if (task.id === 0) {
     // CREATING TASK
     axios.post(API_URL + "TaskItems", task)

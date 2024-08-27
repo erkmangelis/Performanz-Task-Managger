@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ConfigProvider, Modal, DatePicker, Input, Select, Slider, Form, Row, Col, message } from 'antd';
+import { ConfigProvider, Modal, DatePicker, Input, Select, Slider, Form, Row, Col, message, Checkbox } from 'antd';
 import dayjs from 'dayjs';
 import 'dayjs/locale/tr';
 import trTR from 'antd/lib/locale/tr_TR';
@@ -27,7 +27,7 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
                 "dateRange": [dayjs(data.task.startDate, 'YYYY-MM-DD'), dayjs(data.task.estimatedCompleteDate, 'YYYY-MM-DD')],
                 "categories": data.categories.map(category => (category.id)),
                 "priority": PRIORITY[data.task.priority],
-                "status": STATUS[data.task.status],
+                "status": data.task.status === 1 ? true : false,
                 "progress": data.task.progress
             };
             form.setFieldsValue(formValues);
@@ -55,7 +55,7 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
                 "title": values.title,
                 "description": values.description,
                 "priority": values.priority,
-                "status": values.status,
+                "status": values.status ? 1 : 0,
                 "progress": values.progress,
                 "addedDate": new Date().toISOString(),
                 "startDate": values.dateRange[0],
@@ -69,15 +69,15 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
                 newTask = {
                     ...newTask,
                     "id": data.task.id,
-                    "status": isInteger(newTask.status) ? values.status : data.task.status,
                     "priority": isInteger(newTask.priority) ? values.priority : data.task.priority,
                     "createdByUserId": data.creator.id,
                     "addedDate": new Date(data.task.addedDate).toISOString(),
-                    "completeDate": (newTask.progress === 100 || newTask.status === "4") ? new Date().toISOString() : null,
                 };
             }
+
             onSave(newTask, assignedUser, values.categories);
             onClose();
+            form.resetFields();            
           })
           .catch(errorInfo => {
             console.error('Form validation failed:', errorInfo);
@@ -133,11 +133,11 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
             >
 
                 <Form.Item label="Görev" name="title" rules={[{ required: true, message: 'Görev Adı zorunludur' }]}>
-                    <Input placeholder="Görev giriniz" />
+                    <Input placeholder="Görev giriniz" disabled={data ? !(data.creator.id === user.id || user.role === 1) : ""} />
                 </Form.Item>
           
                 <Form.Item label="Detay" name="description" rules={[{ required: true, message: 'Görev Detayı zorunludur' }]}>
-                    <TextArea rows={4} placeholder="Detay bilgisi giriniz" />
+                    <TextArea rows={4} placeholder="Detay bilgisi giriniz" disabled={data ? !(data.creator.id === user.id || user.role === 1) : ""} />
                 </Form.Item>
                 
                 <ConfigProvider locale={trTR}>
@@ -151,14 +151,14 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
                         }
                         rules={[{ required: true, message: 'Tarih zorunludur' }]}
                     >
-                        <RangePicker placeholder={['Başlangıç giriniz', 'Bitiş giriniz']} format={"DD.MM.YYYY"} style={{ width: '100%' }} />
+                        <RangePicker placeholder={['Başlangıç giriniz', 'Bitiş giriniz']} format={"DD.MM.YYYY"} style={{ width: '100%' }} disabled={data ? !(data.creator.id === user.id || user.role === 1) : ""} />
                     </Form.Item>
                 </ConfigProvider>
 
                 <Row gutter={16}>
                     <Col span={8}>
                         <Form.Item label="Kategoriler" name="categories" rules={[{ required: true, message: 'Kategori zorunludur' }]}>
-                            <Select mode="multiple" placeholder="Seçin">
+                            <Select mode="multiple" placeholder="Seçin" disabled={data ? !(data.creator.id === user.id || user.role === 1) : ""}>
                             {categories.map(category => (
                                 <Option key={category.id} value={category.id}> {category.name} </Option>
                             ))}
@@ -167,7 +167,7 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
                     </Col>
                     <Col span={8}>
                         <Form.Item label="Öncelik" name="priority" rules={[{ required: true, message: 'Öncelik zorunludur' }]}>
-                            <Select placeholder="Seçin">
+                            <Select placeholder="Seçin" disabled={data ? !(data.creator.id === user.id || user.role === 1) : ""}>
                                 <Option value="1">Düşük</Option>
                                 <Option value="2">Orta</Option>
                                 <Option value="3">Yüksek</Option>
@@ -175,13 +175,8 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
                         </Form.Item>
                     </Col>
                     <Col span={8}>
-                        <Form.Item label="Durum" name="status" rules={[{ required: true, message: 'Durum zorunludur' }]}>
-                            <Select placeholder="Seçin">
-                                <Option value="1">Ertelendi</Option>
-                                <Option value="3">Beklemede</Option>
-                                <Option value="2">İşlemde</Option>
-                                <Option value="4">Tamamlandı</Option>
-                            </Select>
+                        <Form.Item label="Durum" name="status" valuePropName="checked">
+                            <Checkbox disabled={data ? !(data.creator.id === user.id || user.role === 1) : ""} >Ertelendi</Checkbox>
                         </Form.Item>      
                     </Col>
                 </Row>

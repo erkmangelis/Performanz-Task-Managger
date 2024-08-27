@@ -89,5 +89,17 @@ header {
   .striped-row {
     background-color: rgb(249, 249, 249);
   }
+
+  .kırmızı {
+    color:  #F94A29;
+  }
+
+  .turuncu {
+    color: rgb(250, 164, 5);
+  }
+
+  .yeşil {
+    color: #88D66C;
+  }
   
   

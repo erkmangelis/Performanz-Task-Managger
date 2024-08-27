@@ -1,11 +1,11 @@
 import React, { useRef, useState } from 'react';
-import { Table, Space, Tag, Progress, Modal, Divider, Button, Avatar } from 'antd';
-import { EditTwoTone, DeleteTwoTone, FlagFilled, ExclamationCircleFilled, ClockCircleOutlined } from '@ant-design/icons';
+import { Table, Space, Tag, Progress, Modal, Divider, Button, Avatar, Badge } from 'antd';
+import { EditTwoTone, DeleteTwoTone, FlagFilled, ExclamationCircleFilled, ClockCircleOutlined, CrownTwoTone, CrownFilled, CrownOutlined, } from '@ant-design/icons';
 import DetailCard from './DetailCard';
 import dayjs from 'dayjs';
 import { useUser } from '../contexts/UserContext';
 import { PRIORITY, STATUS } from '../config/Config.js';
-import { calculateRemainingTime } from '../services/remainingTimeService';
+import { calculateRemainingTime, getColorForRemainingTime } from '../services/remainingTimeService';
 
 
 const { confirm } = Modal;
@@ -55,6 +55,16 @@ const Tasks = ({ users, categories, tasks, onEditTask, deleteTask}) => {
 
     const columns = [
       {
+        title: '',
+        align: 'left',
+        dataIndex: ['creator', 'id'],
+        width: 30,
+        render: (item) => {
+          const user = users.find(user => user.id === item);
+          return user.role === 1 ? <CrownFilled style={{color: '#F94A29'}} /> : "";
+      },
+      },
+      {
         title: 'Görev',
         align: 'center',
         dataIndex: ['task', 'title'],
@@ -62,6 +72,9 @@ const Tasks = ({ users, categories, tasks, onEditTask, deleteTask}) => {
           return a.task.title.localeCompare(b.task.title, 'tr', { sensitivity: 'base' });
         },
         sortDirections: ['ascend', 'descend'],
+        render: (item) => {
+          return <span style={{fontWeight: '700'}}>{item}</span>
+        },
       },
       {
         title: 'Kategori',
@@ -81,7 +94,7 @@ const Tasks = ({ users, categories, tasks, onEditTask, deleteTask}) => {
             size="medium"
             max={{
               count: 1,
-              style: { fontWeight: '500', color: '#3F72AF', backgroundColor: 'rgba(0,0,0,0)', borderColor: 'rgba(0,0,0,0)' },
+              style: { fontWeight: '500', color: 'white', backgroundColor: '#3F72AF', borderColor: 'rgba(0,0,0,0)', border: '4px, solid', cursor: 'default'},
             }}
           >
             {items && items.length > 0 ? (
@@ -90,7 +103,7 @@ const Tasks = ({ users, categories, tasks, onEditTask, deleteTask}) => {
                   shape="square"
                   size="large"
                   key={item.id}
-                  style={{ backgroundColor: 'rgba(0,0,0,0)', color: 'black', borderColor: 'rgba(0,0,0,0)', fontSize: '14px', fontWeight: '400', transform: '1' }}
+                  style={{ zIndex: '100', backgroundColor: 'rgba(0,0,0,0)', color: 'black', borderColor: 'rgba(0,0,0,0)', fontSize: '14px', fontWeight: '400', transform: '1' }}
                 >
                   {item.name.length <= 6 ? (item.name) : (item.name.slice(0, 5) + '..')}
                 </Avatar>
@@ -103,14 +116,18 @@ const Tasks = ({ users, categories, tasks, onEditTask, deleteTask}) => {
         title: 'Tahmini Bitiş Tarihi',
         align: 'center',
         dataIndex: ['task', 'estimatedCompleteDate'],
-        render: (date) => {
+        render: (date, record) => {
           const dateInfo = calculateRemainingTime(date);
-          return date ? (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+          return record.task.progress !== 100 ? (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <span>{dayjs(date).format('DD.MM.YYYY')}</span>
               <span style={{fontSize: '10px'}}> {dateInfo.status} <ClockCircleOutlined /> </span>
             </div>
-          ) : 'Bilgi Yok';
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <span>{dayjs(date).format('DD.MM.YYYY')}</span>
+            </div>
+          );
         },
         sorter: (a, b) => {
           const dateFormat = 'YYYY-MM-DD';
@@ -337,7 +354,7 @@ const Tasks = ({ users, categories, tasks, onEditTask, deleteTask}) => {
             }}
             dataSource={tasks}
             rowKey={(record) => record.task.id}
-            rowClassName={(record, index) => (index % 2 === 1 ? 'striped-row' : '')}
+            rowClassName={(record, index) => (getColorForRemainingTime(record.task.estimatedCompleteDate, record.task.progress === 100))}
         />
     );
 };
