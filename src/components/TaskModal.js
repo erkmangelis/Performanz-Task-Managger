@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ConfigProvider, Modal, DatePicker, Input, Select, Slider, Form, Row, Col, message, Checkbox } from 'antd';
+import { ConfigProvider, Modal, DatePicker, Input, Select, Slider, Form, Row, Col, message, Checkbox, Tooltip } from 'antd';
 import dayjs from 'dayjs';
 import 'dayjs/locale/tr';
 import trTR from 'antd/lib/locale/tr_TR';
@@ -16,10 +16,12 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
     const user = useUser();
     const [form] = Form.useForm();
     const [assignedUser, setAssignedUser] = useState([]);
+    const [checked, setChecked] = useState(false);
 
     
     useEffect(() => {
         if (data) {
+            setChecked(data.task.status === 1 ? true : false);
             setAssignedUser([data.assignedUsers.map(x => x.id)]);
             const formValues = {
                 "title": data.task.title,
@@ -32,6 +34,7 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
             };
             form.setFieldsValue(formValues);
         } else {
+            setChecked(false);
             form.resetFields();
             if (user.role !== 1) {
                 setAssignedUser([user.id]);
@@ -70,7 +73,7 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
                     ...newTask,
                     "id": data.task.id,
                     "priority": isInteger(newTask.priority) ? values.priority : data.task.priority,
-                    "createdByUserId": data.creator.id,
+                    "createdByUserId": user.role === 1 ? user.id : data.creator.id,
                     "addedDate": new Date(data.task.addedDate).toISOString(),
                 };
             }
@@ -158,7 +161,22 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
                 <Row gutter={16}>
                     <Col span={8}>
                         <Form.Item label="Kategoriler" name="categories" rules={[{ required: true, message: 'Kategori zorunludur' }]}>
-                            <Select mode="multiple" placeholder="Seçin" disabled={data ? !(data.creator.id === user.id || user.role === 1) : ""}>
+                            <Select
+                                mode="multiple"
+                                placeholder="Seçin"
+                                disabled={data ? !(data.creator.id === user.id || user.role === 1) : ""}
+                                maxTagCount="responsive"
+                                maxTagPlaceholder={(omittedValues) => (
+                                    <Tooltip
+                                      overlayStyle={{
+                                        pointerEvents: 'none',
+                                      }}
+                                      title={omittedValues.map(({ label }) => label[1]).join(', ')}
+                                    >
+                                      <span>Seçilenler</span>
+                                    </Tooltip>
+                                  )}
+                            >
                             {categories.map(category => (
                                 <Option key={category.id} value={category.id}> {category.name} </Option>
                             ))}
@@ -176,13 +194,14 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
                     </Col>
                     <Col span={8}>
                         <Form.Item label="Durum" name="status" valuePropName="checked">
-                            <Checkbox disabled={data ? !(data.creator.id === user.id || user.role === 1) : ""} >Ertelendi</Checkbox>
+                            <Checkbox checked={checked} onChange={(e) => setChecked(e.target.checked)} disabled={data ? !(data.creator.id === user.id || user.role === 1) : ""} >Ertelendi</Checkbox>
                         </Form.Item>      
                     </Col>
                 </Row>
 
                 <Form.Item label="İlerleme" name="progress">
                             <Slider
+                                disabled={checked}
                                 min={0}
                                 max={100}
                                 step={10}

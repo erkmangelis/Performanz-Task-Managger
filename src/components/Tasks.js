@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
-import { Table, Space, Tag, Progress, Modal, Divider, Button, Avatar, Badge } from 'antd';
-import { EditTwoTone, DeleteTwoTone, FlagFilled, ExclamationCircleFilled, ClockCircleOutlined, CrownTwoTone, CrownFilled, CrownOutlined, } from '@ant-design/icons';
+import { Table, Space, Tag, Progress, Modal, Divider, Button, Avatar, Dropdown, Input, Menu } from 'antd';
+import { EditTwoTone, DeleteTwoTone, FlagFilled, ExclamationCircleFilled, ClockCircleOutlined, CrownFilled, PlusOutlined } from '@ant-design/icons';
 import DetailCard from './DetailCard';
 import dayjs from 'dayjs';
 import { useUser } from '../contexts/UserContext';
@@ -77,7 +77,25 @@ const Tasks = ({ users, categories, tasks, onEditTask, deleteTask}) => {
         },
       },
       {
-        title: 'Kategori',
+        title: (user.role === 1 ?
+        <>
+          <Dropdown
+            overlay={
+              <Menu><Menu.Item>
+                <Space.Compact style={{ width: '100%' }}>
+                  <Input placeholder="Görev adı girin" />
+                  <Button type="primary" style={{backgroundColor: '#3F72AF'}}>Ekle</Button>
+                </Space.Compact>
+              </Menu.Item></Menu>
+            }
+            trigger={['click']}
+          >
+            <PlusOutlined />
+          </Dropdown>
+          <span style={{marginLeft: '6px'}}>Kategori</span>
+        </> :
+          <span>Kategori</span>
+        ),
         align: 'center',
         dataIndex: 'categories',
         filters: categories.map(category => ({
@@ -138,6 +156,7 @@ const Tasks = ({ users, categories, tasks, onEditTask, deleteTask}) => {
           if (dateA.isAfter(dateB)) return 1;
           return 0;
         },
+        defaultSortOrder: 'ascend',
       },
       {
         title: 'Durum',

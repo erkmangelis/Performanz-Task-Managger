@@ -165,6 +165,9 @@ const HomePage = () => {
     });
   };
 
+  /////////////// Delete Category /////////////
+  
+
   /////////////// Task Modal ///////////////
   const [taskModalVisible, setTaskModalVisible] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
