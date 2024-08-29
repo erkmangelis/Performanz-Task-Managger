@@ -22,18 +22,21 @@ export function calculateRemainingTime(estimatedFinishDate, completionDate = nul
             color = '#F94A29';
         } else {
             status = 'Zamanında bitti';
-            color = '#FFEA20';
+            color = '#faa405';
         }
     } else {
-        if (differenceInDays > 0) {
+        if (differenceInDays > 3) {
             status = `${differenceInDays} gün kaldı`;
-            color = '#88D66C';
-        } else if (differenceInDays < 0) {
-            status = `${Math.abs(differenceInDays)} gün geçti`;
-            color = '#F94A29';
-        } else {
+            color = '#88D66C'; // Yeşil renk
+        } else if (differenceInDays > 0 && differenceInDays <= 3) {
+            status = `${differenceInDays} gün kaldı`;
+            color = '#faa405'; // Turuncu renk
+        } else if (differenceInDays === 0) {
             status = 'Bugün';
-            color = '#FFEA20';
+            color = '#faa405'; // Turuncu renk
+        } else {
+            status = `${Math.abs(differenceInDays)} gün geçti`;
+            color = '#F94A29'; // Kırmızı renk
         }
     }
 

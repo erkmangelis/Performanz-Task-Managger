@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Table, Space, Tag, Progress, Modal, Divider, Button, Avatar, Dropdown, Input, Menu } from 'antd';
+import { Table, Space, Tag, Progress, Modal, Divider, Button, Avatar, Dropdown, Input, Menu, Popover } from 'antd';
 import { EditTwoTone, DeleteTwoTone, FlagFilled, ExclamationCircleFilled, ClockCircleOutlined, CrownFilled, PlusOutlined } from '@ant-design/icons';
 import DetailCard from './DetailCard';
 import dayjs from 'dayjs';
@@ -10,7 +10,7 @@ import { calculateRemainingTime, getColorForRemainingTime } from '../services/re
 
 const { confirm } = Modal;
 
-const Tasks = ({ users, categories, tasks, onEditTask, deleteTask}) => {
+const Tasks = ({ addTask, users, categories, tasks, onEditTask, deleteTask}) => {
   const [expandedRowKeys, setExpandedRowKeys] = useState([]);
   const rowRefs = useRef({});
   const user = useUser();
@@ -19,6 +19,7 @@ const Tasks = ({ users, categories, tasks, onEditTask, deleteTask}) => {
   const [priorityFilter, setPriorityFilter] = useState([]);
   const [creatorFilter, setCreatorFilter] = useState([]);
   const [assignedUsersFilter, setAssignedUsersFilter] = useState([]);
+  const [inputValue, setInputValue] = useState('');
   
   const handleDeleteTask = (record) => {
     confirm({
@@ -53,6 +54,11 @@ const Tasks = ({ users, categories, tasks, onEditTask, deleteTask}) => {
     }
   };
 
+  const handleCategoryAdd = () => {
+    addTask(inputValue);
+    setInputValue("");
+  };
+
     const columns = [
       {
         title: '',
@@ -73,25 +79,22 @@ const Tasks = ({ users, categories, tasks, onEditTask, deleteTask}) => {
         },
         sortDirections: ['ascend', 'descend'],
         render: (item) => {
-          return <span style={{fontWeight: '700'}}>{item}</span>
+          return <span style={{fontWeight: '500'}}>{item}</span>
         },
       },
       {
         title: (user.role === 1 ?
         <>
-          <Dropdown
-            overlay={
-              <Menu><Menu.Item>
-                <Space.Compact style={{ width: '100%' }}>
-                  <Input placeholder="Görev adı girin" />
-                  <Button type="primary" style={{backgroundColor: '#3F72AF'}}>Ekle</Button>
-                </Space.Compact>
-              </Menu.Item></Menu>
-            }
-            trigger={['click']}
+          <Popover 
+          trigger="click"
+          content={
+            <Space.Compact style={{ width: '100%' }}>
+              <Input value={inputValue} placeholder="Görev adı girin" onChange={(e) => setInputValue(e.target.value)} />
+              <Button disabled={!inputValue} type="primary" style={{ backgroundColor: '#3F72AF' }} onClick={handleCategoryAdd}> Ekle </Button>
+            </Space.Compact>}
           >
-            <PlusOutlined />
-          </Dropdown>
+            <Button style={{padding: '10px', height: '16px', width: '16px'}} type='text' icon={<PlusOutlined />} />
+          </Popover>
           <span style={{marginLeft: '6px'}}>Kategori</span>
         </> :
           <span>Kategori</span>
@@ -137,7 +140,7 @@ const Tasks = ({ users, categories, tasks, onEditTask, deleteTask}) => {
         render: (date, record) => {
           const dateInfo = calculateRemainingTime(date);
           return record.task.progress !== 100 ? (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', color: dateInfo.color}}>
               <span>{dayjs(date).format('DD.MM.YYYY')}</span>
               <span style={{fontSize: '10px'}}> {dateInfo.status} <ClockCircleOutlined /> </span>
             </div>
@@ -373,7 +376,7 @@ const Tasks = ({ users, categories, tasks, onEditTask, deleteTask}) => {
             }}
             dataSource={tasks}
             rowKey={(record) => record.task.id}
-            rowClassName={(record, index) => (getColorForRemainingTime(record.task.estimatedCompleteDate, record.task.progress === 100))}
+            
         />
     );
 };

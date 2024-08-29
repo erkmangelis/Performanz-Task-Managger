@@ -165,8 +165,37 @@ const HomePage = () => {
     });
   };
 
-  /////////////// Delete Category /////////////
-  
+
+  /////////////// Add Category /////////////
+  const addTask = (category) => {
+    if (categories.every(c => c.name.toLowerCase() !== category.toLowerCase())) {
+      axios.post(API_URL + "Categories", {"name": category})
+      .then(response => {
+        setCategories(prevCategories => [...prevCategories, response.data]);
+        openNotificationWithIcon({
+          type: 'success',
+          title: 'Kategori Ekleme Başarılı',
+          description: '"'+category+'" adlı kategori ekleme işlemi başarıyla gerçekleştirildi.',
+        });
+      })
+      .catch(error => {
+        console.error('Kategori ekleme başarısız:', error);
+        openNotificationWithIcon({
+          type: 'error',
+          title: 'Kategori Ekleme Başarısız',
+          description: 'Kategori ekleme işlemi gerçekleştirilemedi.',
+        });
+      });
+    } else {
+      openNotificationWithIcon({
+        type: 'info',
+        title: 'Kategori Zaten Mevcut',
+        description: 'Eklemek istediğiniz kategori zaten mevcut.',
+      });
+    }
+    
+  };
+
 
   /////////////// Task Modal ///////////////
   const [taskModalVisible, setTaskModalVisible] = useState(false);
@@ -244,6 +273,7 @@ const HomePage = () => {
         >
           {!loading && !error && (
           <Tasks 
+            addTask={addTask}
             users={users}
             categories={categories}
             tasks={tasks}
