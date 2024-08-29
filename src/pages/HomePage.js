@@ -8,12 +8,25 @@ import { useUser } from '../contexts/UserContext';
 import axios from 'axios';
 import { API_URL } from '../config/Config.js';
 import openNotificationWithIcon from '../services/notificationService';
+import Profile from '../components/Profile';
 
 
 const { Header, Content } = Layout;
 
 const HomePage = () => {
   const user = useUser();
+
+  ///////////////// Profile ////////////////
+  const [showProfile, setShowProfile] = useState(false);
+
+  const openProfile = () => {
+    setShowProfile(true);
+  };
+
+  const closeProfile = () => {
+    setShowProfile(false);
+  };
+  //////////////////////////////////////////
 
   /////////////// Log  Out ///////////////
   const navigate = useNavigate();
@@ -230,7 +243,7 @@ const HomePage = () => {
           justifyContent: 'space-between',
           height: '10vh',
           color: 'white',
-          flexShrink: 0, // Header boyutunun değişmemesi için
+          flexShrink: 0,
         }}
       >
         <div className='user'>
@@ -246,42 +259,56 @@ const HomePage = () => {
           <Button onClick={handleLogout} size="large" type="text" style={{ color: 'white', fontWeight: '500', fontSize: '16px' }}>Çıkış Yap <LogoutOutlined /></Button>
         </div>
       </Header>
-      <Content
+      <div
         style={{
-          flex: 1, // Kalan tüm alanı kaplaması için
-          margin: '24px 16px',
-          background: colorBgContainer,
-          borderRadius: borderRadiusLG,
-          overflow: 'hidden', // İçeriğin taşmaması için
+          flex: 1,
+          overflow: 'hidden',
+          position: 'relative',
         }}
       >
-        <TaskModal
-          users={users}
-          categories={categories}
-          onOpen={taskModalVisible}
-          data={editingTask}
-          onClose={handleCloseModal}
-          onSave={handleSaveTask}
+        <Profile
+          shown={showProfile}
+          onClose={closeProfile}
+          onSave={""}
         />
-        <div
-          className='main-table'
+        <Content
           style={{
+            flex: 1,
+            margin: '24px 16px',
             background: colorBgContainer,
-            minHeight: '100%',
             borderRadius: borderRadiusLG,
+            overflow: 'hidden',
+            position: 'relative',
           }}
         >
-          {!loading && !error && (
-          <Tasks 
-            addTask={addTask}
+          <TaskModal
             users={users}
             categories={categories}
-            tasks={tasks}
-            onEditTask={handleEditTask}
-            deleteTask={deleteTask}
-          /> )}
-        </div>
-      </Content>
+            onOpen={taskModalVisible}
+            data={editingTask}
+            onClose={handleCloseModal}
+            onSave={handleSaveTask}
+          />
+          <div
+            className='main-table'
+            style={{
+              background: colorBgContainer,
+              minHeight: '100%',
+              borderRadius: borderRadiusLG,
+            }}
+          >
+            {!loading && !error && (
+            <Tasks 
+              addTask={addTask}
+              users={users}
+              categories={categories}
+              tasks={tasks}
+              onEditTask={handleEditTask}
+              deleteTask={deleteTask}
+            /> )}
+          </div>
+        </Content>
+      </div>
     </Layout>
   );
 }

@@ -1,11 +1,11 @@
 import React, { useRef, useState } from 'react';
-import { Table, Space, Tag, Progress, Modal, Divider, Button, Avatar, Dropdown, Input, Menu, Popover } from 'antd';
+import { Table, Space, Tag, Progress, Modal, Divider, Button, Avatar, Input, Popover } from 'antd';
 import { EditTwoTone, DeleteTwoTone, FlagFilled, ExclamationCircleFilled, ClockCircleOutlined, CrownFilled, PlusOutlined } from '@ant-design/icons';
 import DetailCard from './DetailCard';
 import dayjs from 'dayjs';
 import { useUser } from '../contexts/UserContext';
 import { PRIORITY, STATUS } from '../config/Config.js';
-import { calculateRemainingTime, getColorForRemainingTime } from '../services/remainingTimeService';
+import { calculateRemainingTime } from '../services/remainingTimeService';
 
 
 const { confirm } = Modal;
@@ -376,7 +376,7 @@ const Tasks = ({ addTask, users, categories, tasks, onEditTask, deleteTask}) => 
             }}
             dataSource={tasks}
             rowKey={(record) => record.task.id}
-            
+            rowClassName={(record, index) => (index % 2 === 1 ? 'striped-row' : '')}
         />
     );
 };
