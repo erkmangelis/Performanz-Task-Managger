@@ -4,7 +4,7 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/tr';
 import trTR from 'antd/lib/locale/tr_TR';
 import { useUser } from '../contexts/UserContext';
-import { PRIORITY, STATUS } from '../config/Config.js';
+import { PRIORITY } from '../config/Config.js';
 
 
 const { RangePicker } = DatePicker;

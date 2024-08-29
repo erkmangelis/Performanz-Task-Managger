@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Button, Avatar, Space, theme } from 'antd';
+import { Layout, Button, Avatar, theme } from 'antd';
 import { FileAddOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons';
 import Tasks from '../components/Tasks';
 import TaskModal from '../components/TaskModal';
@@ -247,10 +247,10 @@ const HomePage = () => {
         }}
       >
         <div className='user'>
-          <Space align="baseline" size={10}>
+          <Button size='large' type="text" onClick={openProfile} style={{display: 'flex', alignItems: 'center', height: '100%', paddingBottom: '6px', paddingTop: '10px'}}>
             <Avatar shape='square' style={{ backgroundColor: '#78bf9b', verticalAlign: 'middle', marginTop: '-5px'}} size='large' icon={<UserOutlined />} src={user.url}>{user.name}</Avatar>
             <h1 style={{ color: 'white', fontWeight: '500', fontSize: '16px' }}>{user.name} {user.surname}</h1>
-          </Space>
+          </Button>
         </div>
         <div className='taskAdd'>
           <Button size="large" type="text" style={{ color: 'white', fontWeight: '500', fontSize: '16px'}} onClick={handleAddTask}>Görev Ekle <FileAddOutlined /></Button>
@@ -266,11 +266,7 @@ const HomePage = () => {
           position: 'relative',
         }}
       >
-        <Profile
-          shown={showProfile}
-          onClose={closeProfile}
-          onSave={""}
-        />
+        <Profile shown={showProfile} onClose={closeProfile} />
         <Content
           style={{
             flex: 1,
