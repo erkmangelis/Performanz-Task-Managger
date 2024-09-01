@@ -14,10 +14,11 @@ import Profile from '../components/Profile';
 const { Header, Content } = Layout;
 
 const HomePage = () => {
-  const user = useUser();
+  const {user, setUser} = useUser();
 
   ///////////////// Profile ////////////////
   const [showProfile, setShowProfile] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const openProfile = () => {
     setShowProfile(true);
@@ -25,6 +26,31 @@ const HomePage = () => {
 
   const closeProfile = () => {
     setShowProfile(false);
+  };
+
+  const handleUpdateProfile = (updatedUser) => {
+    setIsProcessing(true);
+    axios.post(API_URL + "Users", updatedUser)
+    .then(response => {
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      setUser(updatedUser);
+      setIsProcessing(false);
+      closeProfile();
+      openNotificationWithIcon({
+        type: 'success',
+        title: 'Profil Güncelleme Başarılı',
+        description: 'Profil bilgilerini güncelleme işlemi başarıyla gerçekleştirildi.',
+      });
+    })
+    .catch(error => {
+      console.error('Error updating profile:', error);
+      setIsProcessing(false);
+      openNotificationWithIcon({
+        type: 'error',
+        title: 'Profil Güncelleme Başarısız',
+        description: 'Profil bilgilerini güncelleme işlemi gerçekleştirilemedi.',
+      });
+    });
   };
   //////////////////////////////////////////
 
@@ -266,7 +292,7 @@ const HomePage = () => {
           position: 'relative',
         }}
       >
-        <Profile shown={showProfile} onClose={closeProfile} />
+        <Profile shown={showProfile} onClose={closeProfile} onSave={handleUpdateProfile} loading={isProcessing}/>
         <Content
           style={{
             flex: 1,

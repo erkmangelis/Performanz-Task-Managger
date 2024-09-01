@@ -13,7 +13,7 @@ const { Option } = Select;
 
 
 const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
-    const user = useUser();
+    const {user} = useUser();
     const [form] = Form.useForm();
     const [assignedUser, setAssignedUser] = useState([]);
     const [checked, setChecked] = useState(false);

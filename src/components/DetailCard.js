@@ -15,7 +15,7 @@ dayjs.locale('tr');
 
 const DetailCard = memo(({ users, data }) => {
   const [commentList, setCommentList] = useState();
-  const user = useUser();
+  const {user} = useUser();
   const [form] = Form.useForm();
 
   useEffect(() => {

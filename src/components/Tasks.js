@@ -13,7 +13,7 @@ const { confirm } = Modal;
 const Tasks = ({ addTask, users, categories, tasks, onEditTask, deleteTask}) => {
   const [expandedRowKeys, setExpandedRowKeys] = useState([]);
   const rowRefs = useRef({});
-  const user = useUser();
+  const {user} = useUser();
   const [statusFilter, setStatusFilter] = useState([1, 2, 3]); 
   const [categoriesFilter, setCategoriesFilter] = useState([]);
   const [priorityFilter, setPriorityFilter] = useState([]);
