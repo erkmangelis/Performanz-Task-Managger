@@ -142,7 +142,11 @@ const DetailCard = memo(({ users, data }) => {
             extra={<span><Tag color={calculatedTime.color}>{calculatedTime.status}<ClockCircleOutlined style={{ marginLeft: '6px' }} /></Tag></span>}
             actions={[
               <span key="addedDate">Eklenme: {dayjs(data.task.addedDate).format('DD MMM YY, HH:mm')}</span>,
-              <span key="updateDate">Güncellenme: {dayjs(data.task.updateDate).format('DD MMM YY, HH:mm')}</span>
+              data.task.progress === 100 ? (
+                <span key="completeDate">Tamamlanma: {dayjs(data.task.completeDate).format('DD MMM YY, HH:mm')}</span>
+              ) : (
+                <span key="updateDate">Güncellenme: {dayjs(data.task.updateDate).format('DD MMM YY, HH:mm')}</span>
+              )
             ]}
           >
             <Card.Meta 
