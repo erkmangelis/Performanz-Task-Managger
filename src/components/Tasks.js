@@ -73,6 +73,7 @@ const Tasks = ({ addTask, users, categories, tasks, onEditTask, deleteTask}) => 
       {
         title: 'Görev',
         align: 'center',
+        width: '20%',
         dataIndex: ['task', 'title'],
         sorter: (a, b) => {
           return a.task.title.localeCompare(b.task.title, 'tr', { sensitivity: 'base' });

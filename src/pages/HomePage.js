@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Button, Avatar, theme } from 'antd';
-import { FileAddOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons';
+import { Layout, Button, Avatar, theme, Segmented, Divider } from 'antd';
+import { FileAddOutlined, LogoutOutlined, UserOutlined, ScheduleOutlined, ContactsOutlined, UserAddOutlined } from '@ant-design/icons';
 import Tasks from '../components/Tasks';
 import TaskModal from '../components/TaskModal';
 import { useNavigate } from 'react-router-dom';
@@ -9,12 +9,15 @@ import axios from 'axios';
 import { API_URL } from '../config/Config.js';
 import openNotificationWithIcon from '../services/notificationService';
 import Profile from '../components/Profile';
+import Users from '../components/Users';
+import UserModal from '../components/UserModal';
 
 
 const { Header, Content } = Layout;
 
 const HomePage = () => {
   const {user, setUser} = useUser();
+  const [table, setTable] = useState("tasks");
 
   ///////////////// Profile ////////////////
   const [showProfile, setShowProfile] = useState(false);
@@ -74,7 +77,6 @@ const HomePage = () => {
     if (user) {
       axios.get(user.role === 1 ? (API_URL+'TaskItems') : (API_URL+'TaskItems/ByUserId/'+user.id))
         .then(response => {
-          console.log("Tasks: ", response.data);
           setTasks(response.data);
         })
         .catch(error => {
@@ -85,7 +87,6 @@ const HomePage = () => {
 
         axios.get(API_URL+'Categories')
         .then(response => {
-          console.log("Categories: ", response.data);
           setCategories(response.data);
         })
         .catch(error => {
@@ -95,7 +96,6 @@ const HomePage = () => {
 
         axios.get(API_URL+'Users')
         .then(response => {
-          console.log("Users: ", response.data);
           setUsers(response.data);
           setLoading(false);
         })
@@ -204,6 +204,78 @@ const HomePage = () => {
     });
   };
 
+  /////////////// Add User ///////////////
+  const handleSaveUser = (usr) => {
+    if (usr.id === 0) {
+    // CREATING USER
+    axios.post(API_URL + "Users", usr)
+    .then((response) => {
+      return axios.get(API_URL + "Users/" + response.data.id);
+    })
+    .then(response => {
+      setUsers(prevUsers => [...prevUsers, response.data]);
+      
+      openNotificationWithIcon({
+        type: 'success',
+        title: 'Kullanıcı Oluşturma Başarılı',
+        description: '"'+usr.name+' '+usr.surname+'" adlı kullanıcı oluşturma işlemi başarıyla gerçekleştirildi.',
+      });
+    })
+    .catch(error => {
+      console.error('Error creating user:', error);
+      openNotificationWithIcon({
+        type: 'error',
+        title: 'Kullanıcı Oluşturma Başarısız',
+        description: '"'+usr.name+' '+usr.surname+'" adlı kullanıcı oluşturma işlemi gerçekleştirilemedi.',
+      });
+    });
+    } else {
+    // UPDATING USER
+    axios.post(API_URL + "Users", usr)
+    .then(response => {
+      setUsers(prevUsers => 
+        prevUsers.map(u => 
+          u.id === usr.id ? { ...usr } : u
+        )
+      );
+
+      openNotificationWithIcon({
+        type: 'success',
+        title: 'Kullanıcı Düzenleme Başarılı',
+        description: '"'+usr.name+' '+usr.surname+'" adlı kullanıcıyı düzenleme işlemi başarıyla gerçekleştirildi.',
+      });
+    })
+    .catch(error => {
+      console.error('Error creating task:', error);
+      openNotificationWithIcon({
+        type: 'error',
+        title: 'Kullanıcı Düzenleme Başarısız',
+        description: '"'+usr.name+' '+usr.surname+'" adlı kullanıcıyı düzenleme işlemi gerçekleştirilemedi.',
+      });
+    });
+    }
+  };
+
+  /////////////// Delete User ///////////////
+  const deleteUser = (userId) => {
+    axios.delete(API_URL+"Users/"+userId)
+    .then(() => {
+      setUsers(prevUsers => prevUsers.filter(usr => usr.id !== userId));
+      openNotificationWithIcon({
+        type: 'info',
+        title: 'Kullanıcı Silme Başarılı',
+        description: 'Kullanıcı silme işlemi başarıyla gerçekleştirildi.',
+      });
+    })
+    .catch(error => {
+      console.error('Kullanıcı silme başarısız:', error);
+      openNotificationWithIcon({
+        type: 'error',
+        title: 'Kullanıcı Silme Başarısız',
+        description: 'Kullanıcı silme işlemi gerçekleştirilemedi.',
+      });
+    });
+  } 
 
   /////////////// Add Category /////////////
   const addTask = (category) => {
@@ -235,6 +307,25 @@ const HomePage = () => {
     
   };
 
+  /////////////// User Modal ///////////////
+  const [userModalVisible, setUserModalVisible] = useState(false);
+  const [editingUser, setEditingUser] = useState(null);
+
+  const handleAddUser = () => {
+    setEditingUser(null);
+    setUserModalVisible(true);
+  };
+
+  const handleEditUser = (usr) => {
+    setEditingUser(usr);
+    setUserModalVisible(true);
+  };
+
+  const handleCloseUserModal = () => {
+    setEditingUser(null);
+    setUserModalVisible(false);
+  };
+  //////////////////////////////////////////
 
   /////////////// Task Modal ///////////////
   const [taskModalVisible, setTaskModalVisible] = useState(false);
@@ -272,15 +363,35 @@ const HomePage = () => {
           flexShrink: 0,
         }}
       >
-        <div className='user'>
+        <div className='user' style={{display: 'flex', alignItems:'center'}}>
           <Button size='large' type="text" onClick={openProfile} style={{display: 'flex', alignItems: 'center', height: '100%', paddingBottom: '6px', paddingTop: '10px'}}>
             <Avatar shape='square' style={{ backgroundColor: '#78bf9b', verticalAlign: 'middle', marginTop: '-5px'}} size='large' icon={<UserOutlined />} src={user.url}>{user.name}</Avatar>
             <h1 style={{ color: 'white', fontWeight: '500', fontSize: '16px' }}>{user.name} {user.surname}</h1>
           </Button>
+
+           
+          <Divider type="vertical" />
+          {user.role === 1 ? (
+          <div className='tableSegment'>
+            <Segmented
+              options={[
+                { value: 'tasks', icon: <ScheduleOutlined style={{fontSize: '18px'}}/> },
+                { value: 'users', icon: <ContactsOutlined style={{fontSize: '18px'}}/> }
+              ]}
+              value={table}
+              onChange={setTable}
+            />
+          </div>): ("")}
         </div>
-        <div className='taskAdd'>
-          <Button size="large" type="text" style={{ color: 'white', fontWeight: '500', fontSize: '16px'}} onClick={handleAddTask}>Görev Ekle <FileAddOutlined /></Button>
+
+        <div className='addButton' style={{marginLeft: '-80px'}}>
+          {table === "tasks" ? ( 
+            <Button size="large" type="text" style={{ color: 'white', fontWeight: '500', fontSize: '16px'}} onClick={handleAddTask}>Görev Ekle <FileAddOutlined /></Button>
+              ) : (
+            <Button size="large" type="text" style={{ color: 'white', fontWeight: '500', fontSize: '16px'}} onClick={handleAddUser}>Kullanıcı Ekle <UserAddOutlined /></Button>
+            )}
         </div>
+        
         <div className='logout'>
           <Button onClick={handleLogout} size="large" type="text" style={{ color: 'white', fontWeight: '500', fontSize: '16px' }}>Çıkış Yap <LogoutOutlined /></Button>
         </div>
@@ -311,6 +422,12 @@ const HomePage = () => {
             onClose={handleCloseModal}
             onSave={handleSaveTask}
           />
+          <UserModal
+            data={editingUser}
+            onOpen={userModalVisible}
+            onClose={handleCloseUserModal}
+            onSave={handleSaveUser}
+          />
           <div
             className='main-table'
             style={{
@@ -319,7 +436,8 @@ const HomePage = () => {
               borderRadius: borderRadiusLG,
             }}
           >
-            {!loading && !error && (
+            {table === "tasks" ? 
+            (!loading && !error && (
             <Tasks 
               addTask={addTask}
               users={users}
@@ -327,7 +445,13 @@ const HomePage = () => {
               tasks={tasks}
               onEditTask={handleEditTask}
               deleteTask={deleteTask}
-            /> )}
+            /> )) :
+            <Users
+              userList={users}
+              onEditUser={handleEditUser}
+              deleteUser={deleteUser}
+            />
+            }
           </div>
         </Content>
       </div>
