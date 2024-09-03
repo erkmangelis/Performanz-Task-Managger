@@ -17,10 +17,14 @@ const LoginPage = () => {
         try {
             const response = await axios.post(API_URL+'Users/login', values);
             if (response.status === 200) {
-                const { id, name, surname, url, role, isActive } = response.data;
-                localStorage.setItem('user', JSON.stringify({ id, name, surname, url, role: role === 1 ? ADMIN : USER, username: values.username, isActive }));
+                if (response.data.isActive) {
+                    const { id, name, surname, url, role, isActive } = response.data;
+                    localStorage.setItem('user', JSON.stringify({ id, name, surname, url, role: role === 1 ? ADMIN : USER, username: values.username, isActive }));
 
-                navigate('/');
+                    navigate('/');
+                } else {
+                    message.error('Hesabınız pasif durumda olduğu için giriş işlemi gerçekleştirilemedi.');
+                }
             }
         } catch (error) {
             if (error.response) {

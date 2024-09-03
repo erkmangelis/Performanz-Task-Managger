@@ -96,15 +96,11 @@ const Users = ({ userList, deleteUser, onEditUser }) => {
             render: (record) => {
                 return (
                     <Space>
-                        {(record.role !== 1 || record.id === user.id) ? (
                         <Button type="text" shape="circle" onClick={() => onEditUser(record)}>
                             <EditTwoTone twoToneColor="#3F72AF" />
                         </Button>
-                        ) : (
-                        <Button style={{cursor: 'default', visible: 'none'}} type="link" shape="circle"></Button>
-                        )}
                         
-                        <Divider type="vertical" />
+                        {/* <Divider type="vertical" />
     
                         {(record.role !== 1) ? (
                         <Button type="text" shape="circle" onClick={() => handleDeleteUser(record)}>
@@ -112,7 +108,7 @@ const Users = ({ userList, deleteUser, onEditUser }) => {
                         </Button>
                         ) : (
                         <Button style={{cursor: 'default', visible: 'none'}} type="link" shape="circle"></Button>
-                        )}
+                        )} */}
                     </Space>
                 );
             }
