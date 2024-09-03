@@ -1,29 +1,30 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Input, Select, Form, Row, Col, Avatar, Divider } from 'antd';
+import { Modal, Input, Select, Form, Row, Col, Avatar, Divider, Switch } from 'antd';
 import { UserOutlined, LockOutlined, GlobalOutlined } from '@ant-design/icons';
-import { useUser } from '../contexts/UserContext';
+import { hashPassword } from '../services/hashService';
 
 
 const { Option } = Select;
 
 const UserModal = ({onOpen, data, onClose, onSave}) => {
     const [form] = Form.useForm();
-    const {user} = useUser();
     const [url, setUrl] = useState(null);
     const [role, setRole] = useState(2);
+    const [isActive, setIsActive] = useState(true);
 
 
     useEffect(() => {
         if (data) {
             setUrl(data.url);
             setRole(data.role);
+            setIsActive(data.isActive);
             const formValues = {
                 "name": data.name,
                 "surname": data.surname,
                 "username": data.username,
-                "password": data.password,
                 "url": data.url,
-                "role": data.role
+                "role": data.role,
+                "isActive": data.isActive,
             };
             form.setFieldsValue(formValues);
         } else {
@@ -39,9 +40,10 @@ const UserModal = ({onOpen, data, onClose, onSave}) => {
                 "name": values.name,
                 "surname": values.surname,
                 "username": values.username,
-                "password": values.password,
+                "password": hashPassword(values.password),
                 "url": url,
                 "role": role,
+                "isActive": isActive,
             };
 
             if (data) {
@@ -102,7 +104,7 @@ const UserModal = ({onOpen, data, onClose, onSave}) => {
                 requiredMark={false}
             >
                 <Divider style={{marginTop: "-5px"}} orientation="left">Hesap</Divider>
-                <Row style={{marginTop: "15px", marginBottom: "10px"}}>
+                <Row>
                     <Col span={5}>
                         <Avatar shape="square" size={64} src={url}>{(data?data.name:"")}</Avatar>
                     </Col>
@@ -112,20 +114,60 @@ const UserModal = ({onOpen, data, onClose, onSave}) => {
                         </Form.Item>
                     </Col>
                 </Row>
-                <Row gutter={16} style={{marginTop: "10px", marginBottom: "15px"}}>
+                <Row gutter={12} style={{display: 'flex', alignItems: 'end'}}>
                     <Col span={12}>
                         <Form.Item name="username" label="Kullanıcı Adı" rules={[{required: true, message: 'Kullanıcı Adı zorunludur'}]}>
                             <Input prefix={<UserOutlined />}/>
                         </Form.Item>
                     </Col>
+                    <Col span={8}>
+                        <Form.Item name="isActive" label="Hesap Durumu" valuePropName="checked" layout="horizontal">
+                            <Switch defaultValue={isActive} checkedChildren="Aktif" unCheckedChildren="Pasif" onChange={(value) => setIsActive(value)}/>
+                        </Form.Item>
+                    </Col>
+                </Row>
+                <Row gutter={16} >
                     <Col span={12}>
-                        <Form.Item name="password" label="Şifre" rules={[{required: true, message: 'Şifre zorunludur'}]}>
+                        <Form.Item
+                            name="password"
+                            label="Şifre"
+                            hasFeedback
+                            rules={!data ? [{ required: true, message: 'Şifre zorunludur' }] : []}
+                        >
                             <Input.Password prefix={<LockOutlined />}/>
+                        </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                        <Form.Item
+                            name="confirm"
+                            label="Onay"
+                            dependencies={['password']}
+                            hasFeedback
+                            rules={[
+                                ({ getFieldValue }) => ({
+                                  validator(_, value) {
+                                    const password = getFieldValue('password');
+                  
+                                    if (!password && !value) {
+                                      return Promise.resolve();
+                                    }
+                                    if (password && !value) {
+                                      return Promise.reject(new Error('Lütfen şifreyi onaylayın.'));
+                                    }
+                                    if (password === value) {
+                                      return Promise.resolve();
+                                    }
+                                    return Promise.reject(new Error('Girdiğiniz şifre uyuşmuyor.'));
+                                  },
+                                }),
+                            ]}
+                        >
+                            <Input.Password />
                         </Form.Item>
                     </Col>
                 </Row>
                 <Divider style={{marginTop: "20px"}} orientation="left">Kişisel</Divider>
-                <Row gutter={16} style={{marginTop: "15px", marginBottom: "15px"}}>
+                <Row gutter={16}>
                     <Col span={12}>
                         <Form.Item name="name" label="İsim" rules={[{required: true, message: 'İsim zorunludur'}]}>
                             <Input />

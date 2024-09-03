@@ -5,6 +5,7 @@ import 'dayjs/locale/tr';
 import trTR from 'antd/lib/locale/tr_TR';
 import { useUser } from '../contexts/UserContext';
 import { PRIORITY } from '../config/Config.js';
+import { ADMIN } from '../config/Config.js';
 
 
 const { RangePicker } = DatePicker;
@@ -36,7 +37,7 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
         } else {
             setChecked(false);
             form.resetFields();
-            if (user.role !== 1) {
+            if (user.role !== ADMIN) {
                 setAssignedUser([user.id]);
             };   
         }
@@ -73,7 +74,7 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
                     ...newTask,
                     "id": data.task.id,
                     "priority": isInteger(newTask.priority) ? values.priority : data.task.priority,
-                    "createdByUserId": user.role === 1 ? user.id : data.creator.id,
+                    "createdByUserId": user.role === ADMIN ? user.id : data.creator.id,
                     "addedDate": new Date(data.task.addedDate).toISOString(),
                 };
             }
@@ -113,8 +114,8 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
                         rules={[{ required: true }]}
                         placeholder="Kullanıcı seçiniz"
                         mode="multiple"
-                        defaultValue={data ? data.assignedUsers.map(assignedUser => assignedUser.id) : (user.role !==1 ? user.id : [])}
-                        disabled={ user.role !== 1}
+                        defaultValue={data ? data.assignedUsers.map(assignedUser => assignedUser.id) : (user.role !== ADMIN ? user.id : [])}
+                        disabled={ user.role !== ADMIN}
                         style={{ width: 250, marginRight: '40px' }}
                         onChange={(value) => setAssignedUser(value)}
                     >
@@ -136,11 +137,11 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
             >
 
                 <Form.Item label="Görev" name="title" rules={[{ required: true, message: 'Görev Adı zorunludur' }]}>
-                    <Input placeholder="Görev giriniz" disabled={data ? !(data.creator.id === user.id || user.role === 1) : ""} />
+                    <Input placeholder="Görev giriniz" disabled={data ? !(data.creator.id === user.id || user.role === ADMIN) : ""} />
                 </Form.Item>
           
                 <Form.Item label="Detay" name="description" rules={[{ required: true, message: 'Görev Detayı zorunludur' }]}>
-                    <TextArea rows={4} placeholder="Detay bilgisi giriniz" disabled={data ? !(data.creator.id === user.id || user.role === 1) : ""} />
+                    <TextArea rows={4} placeholder="Detay bilgisi giriniz" disabled={data ? !(data.creator.id === user.id || user.role === ADMIN) : ""} />
                 </Form.Item>
                 
                 <ConfigProvider locale={trTR}>
@@ -154,7 +155,7 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
                         }
                         rules={[{ required: true, message: 'Tarih zorunludur' }]}
                     >
-                        <RangePicker placeholder={['Başlangıç giriniz', 'Bitiş giriniz']} format={"DD.MM.YYYY"} style={{ width: '100%' }} disabled={data ? !(data.creator.id === user.id || user.role === 1) : ""} />
+                        <RangePicker placeholder={['Başlangıç giriniz', 'Bitiş giriniz']} format={"DD.MM.YYYY"} style={{ width: '100%' }} disabled={data ? !(data.creator.id === user.id || user.role === ADMIN) : ""} />
                     </Form.Item>
                 </ConfigProvider>
 
@@ -164,7 +165,7 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
                             <Select
                                 mode="multiple"
                                 placeholder="Seçin"
-                                disabled={data ? !(data.creator.id === user.id || user.role === 1) : ""}
+                                disabled={data ? !(data.creator.id === user.id || user.role === ADMIN) : ""}
                                 maxTagCount="responsive"
                                 maxTagPlaceholder={(omittedValues) => (
                                     <Tooltip
@@ -185,7 +186,7 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
                     </Col>
                     <Col span={8}>
                         <Form.Item label="Öncelik" name="priority" rules={[{ required: true, message: 'Öncelik zorunludur' }]}>
-                            <Select placeholder="Seçin" disabled={data ? !(data.creator.id === user.id || user.role === 1) : ""}>
+                            <Select placeholder="Seçin" disabled={data ? !(data.creator.id === user.id || user.role === ADMIN) : ""}>
                                 <Option value="1">Düşük</Option>
                                 <Option value="2">Orta</Option>
                                 <Option value="3">Yüksek</Option>
@@ -194,7 +195,7 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
                     </Col>
                     <Col span={8}>
                         <Form.Item label="Durum" name="status" valuePropName="checked">
-                            <Checkbox checked={checked} onChange={(e) => setChecked(e.target.checked)} disabled={data ? !(data.creator.id === user.id || user.role === 1) : ""} >Ertelendi</Checkbox>
+                            <Checkbox checked={checked} onChange={(e) => setChecked(e.target.checked)} disabled={data ? !(data.creator.id === user.id || user.role === ADMIN) : ""} >Ertelendi</Checkbox>
                         </Form.Item>      
                     </Col>
                 </Row>

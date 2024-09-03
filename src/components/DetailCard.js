@@ -3,7 +3,7 @@ import { Card, Col, Row, Avatar, List, Button, Drawer, Input, Modal, Tag, Form }
 import { DeleteTwoTone, ClockCircleOutlined, CloseOutlined, CommentOutlined, PlusOutlined, ExclamationCircleFilled } from '@ant-design/icons';
 import { useUser } from '../contexts/UserContext';
 import axios from 'axios';
-import { API_URL } from '../config/Config.js';
+import { API_URL, ADMIN } from '../config/Config.js';
 import dayjs from 'dayjs';
 import 'dayjs/locale/tr'; 
 import { calculateRemainingTime } from '../services/remainingTimeService';
@@ -90,7 +90,7 @@ const DetailCard = memo(({ users, data }) => {
             id: user.id,
             name: user.name,
             surname: user.surname,
-            role: user.role,
+            role: user.role === ADMIN ? 1 : 2,
             url: user.url,
           },
         };
@@ -188,7 +188,7 @@ const DetailCard = memo(({ users, data }) => {
             renderItem={(comment, index) => (
               <List.Item
                 actions={
-                  ((data.task.progress !== 100) && ((user.id === comment.user.id) || (user.role === 1)))
+                  ((data.task.progress !== 100) && ((user.id === comment.user.id) || (user.role === ADMIN)))
                     ? [<Button type="text" shape="circle" onClick={() => onDeleteComment(comment)} key={comment.user.id}><DeleteTwoTone twoToneColor="#F94A29" /></Button>]
                     : []
                 }

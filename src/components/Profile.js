@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useUser } from '../contexts/UserContext';
 import { UserOutlined, LockOutlined, GlobalOutlined, IdcardOutlined } from '@ant-design/icons';
 import { Button, Col, Drawer, Form, Input, Row, Avatar, Divider, Space } from 'antd';
-
+import { hashPassword } from '../services/hashService';
 
 
 const Profile = ({shown, onClose, onSave, loading}) => {
@@ -16,17 +16,31 @@ const Profile = ({shown, onClose, onSave, loading}) => {
             "id": user.id,
             "role": user.role,
             "username": values.username,
-            "password": values.password,
+            "password": hashPassword(values.password),
             "url": values.url,
             "name": values.name,
             "surname": values.surname,
+            "isActive": user.isActive,
         };
 
         onSave(newProfile);
     };
 
+    const handleOpen = () => {
+        form.setFieldsValue({
+            "username": user.username,
+            "url": user.url,
+            "name": user.name,
+            "surname": user.surname,
+            "password": '',
+            "confirm": '',
+        });
+        setUrl(user.url);
+    };
+
     const handleCancel = () => {
         onClose();
+        form.resetFields();
         form.setFieldsValue(user);
         setUrl(user.url);
     };
@@ -40,6 +54,7 @@ const Profile = ({shown, onClose, onSave, loading}) => {
             onClose={handleCancel}
             open={shown}
             closable={false}
+            afterOpenChange={handleOpen}
             extra={
             <Space>
                 <Button onClick={handleCancel}>İptal</Button>
@@ -54,7 +69,6 @@ const Profile = ({shown, onClose, onSave, loading}) => {
                 requiredMark={false}
                 initialValues={{
                     "username": user.username,
-                    "password": user.password,
                     "url": user.url,
                     "name": user.name,
                     "surname": user.surname,
@@ -62,7 +76,7 @@ const Profile = ({shown, onClose, onSave, loading}) => {
                 onFinish={handleSave}
             >
                 <Divider style={{marginTop: "-5px"}} orientation="left">Hesap</Divider>
-                <Row style={{marginTop: "15px", marginBottom: "10px"}}>
+                <Row>
                     <Col span={5}>
                         <Avatar shape="square" size={64} src={url}>{user.name}</Avatar>
                     </Col>
@@ -72,15 +86,49 @@ const Profile = ({shown, onClose, onSave, loading}) => {
                         </Form.Item>
                     </Col>
                 </Row>
-                <Row gutter={16} style={{marginTop: "10px", marginBottom: "15px"}}>
+                <Row gutter={16} >
                     <Col span={12}>
                         <Form.Item name="username" label="Kullanıcı Adı" rules={[{required: true, message: 'Kullanıcı Adı zorunludur'}]}>
                             <Input prefix={<UserOutlined />}/>
                         </Form.Item>
                     </Col>
+                </Row>
+                <Row gutter={16} >
                     <Col span={12}>
-                        <Form.Item name="password" label="Şifre" rules={[{required: true, message: 'Şifre zorunludur'}]}>
+                        <Form.Item
+                            name="password"
+                            label="Şifre"
+                            hasFeedback
+                        >
                             <Input.Password prefix={<LockOutlined />}/>
+                        </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                        <Form.Item
+                            name="confirm"
+                            label="Onay"
+                            dependencies={['password']}
+                            hasFeedback
+                            rules={[
+                                ({ getFieldValue }) => ({
+                                  validator(_, value) {
+                                    const password = getFieldValue('password');
+                  
+                                    if (!password && !value) {
+                                      return Promise.resolve();
+                                    }
+                                    if (password && !value) {
+                                      return Promise.reject(new Error('Lütfen şifreyi onaylayın.'));
+                                    }
+                                    if (password === value) {
+                                      return Promise.resolve();
+                                    }
+                                    return Promise.reject(new Error('Girdiğiniz şifre uyuşmuyor.'));
+                                  },
+                                }),
+                            ]}
+                        >
+                            <Input.Password />
                         </Form.Item>
                     </Col>
                 </Row>

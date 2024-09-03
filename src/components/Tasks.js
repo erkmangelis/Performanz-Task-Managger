@@ -3,6 +3,7 @@ import { Table, Space, Tag, Progress, Modal, Divider, Button, Avatar, Input, Pop
 import { EditTwoTone, DeleteTwoTone, FlagFilled, ExclamationCircleFilled, ClockCircleOutlined, CrownFilled, PlusOutlined } from '@ant-design/icons';
 import DetailCard from './DetailCard';
 import dayjs from 'dayjs';
+import { ADMIN } from '../config/Config.js';
 import { useUser } from '../contexts/UserContext';
 import { PRIORITY, STATUS } from '../config/Config.js';
 import { calculateRemainingTime } from '../services/remainingTimeService';
@@ -20,6 +21,7 @@ const Tasks = ({ addTask, users, categories, tasks, onEditTask, deleteTask}) => 
   const [creatorFilter, setCreatorFilter] = useState([]);
   const [assignedUsersFilter, setAssignedUsersFilter] = useState([]);
   const [inputValue, setInputValue] = useState('');
+
   
   const handleDeleteTask = (record) => {
     confirm({
@@ -67,7 +69,9 @@ const Tasks = ({ addTask, users, categories, tasks, onEditTask, deleteTask}) => 
         width: 30,
         render: (item) => {
           const user = users.find(user => user.id === item);
-          return user.role === 1 ? <CrownFilled style={{color: '#F94A29'}} /> : "";
+          if (user) {
+            return user.role === ADMIN ? <CrownFilled style={{color: '#F94A29'}} /> : "";
+          }
       },
       },
       {
@@ -84,7 +88,7 @@ const Tasks = ({ addTask, users, categories, tasks, onEditTask, deleteTask}) => 
         },
       },
       {
-        title: (user.role === 1 ?
+        title: (user.role === ADMIN ?
         <>
           <Popover 
           trigger="click"
@@ -305,7 +309,7 @@ const Tasks = ({ addTask, users, categories, tasks, onEditTask, deleteTask}) => 
         dataIndex: '',
         key: 'x',
         render: (text, record) => {
-          const canDelete = ((user.id === record.creator.id) || (user.role === 1));
+          const canDelete = ((user.id === record.creator.id) || (user.role === ADMIN));
     
             return (
               <Space>

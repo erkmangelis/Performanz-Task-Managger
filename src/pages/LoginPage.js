@@ -3,20 +3,22 @@ import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { Button, Form, Input, Row, Col, Card, message } from 'antd';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { API_URL } from '../config/Config.js';
+import { API_URL, ADMIN, USER } from '../config/Config.js';
+import { hashPassword } from '../services/hashService';
 
 
 const LoginPage = () => {
-
     const [form] = Form.useForm();
     const navigate = useNavigate();
 
+
     const onFinish = async (values) => {
+        values.password = hashPassword(values.password);
         try {
             const response = await axios.post(API_URL+'Users/login', values);
             if (response.status === 200) {
-                const { id, name, surname, url, role } = response.data;
-                localStorage.setItem('user', JSON.stringify({ id, name, surname, url, role, username: values.username, password: values.password }));
+                const { id, name, surname, url, role, isActive } = response.data;
+                localStorage.setItem('user', JSON.stringify({ id, name, surname, url, role: role === 1 ? ADMIN : USER, username: values.username, isActive }));
 
                 navigate('/');
             }

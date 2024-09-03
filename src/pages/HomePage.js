@@ -6,7 +6,7 @@ import TaskModal from '../components/TaskModal';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../contexts/UserContext';
 import axios from 'axios';
-import { API_URL } from '../config/Config.js';
+import { API_URL, ADMIN } from '../config/Config.js';
 import openNotificationWithIcon from '../services/notificationService';
 import Profile from '../components/Profile';
 import Users from '../components/Users';
@@ -33,8 +33,12 @@ const HomePage = () => {
 
   const handleUpdateProfile = (updatedUser) => {
     setIsProcessing(true);
+    let holder = updatedUser.role;
+    updatedUser.role = updatedUser.role === ADMIN ? 1 : 2;
     axios.post(API_URL + "Users", updatedUser)
     .then(response => {
+      updatedUser.role = holder;
+      delete updatedUser.password;
       localStorage.setItem('user', JSON.stringify(updatedUser));
       setUser(updatedUser);
       setIsProcessing(false);
@@ -75,7 +79,7 @@ const HomePage = () => {
 
   useEffect(() => {
     if (user) {
-      axios.get(user.role === 1 ? (API_URL+'TaskItems') : (API_URL+'TaskItems/ByUserId/'+user.id))
+      axios.get(user.role === ADMIN ? (API_URL+'TaskItems') : (API_URL+'TaskItems/ByUserId/'+user.id))
         .then(response => {
           setTasks(response.data);
         })
@@ -233,6 +237,7 @@ const HomePage = () => {
     // UPDATING USER
     axios.post(API_URL + "Users", usr)
     .then(response => {
+      delete usr.password;
       setUsers(prevUsers => 
         prevUsers.map(u => 
           u.id === usr.id ? { ...usr } : u
@@ -371,7 +376,7 @@ const HomePage = () => {
 
            
           <Divider type="vertical" />
-          {user.role === 1 ? (
+          {user.role === ADMIN ? (
           <div className='tableSegment'>
             <Segmented
               options={[
