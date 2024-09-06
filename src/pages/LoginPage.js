@@ -18,8 +18,8 @@ const LoginPage = () => {
             const response = await axios.post(API_URL+'Users/login', values);
             if (response.status === 200) {
                 if (response.data.isActive) {
-                    const { id, name, surname, url, role, isActive } = response.data;
-                    localStorage.setItem('user', JSON.stringify({ id, name, surname, url, role: role === 1 ? ADMIN : USER, username: values.username, isActive }));
+                    const { id, name, surname, url, role, isActive, token } = response.data;
+                    localStorage.setItem('user', JSON.stringify({ id, name, surname, url, role: role === 1 ? ADMIN : USER, username: values.username, isActive, token }));
 
                     navigate('/');
                 } else {

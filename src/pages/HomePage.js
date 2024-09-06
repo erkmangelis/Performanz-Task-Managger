@@ -66,6 +66,7 @@ const HomePage = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('user');
+    axios.defaults.headers.common['Authorization'] = "";
     navigate('/login');
   };
   ///////////////////////////////////////////////
@@ -79,6 +80,7 @@ const HomePage = () => {
 
   useEffect(() => {
     if (user) {
+      axios.defaults.headers.common['Authorization'] = "Bearer "+user.token;
       axios.get(user.role === ADMIN ? (API_URL+'TaskItems') : (API_URL+'TaskItems/ByUserId/'+user.id))
         .then(response => {
           setTasks(response.data);
