@@ -28,6 +28,7 @@ const UserModal = ({onOpen, data, onClose, onSave}) => {
             };
             form.setFieldsValue(formValues);
         } else {
+            setUrl(null);
             form.resetFields();
         }
     }, [data]);

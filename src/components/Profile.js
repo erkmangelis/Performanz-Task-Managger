@@ -21,6 +21,7 @@ const Profile = ({shown, onClose, onSave, loading}) => {
             "name": values.name,
             "surname": values.surname,
             "isActive": user.isActive,
+            "token": user.token,
         };
 
         onSave(newProfile);
