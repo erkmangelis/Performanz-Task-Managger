@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { ConfigProvider, Modal, DatePicker, Input, Select, Slider, Form, Row, Col, message, Checkbox, Tooltip } from 'antd';
 import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
 import 'dayjs/locale/tr';
 import trTR from 'antd/lib/locale/tr_TR';
 import { useUser } from '../contexts/UserContext';
@@ -11,6 +13,9 @@ import { ADMIN } from '../config/Config.js';
 const { RangePicker } = DatePicker;
 const { TextArea } = Input;
 const { Option } = Select;
+dayjs.locale('tr'); 
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 
 const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
@@ -61,11 +66,11 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
                 "priority": values.priority,
                 "status": values.status ? 1 : 0,
                 "progress": values.progress,
-                "addedDate": new Date().toISOString(),
-                "startDate": values.dateRange[0],
-                "estimatedCompleteDate": values.dateRange[1],
+                "addedDate": dayjs().tz('Europe/Istanbul').format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
+                "startDate": dayjs(values.dateRange[0]).add(3, 'hour'),
+                "estimatedCompleteDate": dayjs(values.dateRange[1]).add(3, 'hour'),
                 "completeDate": null,
-                "updateDate": new Date().toISOString(),
+                "updateDate": dayjs().tz('Europe/Istanbul').format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
                 "createdByUserId": user.id,
             };
 
@@ -75,7 +80,7 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
                     "id": data.task.id,
                     "priority": isInteger(newTask.priority) ? values.priority : data.task.priority,
                     "createdByUserId": user.role === ADMIN ? user.id : data.creator.id,
-                    "addedDate": new Date(data.task.addedDate).toISOString(),
+                    "addedDate": dayjs(data.task.addedDate).add(3, 'hour').toISOString(),
                 };
             }
 

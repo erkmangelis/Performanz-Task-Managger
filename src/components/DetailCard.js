@@ -5,6 +5,8 @@ import { useUser } from '../contexts/UserContext';
 import axios from 'axios';
 import { API_URL, ADMIN } from '../config/Config.js';
 import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
 import 'dayjs/locale/tr'; 
 import { calculateRemainingTime } from '../services/remainingTimeService';
 
@@ -12,6 +14,9 @@ import { calculateRemainingTime } from '../services/remainingTimeService';
 const { confirm } = Modal;
 const { TextArea } = Input;
 dayjs.locale('tr'); 
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
 
 const DetailCard = memo(({ users, data }) => {
   const [commentList, setCommentList] = useState();
@@ -84,7 +89,7 @@ const DetailCard = memo(({ users, data }) => {
         comment = {
           taskId: data.task.id,
           userId: user.id,
-          date: new Date().toISOString(),
+          date: dayjs().tz('Europe/Istanbul').format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
           content: values.comment,
           user: {
             id: user.id,
@@ -100,7 +105,8 @@ const DetailCard = memo(({ users, data }) => {
       })
       .then(response => {
         comment.id = response.data.id;
-  
+        comment.date = dayjs().tz('Europe/Istanbul').format('YYYY-MM-DDTHH:mm:ss.SSS');
+
         setCommentList(prevComments => [...prevComments, comment]);
       })
       .catch(error => {
