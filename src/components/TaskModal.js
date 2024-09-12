@@ -86,6 +86,8 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
 
                 if (data.task.progress === 100 && newTask.progress < 100) {
                     updateCount = -1;
+                } else if (data.task.progress === 100 && newTask.progress === 100) {
+                    updateCount = 0;
                 } else if (newTask.progress === 100) {
                     updateCount = 1;
                 };

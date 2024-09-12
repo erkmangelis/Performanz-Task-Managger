@@ -1,5 +1,5 @@
 import React, { useState, useEffect, memo } from 'react';
-import { Card, Col, Row, Avatar, List, Button, Drawer, Input, Modal, Tag, Form } from 'antd';
+import { Card, Col, Row, Avatar, List, Button, Drawer, Input, Modal, Tag, Form, Skeleton } from 'antd';
 import { DeleteTwoTone, ClockCircleOutlined, CloseOutlined, CommentOutlined, PlusOutlined, ExclamationCircleFilled } from '@ant-design/icons';
 import { useUser } from '../contexts/UserContext';
 import axios from 'axios';
@@ -145,7 +145,7 @@ const DetailCard = memo(({ users, data }) => {
             title="Detaylar"
             bordered={false}
             style={{ color: 'white', minHeight: '100%' }}
-            extra={<span><Tag color={calculatedTime.color}>{calculatedTime.status}<ClockCircleOutlined style={{ marginLeft: '6px' }} /></Tag></span>}
+            extra={data.task.status !== 1 ? (<span><Tag color={calculatedTime.color}>{calculatedTime.status}<ClockCircleOutlined style={{ marginLeft: '6px' }} /></Tag></span>) : ("")}
             actions={[
               <span key="addedDate">Eklenme: {dayjs(data.task.addedDate).format('DD MMM YY, HH:mm')}</span>,
               data.task.progress === 100 ? (

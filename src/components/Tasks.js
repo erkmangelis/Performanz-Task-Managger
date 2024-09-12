@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Table, Space, Tag, Progress, Modal, Divider, Button, Avatar, Input, Popover } from 'antd';
+import { Table, Space, Tag, Progress, Modal, Divider, Button, Avatar, Input, Popover, Skeleton } from 'antd';
 import { EditTwoTone, DeleteTwoTone, FlagFilled, ExclamationCircleFilled, ClockCircleOutlined, CrownFilled, PlusOutlined } from '@ant-design/icons';
 import DetailCard from './DetailCard';
 import dayjs from 'dayjs';
@@ -144,11 +144,11 @@ const Tasks = ({ addTask, users, categories, tasks, onEditTask, deleteTask}) => 
         dataIndex: ['task', 'estimatedCompleteDate'],
         render: (date, record) => {
           const dateInfo = calculateRemainingTime(date);
-          return record.task.progress !== 100 ? (
+          return record.task.progress !== 100 ? ( record.task.status !== 1 ? (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', color: dateInfo.color}}>
               <span>{dayjs(date).format('DD.MM.YYYY')}</span>
               <span style={{fontSize: '10px'}}> {dateInfo.status} <ClockCircleOutlined /> </span>
-            </div>
+            </div> ) : ("")
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <span>{dayjs(date).format('DD.MM.YYYY')}</span>
