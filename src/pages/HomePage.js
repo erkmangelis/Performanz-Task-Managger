@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Button, Avatar, theme, Segmented, Divider } from 'antd';
+import { Layout, Button, Avatar, theme, Segmented, Divider, Tag, Typography } from 'antd';
 import { FileAddOutlined, LogoutOutlined, UserOutlined, ScheduleOutlined, ContactsOutlined, UserAddOutlined } from '@ant-design/icons';
 import Tasks from '../components/Tasks';
 import TaskModal from '../components/TaskModal';
@@ -14,6 +14,7 @@ import UserModal from '../components/UserModal';
 
 
 const { Header, Content } = Layout;
+const { Text } = Typography;
 
 const HomePage = () => {
   const {user, setUser} = useUser();
@@ -77,6 +78,8 @@ const HomePage = () => {
   const [tasks, setTasks] = useState([]);
   const [categories, setCategories] = useState([]);
   const [users, setUsers] = useState([]);
+  const [completeCount, setCompleteCount] = useState(0);
+  const [totalTask, setTotalTask] = useState(0);
 
   useEffect(() => {
     if (user) {
@@ -84,6 +87,8 @@ const HomePage = () => {
       axios.get(user.role === ADMIN ? (API_URL+'TaskItems') : (API_URL+'TaskItems/ByUserId/'+user.id))
         .then(response => {
           setTasks(response.data);
+          setTotalTask(response.data.length);
+          setCompleteCount(response.data.filter(task => task.task.progress === 100).length);
         })
         .catch(error => {
           console.error('API isteği başarısız:', error);
@@ -114,7 +119,7 @@ const HomePage = () => {
   //////////////////////////////////////////
   
   /////////////// Add Tasks ///////////////
-  const handleSaveTask = (task, taskUser, taskCategories) => {
+  const handleSaveTask = (task, taskUser, taskCategories, updateCount) => {
     let taskUserStr = taskUser.map(String).join(',');
     let taskCategoriesStr = taskCategories.map(String).join(',');
     let taskId;
@@ -137,6 +142,8 @@ const HomePage = () => {
     })
     .then(response => {
       setTasks(prevTasks => [...prevTasks, response.data]);
+      setTotalTask(totalTask + 1);
+      setCompleteCount(response.data.task.progress === 100 ? completeCount + 1 : completeCount);
 
       openNotificationWithIcon({
         type: 'success',
@@ -172,6 +179,8 @@ const HomePage = () => {
           t.task.id === response.data.task.id ? { ...response.data } : t
         )
       );
+      setCompleteCount(completeCount + updateCount);
+
       openNotificationWithIcon({
         type: 'success',
         title: 'Görev Düzenleme Başarılı',
@@ -194,6 +203,7 @@ const HomePage = () => {
     axios.delete(API_URL+"TaskItems/"+taskId)
     .then(() => {
       setTasks(prevTasks => prevTasks.filter(task => task.task.id !== taskId));
+      setTotalTask(totalTask - 1);
       openNotificationWithIcon({
         type: 'info',
         title: 'Görev Silme Başarılı',
@@ -375,7 +385,6 @@ const HomePage = () => {
             <Avatar shape='square' style={{ backgroundColor: '#78bf9b', verticalAlign: 'middle', marginTop: '-5px'}} size='large' icon={<UserOutlined />} src={user.url}>{user.name}</Avatar>
             <h1 style={{ color: 'white', fontWeight: '500', fontSize: '16px' }}>{user.name} {user.surname}</h1>
           </Button>
-
            
           <Divider type="vertical" />
           {user.role === ADMIN ? (
@@ -388,7 +397,9 @@ const HomePage = () => {
               value={table}
               onChange={setTable}
             />
-          </div>): ("")}
+          </div>) : (
+            <Tag bordered={false}><Text strong type={completeCount === totalTask ? "success" : ""}>{completeCount} / {totalTask}</Text></Tag>
+          )}
         </div>
 
         <div className='addButton' style={{marginLeft: '-80px'}}>

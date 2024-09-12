@@ -59,6 +59,7 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
             return;}
         form.validateFields()
           .then(values => {
+            let updateCount = 0;
             let newTask = {
                 "id": 0,
                 "title": values.title,
@@ -82,9 +83,15 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
                     "createdByUserId": user.role === ADMIN ? user.id : data.creator.id,
                     "addedDate": dayjs(data.task.addedDate).add(3, 'hour').toISOString(),
                 };
+
+                if (data.task.progress === 100 && newTask.progress < 100) {
+                    updateCount = -1;
+                } else if (newTask.progress === 100) {
+                    updateCount = 1;
+                };
             }
 
-            onSave(newTask, assignedUser, values.categories);
+            onSave(newTask, assignedUser, values.categories, updateCount);
             onClose();
             form.resetFields();            
           })
