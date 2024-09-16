@@ -45,7 +45,7 @@ const DetailCard = memo(({ users, data }) => {
           }
         })
       );
-      
+
       setCommentList(updatedNotes);
     };
   
@@ -204,7 +204,7 @@ const DetailCard = memo(({ users, data }) => {
                   title={
                     <span style={{display: 'flex', alignItems: 'flex-end'}}>
                       <div>{comment.user.name + " " +comment.user.surname}</div>
-                      <div style={{marginLeft: '10px', fontSize: '12px', fontWeight: '400', color: 'rgba(0, 0, 0, 0.45)'}}>{dayjs(comment.date).format('DD MMM YY, HH:mm')}</div>
+                      <div style={{marginLeft: '10px', fontSize: '12px', fontWeight: '400', color: 'rgba(0, 0, 0, 0.45)'}}>{dayjs(comment.date).format('DD MMMM YY ddd, HH:mm')}</div>
                     </span>
                   }
                   description={comment.content}

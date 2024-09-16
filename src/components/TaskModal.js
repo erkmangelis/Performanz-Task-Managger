@@ -134,7 +134,7 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
                         onChange={(value) => setAssignedUser(value)}
                     >
                         {users.map(user => (
-                            <Option key={user.id} value={user.id}> {user.name} </Option>
+                            <Option key={user.id} value={user.id}> {user.name +" "+ user.surname} </Option>
                         ))}
                     </Select>
                 </div>

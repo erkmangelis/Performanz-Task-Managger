@@ -1,14 +1,19 @@
-import React, { useRef, useState } from 'react';
-import { Table, Space, Tag, Progress, Modal, Divider, Button, Avatar, Input, Popover, Skeleton } from 'antd';
-import { EditTwoTone, DeleteTwoTone, FlagFilled, ExclamationCircleFilled, ClockCircleOutlined, CrownFilled, PlusOutlined } from '@ant-design/icons';
+import React, { useRef, useState, useEffect } from 'react';
+import { Table, Space, Tag, Progress, Modal, Divider, Button, Avatar, Input, Popover, DatePicker } from 'antd';
+import { EditTwoTone, DeleteTwoTone, FlagFilled, ExclamationCircleFilled, ClockCircleOutlined, CrownFilled, PlusOutlined, SearchOutlined, CalendarOutlined } from '@ant-design/icons';
 import DetailCard from './DetailCard';
 import dayjs from 'dayjs';
 import { ADMIN } from '../config/Config.js';
 import { useUser } from '../contexts/UserContext';
 import { PRIORITY, STATUS } from '../config/Config.js';
 import { calculateRemainingTime } from '../services/remainingTimeService';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 
+dayjs.extend(isSameOrAfter);
+dayjs.extend(isSameOrBefore);
 
+const { RangePicker } = DatePicker;
 const { confirm } = Modal;
 
 const Tasks = ({ addTask, users, categories, tasks, onEditTask, deleteTask}) => {
@@ -21,8 +26,52 @@ const Tasks = ({ addTask, users, categories, tasks, onEditTask, deleteTask}) => 
   const [creatorFilter, setCreatorFilter] = useState([]);
   const [assignedUsersFilter, setAssignedUsersFilter] = useState([]);
   const [inputValue, setInputValue] = useState('');
+  const [searchTitle, setSearchTitle] = useState('');
+  const [dateRange, setDateRange] = useState([]);
+  const [filteredTasks, setFilteredTasks] = useState(tasks);
 
-  
+
+  const filterTasks = (searchTitle, dates) => {
+    const filtered = tasks.filter((item) => {
+      const itemDate = dayjs(item.task.estimatedCompleteDate);
+      const startDate = dates[0] ? dayjs(dates[0]) : null;
+      const endDate = dates[1] ? dayjs(dates[1]) : null;
+      const isWithinRange = !startDate || !endDate || (itemDate.isSameOrAfter(startDate) && itemDate.isSameOrBefore(endDate));
+      return item.task.title.toLowerCase().includes(searchTitle.toLowerCase()) && isWithinRange;
+    });
+    setFilteredTasks(filtered);
+  };
+
+  useEffect(() => {
+    filterTasks(searchTitle, dateRange);
+  }, [tasks]);
+
+  const handleDateRangeChange = (dates) => {
+    if (dates) {
+      setDateRange(dates);
+    } else {
+      setDateRange([]);
+    };
+  };
+
+  const handleSearch = (e) => {
+    if (e && e.target) {
+      const newSearchText = e.target.value;
+      setSearchTitle(newSearchText);
+      filterTasks(newSearchText, dateRange);
+    }
+  };
+
+  const handleReset = (clearFilters) => {
+    setSearchTitle('');
+    setDateRange([]);
+    setFilteredTasks(tasks);
+  };
+
+  const handleApply = () => {
+    filterTasks(searchTitle, dateRange);
+  };
+
   const handleDeleteTask = (record) => {
     confirm({
       title: 'Görevi silmek istiyor musun?',
@@ -61,7 +110,38 @@ const Tasks = ({ addTask, users, categories, tasks, onEditTask, deleteTask}) => 
     setInputValue("");
   };
 
-    const columns = [
+  const rangePresets = [
+    {
+      label: 'Son 3 Gün',
+      value: [dayjs().add(-3, 'd'), dayjs()],
+    },
+    {
+      label: 'Son 5 Gün',
+      value: [dayjs().add(-5, 'd'), dayjs()],
+    },
+    {
+      label: 'Son 7 Gün',
+      value: [dayjs().add(-7, 'd'), dayjs()],
+    },
+    {
+      label: 'Son 14 Gün',
+      value: [dayjs().add(-14, 'd'), dayjs()],
+    },
+    {
+      label: 'Son 30 Gün',
+      value: [dayjs().add(-30, 'd'), dayjs()],
+    },
+    {
+      label: 'Son 60 Gün',
+      value: [dayjs().add(-60, 'd'), dayjs()],
+    },
+    {
+      label: 'Son 90 Gün',
+      value: [dayjs().add(-90, 'd'), dayjs()],
+    },
+  ];
+
+  const columns = [
       {
         title: '',
         align: 'left',
@@ -86,6 +166,20 @@ const Tasks = ({ addTask, users, categories, tasks, onEditTask, deleteTask}) => 
         render: (item) => {
           return <span style={{fontWeight: '500'}}>{item}</span>
         },
+        filterDropdown: () => (
+          <div style={{ padding: 8 }}>
+            <Input
+              placeholder="Görev Ara"
+              value={searchTitle}
+              onChange={handleSearch}
+              style={{ marginBottom: 8, display: 'block' }}
+            />
+            <Button type={"text"} size="small" style={{color: '#1677ff'}} onClick={handleReset}>Sıfırla</Button>
+          </div>
+        ),
+        filterIcon: <SearchOutlined />,
+        onFilter: (value, record) =>
+          record.task.title.toLowerCase().includes(value.toLowerCase()),
       },
       {
         title: (user.role === ADMIN ?
@@ -114,6 +208,7 @@ const Tasks = ({ addTask, users, categories, tasks, onEditTask, deleteTask}) => 
           return record.categories.some(cat => cat.id === value);
         },
         filteredValue: categoriesFilter,
+        filterSearch: true,
         render: (items) => (
           <Avatar.Group
             shape="circle"
@@ -165,6 +260,26 @@ const Tasks = ({ addTask, users, categories, tasks, onEditTask, deleteTask}) => 
           return 0;
         },
         defaultSortOrder: 'ascend',
+        filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+          <div style={{ padding: 8, width: '300px' }}>
+            <div>
+            <RangePicker
+              presets={rangePresets}
+              format="DD.MM.YYYYY"
+              value={dateRange}
+              onChange={handleDateRangeChange}
+              style={{ marginBottom: 8 }}
+              placeholder={['Başlangıç Tarihi', 'Bitiş Tarihi']}
+              showTime={false}
+            />
+            </div>
+            <div style={{display: 'flex', justifyContent: 'space-between'}}>
+              <Button type="text" size="small" style={{color: '#1677ff'}} onClick={handleReset}>Sıfırla</Button>
+              <Button type="primary" size="small" onClick={handleApply}>Tamam</Button>
+            </div>
+          </div>
+        ),
+        filterIcon: <CalendarOutlined />,
       },
       {
         title: 'Durum',
@@ -176,11 +291,11 @@ const Tasks = ({ addTask, users, categories, tasks, onEditTask, deleteTask}) => 
             value: 1,
           },
           {
-            text: 'İşlemde',
+            text: 'Beklemede',
             value: 2,
           },
           {
-            text: 'Beklemede',
+            text: 'İşlemde',
             value: 3,
           },
           {
@@ -260,7 +375,7 @@ const Tasks = ({ addTask, users, categories, tasks, onEditTask, deleteTask}) => 
         align: 'center',
         dataIndex: 'creator',
         filters: users.map(user => ({
-          text: user.name,
+          text: user.name +" "+ user.surname,
           value: user.id,
         })),
         onFilter: (value, record) => record.creator.id === value,
@@ -274,7 +389,7 @@ const Tasks = ({ addTask, users, categories, tasks, onEditTask, deleteTask}) => 
         align: 'center',
         dataIndex: 'assignedUsers',
         filters: users.map(user => ({
-          text: user.name,
+          text: user.name +" "+ user.surname,
           value: user.id,
         })),
         onFilter: (value, record) => {
@@ -352,7 +467,7 @@ const Tasks = ({ addTask, users, categories, tasks, onEditTask, deleteTask}) => 
       triggerDesc: 'Azalan sırayla sıralamak için tıklayın', 
       cancelSort: 'Sıralamayı iptal etmek için tıklayın',
     };
-
+  
     return (
         <Table
             locale={locale}
@@ -379,7 +494,7 @@ const Tasks = ({ addTask, users, categories, tasks, onEditTask, deleteTask}) => 
               expandedRowKeys: expandedRowKeys,
               onExpand: handleExpand,
             }}
-            dataSource={tasks}
+            dataSource={filteredTasks}
             rowKey={(record) => record.task.id}
             rowClassName={(record, index) => (index % 2 === 1 ? 'striped-row' : '')}
         />

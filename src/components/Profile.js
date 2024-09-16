@@ -101,7 +101,7 @@ const Profile = ({shown, onClose, onSave, loading}) => {
                             label="Şifre"
                             hasFeedback
                         >
-                            <Input.Password prefix={<LockOutlined />}/>
+                            <Input.Password prefix={<LockOutlined />} autoComplete="new-password"/>
                         </Form.Item>
                     </Col>
                     <Col span={12}>
@@ -129,7 +129,7 @@ const Profile = ({shown, onClose, onSave, loading}) => {
                                 }),
                             ]}
                         >
-                            <Input.Password />
+                            <Input.Password autoComplete="new-password"/>
                         </Form.Item>
                     </Col>
                 </Row>

@@ -135,7 +135,7 @@ const UserModal = ({onOpen, data, onClose, onSave}) => {
                             hasFeedback
                             rules={!data ? [{ required: true, message: 'Şifre zorunludur' }] : []}
                         >
-                            <Input.Password prefix={<LockOutlined />}/>
+                            <Input.Password prefix={<LockOutlined />} autoComplete="new-password"/>
                         </Form.Item>
                     </Col>
                     <Col span={12}>
@@ -163,7 +163,7 @@ const UserModal = ({onOpen, data, onClose, onSave}) => {
                                 }),
                             ]}
                         >
-                            <Input.Password />
+                            <Input.Password autoComplete="new-password"/>
                         </Form.Item>
                     </Col>
                 </Row>
