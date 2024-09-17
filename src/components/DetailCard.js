@@ -45,8 +45,8 @@ const DetailCard = memo(({ users, data }) => {
           }
         })
       );
-
-      setCommentList(updatedNotes);
+      const sortedNotes = updatedNotes.sort((a, b) => new Date(b.date) - new Date(a.date));
+      setCommentList(sortedNotes);
     };
   
     fetchUserDetails();

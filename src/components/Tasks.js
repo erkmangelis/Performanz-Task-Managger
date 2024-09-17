@@ -62,10 +62,14 @@ const Tasks = ({ addTask, users, categories, tasks, onEditTask, deleteTask}) => 
     }
   };
 
-  const handleReset = (clearFilters) => {
+  const handleTitleReset = () => {
     setSearchTitle('');
+    filterTasks('', dateRange);
+  };
+
+  const handleDateReset = () => {
     setDateRange([]);
-    setFilteredTasks(tasks);
+    filterTasks(searchTitle, []);
   };
 
   const handleApply = () => {
@@ -174,7 +178,7 @@ const Tasks = ({ addTask, users, categories, tasks, onEditTask, deleteTask}) => 
               onChange={handleSearch}
               style={{ marginBottom: 8, display: 'block' }}
             />
-            <Button type={"text"} size="small" style={{color: '#1677ff'}} onClick={handleReset}>Sıfırla</Button>
+            <Button type={"text"} size="small" style={{color: '#1677ff'}} onClick={handleTitleReset}>Sıfırla</Button>
           </div>
         ),
         filterIcon: <SearchOutlined />,
@@ -260,7 +264,7 @@ const Tasks = ({ addTask, users, categories, tasks, onEditTask, deleteTask}) => 
           return 0;
         },
         defaultSortOrder: 'ascend',
-        filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+        filterDropdown: () => (
           <div style={{ padding: 8, width: '300px' }}>
             <div>
             <RangePicker
@@ -274,7 +278,7 @@ const Tasks = ({ addTask, users, categories, tasks, onEditTask, deleteTask}) => 
             />
             </div>
             <div style={{display: 'flex', justifyContent: 'space-between'}}>
-              <Button type="text" size="small" style={{color: '#1677ff'}} onClick={handleReset}>Sıfırla</Button>
+              <Button type="text" size="small" style={{color: '#1677ff'}} onClick={handleDateReset}>Sıfırla</Button>
               <Button type="primary" size="small" onClick={handleApply}>Tamam</Button>
             </div>
           </div>
