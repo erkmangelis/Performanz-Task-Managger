@@ -107,7 +107,7 @@ const DetailCard = memo(({ users, data }) => {
         comment.id = response.data.id;
         comment.date = dayjs().tz('Europe/Istanbul').format('YYYY-MM-DDTHH:mm:ss.SSS');
 
-        setCommentList(prevComments => [...prevComments, comment]);
+        setCommentList(prevComments => [comment, ...prevComments]);
       })
       .catch(error => {
         console.error("Not gönderilirken hata oluştu:", error);
