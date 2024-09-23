@@ -27,7 +27,6 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
     
     useEffect(() => {
         if (data) {
-            setChecked(data.task.status === 1 ? true : false);
             setAssignedUser([data.assignedUsers.map(x => x.id)]);
             const formValues = {
                 "title": data.task.title,
@@ -40,7 +39,6 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
             };
             form.setFieldsValue(formValues);
         } else {
-            setChecked(false);
             form.resetFields();
             if (user.role !== ADMIN) {
                 setAssignedUser([user.id]);
@@ -58,42 +56,90 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
             message.error('Görev Atanacak Kullanıcı Seçiniz!');
             return;}
         form.validateFields()
-          .then(values => {
-            let updateCount = 0;
-            let newTask = {
-                "id": 0,
-                "title": values.title,
-                "description": values.description,
-                "priority": values.priority,
-                "status": values.status ? 1 : 0,
-                "progress": values.progress,
-                "addedDate": dayjs().tz('Europe/Istanbul').format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
-                "startDate": dayjs(values.dateRange[0]).add(3, 'hour'),
-                "estimatedCompleteDate": dayjs(values.dateRange[1]).add(3, 'hour'),
-                "completeDate": null,
-                "updateDate": dayjs().tz('Europe/Istanbul').format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
-                "createdByUserId": user.id,
-            };
-
-            if (data) {
-                newTask = {
-                    ...newTask,
-                    "id": data.task.id,
-                    "priority": isInteger(newTask.priority) ? values.priority : data.task.priority,
-                    "createdByUserId": user.role === ADMIN ? user.id : data.creator.id,
-                    "addedDate": dayjs(data.task.addedDate).add(3, 'hour').toISOString(),
+            .then(values => {
+                let statistic = {isUpdate: false};
+                let newTask = {
+                    "id": 0,
+                    "title": values.title,
+                    "description": values.description,
+                    "priority": values.priority,
+                    "status": values.status ? 1 : 0,
+                    "progress": values.progress,
+                    "addedDate": dayjs().tz('Europe/Istanbul').format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
+                    "startDate": dayjs(values.dateRange[0]).add(3, 'hour'),
+                    "estimatedCompleteDate": dayjs(values.dateRange[1]).add(3, 'hour'),
+                    "completeDate": null,
+                    "updateDate": dayjs().tz('Europe/Istanbul').format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
+                    "createdByUserId": user.id,
                 };
 
-                if (data.task.progress === 100 && newTask.progress < 100) {
-                    updateCount = -1;
-                } else if (data.task.progress === 100 && newTask.progress === 100) {
-                    updateCount = 0;
-                } else if (newTask.progress === 100) {
-                    updateCount = 1;
-                };
-            }
+                if (data) {
+                    let completeCount = 0, processCount = 0, pendingCount = 0, postponedCount = 0;
+                    newTask = {
+                        ...newTask,
+                        "id": data.task.id,
+                        "priority": isInteger(newTask.priority) ? values.priority : data.task.priority,
+                        "createdByUserId": user.role === ADMIN ? user.id : data.creator.id,
+                        "addedDate": dayjs(data.task.addedDate).add(3, 'hour').toISOString(),
+                    };
 
-            onSave(newTask, assignedUser, values.categories, updateCount);
+                    switch (data.task.status) {
+                        case 1:
+                            if (checked) {
+                                postponedCount = 0;
+                            } else {
+                                postponedCount = -1;
+                            };
+                            break;
+                        case 2:
+                            if (values.progress == 0 && !checked) {
+                                pendingCount = 0;
+                            } else {
+                                pendingCount = -1;
+                            };
+                            break;
+                        case 3:
+                            if (values.progress > 0 && values.progress < 100 && !checked) {
+                                processCount = 0;
+                            } else {
+                                processCount = -1;
+                            };
+                            break;
+                        case 4:
+                            if (values.progress == 100 && !checked) {
+                                completeCount = 0;
+                            } else {
+                                completeCount = -1;
+                            };
+                            break;
+                      }
+
+                      if (values.progress == 100 && data.task.progress != 100 && !checked) {
+                        completeCount++
+                      };
+
+                      if (values.progress > 0 && values.progress < 100 && data.task.status != 3 && !checked) {
+                        processCount++
+                      };
+
+                      if (values.progress == 0 && data.task.status != 2 && !checked) {
+                        pendingCount++
+                      };
+
+                      if (checked && data.task.status != 1) {
+                        postponedCount++
+                      };
+
+                      statistic = {
+                        "isUpdate": true,
+                        "completeCount": completeCount,
+                        "processCount": processCount,
+                        "pendingCount": pendingCount,
+                        "postponedCount": postponedCount
+                      }
+                }
+
+            onSave(newTask, assignedUser, values.categories, statistic);
             onClose();
             form.resetFields();            
           })
@@ -132,6 +178,10 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
                         disabled={ user.role !== ADMIN}
                         style={{ width: 250, marginRight: '40px' }}
                         onChange={(value) => setAssignedUser(value)}
+                        showSearch
+                        filterOption={(input, option) => 
+                            option.props.children.toString().toLowerCase().includes(input.toLowerCase())
+                        }
                     >
                         {users.map(user => (
                             <Option key={user.id} value={user.id}> {user.name +" "+ user.surname} </Option>

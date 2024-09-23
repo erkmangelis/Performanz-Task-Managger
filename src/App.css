@@ -90,3 +90,6 @@ header {
     background-color: rgb(249, 249, 249);
   }
   
+  .statistic .ant-tag {
+    margin-inline-end: 0px;
+  }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Button, Avatar, theme, Segmented, Divider, Tag, Typography } from 'antd';
+import { Layout, Button, Avatar, theme, Segmented, Divider, Typography } from 'antd';
 import { FileAddOutlined, LogoutOutlined, UserOutlined, ScheduleOutlined, ContactsOutlined, UserAddOutlined } from '@ant-design/icons';
 import Tasks from '../components/Tasks';
 import TaskModal from '../components/TaskModal';
@@ -11,10 +11,10 @@ import openNotificationWithIcon from '../services/notificationService';
 import Profile from '../components/Profile';
 import Users from '../components/Users';
 import UserModal from '../components/UserModal';
+import Statistics from '../components/Statistics';
 
 
 const { Header, Content } = Layout;
-const { Text } = Typography;
 
 const HomePage = () => {
   const {user, setUser} = useUser();
@@ -79,6 +79,9 @@ const HomePage = () => {
   const [categories, setCategories] = useState([]);
   const [users, setUsers] = useState([]);
   const [completeCount, setCompleteCount] = useState(0);
+  const [processCount, setProcessCount] = useState(0);
+  const [pendingCount, setPendingCount] = useState(0);
+  const [postponedCount, setPostponedCount] = useState(0);
   const [totalTask, setTotalTask] = useState(0);
 
   useEffect(() => {
@@ -88,7 +91,10 @@ const HomePage = () => {
         .then(response => {
           setTasks(response.data);
           setTotalTask(response.data.length);
-          setCompleteCount(response.data.filter(task => task.task.progress === 100).length);
+          setCompleteCount(response.data.filter(item => item.task.status === 4).length);
+          setProcessCount(response.data.filter(item => item.task.status === 3).length);
+          setPostponedCount(response.data.filter(item => item.task.status === 1).length);
+          setPendingCount(response.data.filter(item => item.task.status === 2).length);
         })
         .catch(error => {
           console.error('API isteği başarısız:', error);
@@ -119,7 +125,7 @@ const HomePage = () => {
   //////////////////////////////////////////
   
   /////////////// Add Tasks ///////////////
-  const handleSaveTask = (task, taskUser, taskCategories, updateCount) => {
+  const handleSaveTask = (task, taskUser, taskCategories, statistic) => {
     let taskUserStr = taskUser.map(String).join(',');
     let taskCategoriesStr = taskCategories.map(String).join(',');
     let taskId;
@@ -143,7 +149,20 @@ const HomePage = () => {
     .then(response => {
       setTasks(prevTasks => [...prevTasks, response.data]);
       setTotalTask(totalTask + 1);
-      setCompleteCount(response.data.task.progress === 100 ? completeCount + 1 : completeCount);
+      switch (response.data.task.status) {
+        case 1:
+          setPostponedCount(postponedCount + 1);
+          break;
+        case 2:
+          setPendingCount(pendingCount + 1);
+          break;
+        case 3:
+          setProcessCount(processCount + 1);
+          break;
+        case 4:
+          setCompleteCount(completeCount + 1);
+          break;
+      };
 
       openNotificationWithIcon({
         type: 'success',
@@ -179,7 +198,13 @@ const HomePage = () => {
           t.task.id === response.data.task.id ? { ...response.data } : t
         )
       );
-      setCompleteCount(completeCount + updateCount);
+
+      if (statistic.isUpdate) {
+        setCompleteCount(completeCount + statistic.completeCount);
+        setProcessCount(processCount + statistic.processCount);
+        setPendingCount(pendingCount + statistic.pendingCount);
+        setPostponedCount(postponedCount + statistic.postponedCount);
+      }
 
       openNotificationWithIcon({
         type: 'success',
@@ -199,10 +224,20 @@ const HomePage = () => {
   };
 
   /////////////// Delete Tasks ///////////////
-  const deleteTask = (taskId) => {
-    axios.delete(API_URL+"TaskItems/"+taskId)
+  const deleteTask = (task) => {
+    axios.delete(API_URL+"TaskItems/"+task.id)
     .then(() => {
-      setTasks(prevTasks => prevTasks.filter(task => task.task.id !== taskId));
+      setTasks(prevTasks => prevTasks.filter(item => item.task.id !== task.id));
+      if (task.status === 1) {
+        setPostponedCount(postponedCount - 1);
+      } else if (task.status === 2) {
+        setPendingCount(pendingCount - 1);
+      } else if (task.status === 3) {
+        setProcessCount(processCount - 1);
+      } else if (task.status === 4) {
+        setCompleteCount(completeCount - 1);
+      };
+
       setTotalTask(totalTask - 1);
       openNotificationWithIcon({
         type: 'info',
@@ -385,24 +420,30 @@ const HomePage = () => {
             <Avatar shape='square' style={{ backgroundColor: '#78bf9b', verticalAlign: 'middle', marginTop: '-5px'}} size='large' icon={<UserOutlined />} src={user.url}>{user.name}</Avatar>
             <h1 style={{ color: 'white', fontWeight: '500', fontSize: '16px' }}>{user.name} {user.surname}</h1>
           </Button>
-           
-          <Divider type="vertical" />
-          {user.role === ADMIN ? (
-          <div className='tableSegment'>
-            <Segmented
-              options={[
-                { value: 'tasks', icon: <ScheduleOutlined style={{fontSize: '18px'}}/> },
-                { value: 'users', icon: <ContactsOutlined style={{fontSize: '18px'}}/> }
-              ]}
-              value={table}
-              onChange={setTable}
-            />
-          </div>) : (
-            <Tag bordered={false}><Text strong type={completeCount === totalTask ? "success" : ""}>{completeCount} / {totalTask}</Text></Tag>
-          )}
+
+          <>
+          {user.role === ADMIN &&
+            <>
+              <Divider type="vertical" />
+              <div className='tableSegment'>
+                <Segmented
+                  options={[
+                    { value: 'tasks', icon: <ScheduleOutlined style={{fontSize: '18px'}}/> },
+                    { value: 'users', icon: <ContactsOutlined style={{fontSize: '18px'}}/> }
+                  ]}
+                  value={table}
+                  onChange={setTable}
+                />
+              </div>
+            </>
+          }
+
+              <Divider type="vertical" />
+              <Statistics data={{completeCount, processCount, pendingCount, postponedCount, totalTask}}/>
+          </>
         </div>
 
-        <div className='addButton' style={{marginLeft: '-80px'}}>
+        <div className='addButton' style={{marginLeft: user.role === ADMIN ? '-300px' : '-200px' }}>
           {table === "tasks" ? ( 
             <Button size="large" type="text" style={{ color: 'white', fontWeight: '500', fontSize: '16px'}} onClick={handleAddTask}>Görev Ekle <FileAddOutlined /></Button>
               ) : (

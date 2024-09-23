@@ -85,7 +85,7 @@ const Tasks = ({ addTask, users, categories, tasks, onEditTask, deleteTask}) => 
       okType: 'danger',
       cancelText: 'Hayır',
       onOk() {
-        deleteTask(record.task.id);
+        deleteTask(record.task);
       },
       onCancel() {
         console.log('Silme işlemi iptal edildi.');
