@@ -22,13 +22,13 @@ const Statistics = ({data, statisticFilter}) => {
         <>
             <Popover placement="bottom" content={popoverContent}>
               <Tag className='statistic' color='#3F72AF' style={{display: 'flex', alignContent: 'center', cursor: 'default'}}>
-                <Tag bordered={false} style={{borderColor: 'white', width: '30px', height: '25px', display: 'flex', alignItems: 'center', justifyContent: 'center'}} color='rgba(136, 214, 108, 0.8)'><Text strong style={{color: 'white'}}>{data.completeCount}</Text></Tag>
+                <Tag onClick={() => statisticFilter([4])} bordered={false} style={{borderColor: 'white', width: '30px', height: '25px', display: 'flex', alignItems: 'center', justifyContent: 'center'}} color='rgba(136, 214, 108, 0.8)'><Text strong style={{color: 'white'}}>{data.completeCount}</Text></Tag>
                 <Tag bordered={false} color='#3F72AF'><Text strong></Text></Tag>
-                <Tag bordered={false} style={{borderColor: 'white', width: '30px', height: '25px', display: 'flex', alignItems: 'center', justifyContent: 'center'}} color='rgba(0, 141, 218, 0.8)'><Text strong style={{color: 'white'}}>{data.processCount}</Text></Tag>
+                <Tag onClick={() => statisticFilter([3])} bordered={false} style={{borderColor: 'white', width: '30px', height: '25px', display: 'flex', alignItems: 'center', justifyContent: 'center'}} color='rgba(0, 141, 218, 0.8)'><Text strong style={{color: 'white'}}>{data.processCount}</Text></Tag>
                 <Tag bordered={false} color='#3F72AF'><Text strong></Text></Tag>
-                <Tag bordered={false} style={{borderColor: 'white', width: '30px', height: '25px', display: 'flex', alignItems: 'center', justifyContent: 'center'}} color='rgba(255, 234, 32, 0.8)'><Text strong style={{color: 'white'}}>{data.pendingCount}</Text></Tag>
+                <Tag onClick={() => statisticFilter([2])} bordered={false} style={{borderColor: 'white', width: '30px', height: '25px', display: 'flex', alignItems: 'center', justifyContent: 'center'}} color='rgba(255, 234, 32, 0.8)'><Text strong style={{color: 'white'}}>{data.pendingCount}</Text></Tag>
                 <Tag bordered={false} color='#3F72AF'><Text strong></Text></Tag>
-                <Tag bordered={false} style={{borderColor: 'white', width: '30px', height: '25px', display: 'flex', alignItems: 'center', justifyContent: 'center'}} color='rgba(249, 74, 41, 0.8)'><Text strong style={{color: 'white'}}>{data.postponedCount}</Text></Tag>
+                <Tag onClick={() => statisticFilter([1])} bordered={false} style={{borderColor: 'white', width: '30px', height: '25px', display: 'flex', alignItems: 'center', justifyContent: 'center'}} color='rgba(249, 74, 41, 0.8)'><Text strong style={{color: 'white'}}>{data.postponedCount}</Text></Tag>
               </Tag>
             </Popover>
         </>
