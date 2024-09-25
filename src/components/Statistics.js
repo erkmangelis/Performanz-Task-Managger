@@ -6,15 +6,15 @@ import { Card, Statistic, Row, Col, Tag, Typography, Popover } from 'antd';
 
 const { Text } = Typography;
 
-const Statistics = ({data}) => {
+const Statistics = ({data, statisticFilter}) => {
 
     const popoverContent = (
         <Card style={{cursor: 'default'}}>
-            <Card.Grid style={{textAlign: 'center', width: '50%', backgroundColor: 'rgba(136, 214, 108, 0.8)'}}><Statistic title="Tamamlanan" value={data.completeCount} /></Card.Grid>
-            <Card.Grid style={{textAlign: 'center', width: '50%', backgroundColor: 'rgba(0, 141, 218, 0.8)'}}><Statistic title="İşlemde" value={data.processCount} /></Card.Grid>
-            <Card.Grid style={{textAlign: 'center', width: '50%', backgroundColor: 'rgba(255, 234, 32, 0.8)'}}><Statistic title="Beklemede" value={data.pendingCount} /></Card.Grid>
-            <Card.Grid style={{textAlign: 'center', width: '50%', backgroundColor: 'rgba(249, 74, 41, 0.8)'}}><Statistic title="Ertelendi" value={data.postponedCount} /></Card.Grid>
-            <Card.Grid style={{textAlign: 'center', width: '100%', backgroundColor: 'rgba(190, 210, 210, 0.8)'}}><Statistic title="Toplam" value={data.totalTask} /></Card.Grid>
+            <Card.Grid onClick={() => statisticFilter([4])} style={{textAlign: 'center', width: '50%', backgroundColor: 'rgba(136, 214, 108, 0.8)'}}><Statistic title="Tamamlanan" value={data.completeCount} /></Card.Grid>
+            <Card.Grid onClick={() => statisticFilter([3])} style={{textAlign: 'center', width: '50%', backgroundColor: 'rgba(0, 141, 218, 0.8)'}}><Statistic title="İşlemde" value={data.processCount} /></Card.Grid>
+            <Card.Grid onClick={() => statisticFilter([2])} style={{textAlign: 'center', width: '50%', backgroundColor: 'rgba(255, 234, 32, 0.8)'}}><Statistic title="Beklemede" value={data.pendingCount} /></Card.Grid>
+            <Card.Grid onClick={() => statisticFilter([1])} style={{textAlign: 'center', width: '50%', backgroundColor: 'rgba(249, 74, 41, 0.8)'}}><Statistic title="Ertelendi" value={data.postponedCount} /></Card.Grid>
+            <Card.Grid onClick={() => statisticFilter([1,2,3,4])} style={{textAlign: 'center', width: '100%', backgroundColor: 'rgba(190, 210, 210, 0.8)'}}><Statistic title="Toplam" value={data.totalTask} /></Card.Grid>
         </Card>
     );
 

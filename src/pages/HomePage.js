@@ -397,7 +397,15 @@ const HomePage = () => {
     setEditingTask(null);
     setTaskModalVisible(false);
   };
-  //////////////////////////////////////////
+  //////////// STATISTIC FILTER ///////////
+
+  const [filter, setFilter] = useState([1,2,3]);
+
+  const statisticFilter = (filters) => {
+    setFilter(filters);
+  };
+
+  /////////////////////////////////////////
 
   const {
     token: { colorBgContainer, borderRadiusLG },
@@ -439,7 +447,7 @@ const HomePage = () => {
           }
 
               <Divider type="vertical" />
-              <Statistics data={{completeCount, processCount, pendingCount, postponedCount, totalTask}}/>
+              <Statistics data={{completeCount, processCount, pendingCount, postponedCount, totalTask}} statisticFilter={statisticFilter}/>
           </>
         </div>
 
@@ -504,6 +512,7 @@ const HomePage = () => {
               tasks={tasks}
               onEditTask={handleEditTask}
               deleteTask={deleteTask}
+              sFilter={filter}
             /> )) :
             <Users
               userList={users}

@@ -16,11 +16,11 @@ dayjs.extend(isSameOrBefore);
 const { RangePicker } = DatePicker;
 const { confirm } = Modal;
 
-const Tasks = ({ addTask, users, categories, tasks, onEditTask, deleteTask}) => {
+const Tasks = ({ addTask, users, categories, tasks, onEditTask, deleteTask, sFilter}) => {
   const [expandedRowKeys, setExpandedRowKeys] = useState([]);
   const rowRefs = useRef({});
   const {user} = useUser();
-  const [statusFilter, setStatusFilter] = useState([1, 2, 3]); 
+  const [statusFilter, setStatusFilter] = useState(sFilter); 
   const [categoriesFilter, setCategoriesFilter] = useState([]);
   const [priorityFilter, setPriorityFilter] = useState([]);
   const [creatorFilter, setCreatorFilter] = useState([]);
@@ -44,7 +44,8 @@ const Tasks = ({ addTask, users, categories, tasks, onEditTask, deleteTask}) => 
 
   useEffect(() => {
     filterTasks(searchTitle, dateRange);
-  }, [tasks]);
+    setStatusFilter(sFilter);
+  }, [sFilter, tasks]);
 
   const handleDateRangeChange = (dates) => {
     if (dates) {
