@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Button, Avatar, theme, Segmented, Divider, Typography } from 'antd';
+import { Layout, Button, Avatar, theme, Segmented, Divider } from 'antd';
 import { FileAddOutlined, LogoutOutlined, UserOutlined, ScheduleOutlined, ContactsOutlined, UserAddOutlined } from '@ant-design/icons';
 import Tasks from '../components/Tasks';
 import TaskModal from '../components/TaskModal';
@@ -12,9 +12,28 @@ import Profile from '../components/Profile';
 import Users from '../components/Users';
 import UserModal from '../components/UserModal';
 import Statistics from '../components/Statistics';
+import Notification from '../components/Notification';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+import 'dayjs/locale/tr';
 
+
+const notificationList = [
+  {
+    id: 1,
+    title: `Okan ŞENTÜRK Yeni Görev Verdi`,
+    detail: `Okan ŞENTÜRK, size "Dashboard Demo" adlı yeni bir görev verdi.`,
+    date: dayjs().tz('Europe/Istanbul').format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
+    userId: 1,
+    assignedUser: 3
+  }
+]
 
 const { Header, Content } = Layout;
+dayjs.locale('tr'); 
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const HomePage = () => {
   const {user, setUser} = useUser();
@@ -83,6 +102,7 @@ const HomePage = () => {
   const [pendingCount, setPendingCount] = useState(0);
   const [postponedCount, setPostponedCount] = useState(0);
   const [totalTask, setTotalTask] = useState(0);
+  const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
     if (user) {
@@ -120,6 +140,17 @@ const HomePage = () => {
           console.error('API isteği başarısız:', error);
           setLoading(false);
         });
+
+        setNotifications(notificationList);
+        // axios.get(API_URL+'Notifications/ByUserId/'+user.id)
+        // .then(response => {
+        //   setNotifications(response.data);
+        //   setLoading(false);
+        // })
+        // .catch(error => {
+        //   console.error('API isteği başarısız:', error);
+        //   setLoading(false);
+        // });
     }
   }, [user]);
   //////////////////////////////////////////
@@ -146,7 +177,31 @@ const HomePage = () => {
     .then(() => {
       return axios.get(API_URL + "TaskItems/" + taskId);
     })
+    // .then(() => {
+    //   taskUser.forEach(aUser => {
+    //     let notification = {
+    //       id: 0,
+    //       title: `${user.name} ${user.surname} Yeni Görev Verdi`,
+    //       detail: `${user.name} ${user.surname}, size "${task.title}" adlı yeni bir görev verdi.`,
+    //       date: dayjs().tz('Europe/Istanbul').format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
+    //       userId: user.id,
+    //       assignedUser: aUser.id
+    //     };
+    //     return axios.post(API_URL + "Notifications/", notification)
+    //   });
+    // })
     .then(response => {
+      taskUser.forEach(aUser => {
+        let notification = {
+          id: 0,
+          title: `${user.name} ${user.surname} Görevi Güncelledi`,
+          detail: `${user.name} ${user.surname}, sizin "${task.title}" adlı görevinizi güncelledi.`,
+          date: dayjs().tz('Europe/Istanbul').format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
+          userId: user.id,
+          assignedUser: aUser.id
+        };
+        setNotifications(prevNotifications => [notification, ...prevNotifications]);
+      });
       setTasks(prevTasks => [...prevTasks, response.data]);
       setTotalTask(totalTask + 1);
       switch (response.data.task.status) {
@@ -192,7 +247,33 @@ const HomePage = () => {
     .then(() => {
       return axios.get(API_URL + "TaskItems/" + task.id);
     })
+    // .then(() => {
+    //   taskUser.forEach(aUser => {
+    //     if (user.id !== aUser.id) {
+    //     let notification = {
+    //       id: 0,
+    //       title: `${user.name} ${user.surname} Görevi Güncelledi`,
+    //       detail: `${user.name} ${user.surname}, sizin "${task.title}" adlı görevinizi güncelledi.`,
+    //       date: dayjs().tz('Europe/Istanbul').format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
+    //       userId: user.id,
+    //       assignedUser: aUser.id
+    //     };
+    //     return axios.post(API_URL + "Notifications/", notification)
+    //     };
+    //   });
+    // })
     .then(response => {
+      taskUser.forEach(aUser => {
+        let notification = {
+          id: 0,
+          title: `${user.name} ${user.surname} Görevi Güncelledi`,
+          detail: `${user.name} ${user.surname}, sizin "${task.title}" adlı görevinizi güncelledi.`,
+          date: dayjs().tz('Europe/Istanbul').format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
+          userId: user.id,
+          assignedUser: aUser.id
+        };
+        setNotifications(prevNotifications => [notification, ...prevNotifications]);
+      });
       setTasks(prevTasks => 
         prevTasks.map(t => 
           t.task.id === response.data.task.id ? { ...response.data } : t
@@ -397,6 +478,7 @@ const HomePage = () => {
     setEditingTask(null);
     setTaskModalVisible(false);
   };
+
   //////////// STATISTIC FILTER ///////////
 
   const [filter, setFilter] = useState([1,2,3]);
@@ -423,7 +505,9 @@ const HomePage = () => {
           flexShrink: 0,
         }}
       >
-        <div className='user' style={{display: 'flex', alignItems:'center'}}>
+        <div className='user' style={{display: 'flex', alignItems:'center', marginLeft: '-40px'}}>
+          <Notification data={notifications} users={users}/>
+          <Divider type="vertical" />
           <Button size='large' type="text" onClick={openProfile} style={{display: 'flex', alignItems: 'center', height: '100%', paddingBottom: '6px', paddingTop: '10px'}}>
             <Avatar shape='square' style={{ backgroundColor: '#78bf9b', verticalAlign: 'middle', marginTop: '-5px'}} size='large' icon={<UserOutlined />} src={user.url}>{user.name}</Avatar>
             <h1 style={{ color: 'white', fontWeight: '500', fontSize: '16px' }}>{user.name} {user.surname}</h1>
@@ -513,6 +597,7 @@ const HomePage = () => {
               onEditTask={handleEditTask}
               deleteTask={deleteTask}
               sFilter={filter}
+              setNotifications={setNotifications}
             /> )) :
             <Users
               userList={users}

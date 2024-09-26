@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Table, Space, Tag, Progress, Modal, Divider, Button, Avatar, Input, Popover, DatePicker } from 'antd';
+import { Table, Space, Tag, Progress, Modal, Divider, Button, Avatar, Input, Popover, DatePicker, Empty } from 'antd';
 import { EditTwoTone, DeleteTwoTone, FlagFilled, ExclamationCircleFilled, ClockCircleOutlined, CrownFilled, PlusOutlined, SearchOutlined, CalendarOutlined } from '@ant-design/icons';
 import DetailCard from './DetailCard';
 import dayjs from 'dayjs';
@@ -16,7 +16,7 @@ dayjs.extend(isSameOrBefore);
 const { RangePicker } = DatePicker;
 const { confirm } = Modal;
 
-const Tasks = ({ addTask, users, categories, tasks, onEditTask, deleteTask, sFilter}) => {
+const Tasks = ({ addTask, users, categories, tasks, onEditTask, deleteTask, sFilter, setNotifications}) => {
   const [expandedRowKeys, setExpandedRowKeys] = useState([]);
   const rowRefs = useRef({});
   const {user} = useUser();
@@ -471,6 +471,12 @@ const Tasks = ({ addTask, users, categories, tasks, onEditTask, deleteTask, sFil
       triggerAsc: 'Artan sırayla sıralamak için tıklayın',
       triggerDesc: 'Azalan sırayla sıralamak için tıklayın', 
       cancelSort: 'Sıralamayı iptal etmek için tıklayın',
+      emptyText: (
+          <Empty
+            image={Empty.PRESENTED_IMAGE_SIMPLE}
+            description={<span>Görev Bulunamadı</span>}
+          />
+      )
     };
   
     return (
@@ -493,6 +499,7 @@ const Tasks = ({ addTask, users, categories, tasks, onEditTask, deleteTask, sFil
                   categories={categories}
                   users={users}
                   data={record}
+                  setNotifications={setNotifications}
                 />
                 </div>
               ),

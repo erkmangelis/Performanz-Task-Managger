@@ -1,7 +1,5 @@
-import React, { useState } from 'react';
-import { useUser } from '../contexts/UserContext';
-import { UserOutlined } from '@ant-design/icons';
-import { Card, Statistic, Row, Col, Tag, Typography, Popover } from 'antd';
+import React from 'react';
+import { Card, Statistic, Tag, Typography, Popover } from 'antd';
 
 
 const { Text } = Typography;

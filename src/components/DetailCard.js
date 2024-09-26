@@ -1,5 +1,5 @@
 import React, { useState, useEffect, memo } from 'react';
-import { Card, Col, Row, Avatar, List, Button, Drawer, Input, Modal, Tag, Form, Skeleton } from 'antd';
+import { Card, Col, Row, Avatar, List, Button, Drawer, Input, Modal, Tag, Form, Empty } from 'antd';
 import { DeleteTwoTone, ClockCircleOutlined, CloseOutlined, CommentOutlined, PlusOutlined, ExclamationCircleFilled } from '@ant-design/icons';
 import { useUser } from '../contexts/UserContext';
 import axios from 'axios';
@@ -18,7 +18,7 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 
 
-const DetailCard = memo(({ users, data }) => {
+const DetailCard = memo(({ users, data, setNotifications}) => {
   const [commentList, setCommentList] = useState();
   const {user} = useUser();
   const [form] = Form.useForm();
@@ -29,7 +29,6 @@ const DetailCard = memo(({ users, data }) => {
         data.notes.map(async (note) => {
 
           const matchedUser = users.find(user => user.id === note.userId);
-          
           if (matchedUser) {
             const user = {
               id: matchedUser.id,
@@ -48,7 +47,6 @@ const DetailCard = memo(({ users, data }) => {
       const sortedNotes = updatedNotes.sort((a, b) => new Date(b.date) - new Date(a.date));
       setCommentList(sortedNotes);
     };
-  
     fetchUserDetails();
   }, [data.notes, users]);
 
@@ -108,6 +106,20 @@ const DetailCard = memo(({ users, data }) => {
         comment.date = dayjs().tz('Europe/Istanbul').format('YYYY-MM-DDTHH:mm:ss.SSS');
 
         setCommentList(prevComments => [comment, ...prevComments]);
+      })
+      .then(() => {
+        data.assignedUsers.forEach(aUser => {
+          let notification = {
+            id: 0,
+            title: `${user.name} ${user.surname} Yeni Bir Not Yazdı`,
+            detail: `${user.name} ${user.surname}, sizin "${data.task.title}" adlı görevinize yeni bir not yazdı.`,
+            date: dayjs().tz('Europe/Istanbul').format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
+            userId: user.id,
+            assignedUser: aUser.id
+          };
+          setNotifications(prevNotifications => [notification, ...prevNotifications]);
+      //  return axios.post(API_URL + "Notifications/", notification)
+        });
       })
       .catch(error => {
         console.error("Not gönderilirken hata oluştu:", error);
@@ -187,6 +199,14 @@ const DetailCard = memo(({ users, data }) => {
               </Form>
             </Drawer>
           <List
+            locale={{
+              emptyText: (
+                <Empty
+                  image={Empty.PRESENTED_IMAGE_SIMPLE}
+                  description={<span>Not Bulunamadı</span>}
+                />
+              ),
+            }}
             style={{ minHeight: '210px', maxHeight: '210px', overflowY: 'scroll', marginTop: '-20px' }}
             itemLayout="horizontal"
             dataSource={commentList}
