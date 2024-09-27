@@ -19,17 +19,6 @@ import timezone from 'dayjs/plugin/timezone';
 import 'dayjs/locale/tr';
 
 
-const notificationList = [
-  {
-    id: 1,
-    title: `Okan ŞENTÜRK Yeni Görev Verdi`,
-    detail: `Okan ŞENTÜRK, size "Dashboard Demo" adlı yeni bir görev verdi.`,
-    date: dayjs().tz('Europe/Istanbul').format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
-    userId: 1,
-    assignedUser: 3
-  }
-]
-
 const { Header, Content } = Layout;
 dayjs.locale('tr'); 
 dayjs.extend(utc);
@@ -141,16 +130,19 @@ const HomePage = () => {
           setLoading(false);
         });
 
-        setNotifications(notificationList);
-        // axios.get(API_URL+'Notifications/ByUserId/'+user.id)
-        // .then(response => {
-        //   setNotifications(response.data);
-        //   setLoading(false);
-        // })
-        // .catch(error => {
-        //   console.error('API isteği başarısız:', error);
-        //   setLoading(false);
-        // });
+        axios.get("http://localhost:3012/Notifications/ByUserId/" + user.id)
+        .then(response => {
+          setNotifications(response.data);
+          setLoading(false);
+        })
+        .catch(error => {
+          if (error.response && error.response.status === 404) {
+            setNotifications([]);
+          } else {
+            console.error("API isteği sırasında hata oluştu:", error);
+          }
+          setLoading(false);
+        });
     }
   }, [user]);
   //////////////////////////////////////////
@@ -177,31 +169,7 @@ const HomePage = () => {
     .then(() => {
       return axios.get(API_URL + "TaskItems/" + taskId);
     })
-    // .then(() => {
-    //   taskUser.forEach(aUser => {
-    //     let notification = {
-    //       id: 0,
-    //       title: `${user.name} ${user.surname} Yeni Görev Verdi`,
-    //       detail: `${user.name} ${user.surname}, size "${task.title}" adlı yeni bir görev verdi.`,
-    //       date: dayjs().tz('Europe/Istanbul').format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
-    //       userId: user.id,
-    //       assignedUser: aUser.id
-    //     };
-    //     return axios.post(API_URL + "Notifications/", notification)
-    //   });
-    // })
     .then(response => {
-      taskUser.forEach(aUser => {
-        let notification = {
-          id: 0,
-          title: `${user.name} ${user.surname} Görevi Güncelledi`,
-          detail: `${user.name} ${user.surname}, sizin "${task.title}" adlı görevinizi güncelledi.`,
-          date: dayjs().tz('Europe/Istanbul').format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
-          userId: user.id,
-          assignedUser: aUser.id
-        };
-        setNotifications(prevNotifications => [notification, ...prevNotifications]);
-      });
       setTasks(prevTasks => [...prevTasks, response.data]);
       setTotalTask(totalTask + 1);
       switch (response.data.task.status) {
@@ -225,6 +193,27 @@ const HomePage = () => {
         description: '"'+task.title+'" adlı görevi oluşturma işlemi başarıyla gerçekleştirildi.',
       });
     })
+    .then(() => {
+      const filteredUsers = taskUser.filter(aUser => aUser !== user.id);
+      
+        const notificationPromises = filteredUsers.map(aUser => {
+          let notification = {
+            id: 0,
+            title: `${user.name} ${user.surname} yeni bir görev verdi.`,
+            detail: `${user.name} ${user.surname}, size "${task.title}" adlı yeni bir görev verdi.`,
+            date: dayjs().tz('Europe/Istanbul').format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
+            userId: user.id,
+            assignedUserId: aUser
+          };
+          return axios.post("http://localhost:3012/Notifications", notification)
+            .then(response => {
+              notification.id = response.data.id;
+              return notification;
+            });
+        });
+      
+        return Promise.all(notificationPromises)
+    })
     .catch(error => {
       console.error('Error creating task:', error);
       openNotificationWithIcon({
@@ -247,33 +236,7 @@ const HomePage = () => {
     .then(() => {
       return axios.get(API_URL + "TaskItems/" + task.id);
     })
-    // .then(() => {
-    //   taskUser.forEach(aUser => {
-    //     if (user.id !== aUser.id) {
-    //     let notification = {
-    //       id: 0,
-    //       title: `${user.name} ${user.surname} Görevi Güncelledi`,
-    //       detail: `${user.name} ${user.surname}, sizin "${task.title}" adlı görevinizi güncelledi.`,
-    //       date: dayjs().tz('Europe/Istanbul').format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
-    //       userId: user.id,
-    //       assignedUser: aUser.id
-    //     };
-    //     return axios.post(API_URL + "Notifications/", notification)
-    //     };
-    //   });
-    // })
     .then(response => {
-      taskUser.forEach(aUser => {
-        let notification = {
-          id: 0,
-          title: `${user.name} ${user.surname} Görevi Güncelledi`,
-          detail: `${user.name} ${user.surname}, sizin "${task.title}" adlı görevinizi güncelledi.`,
-          date: dayjs().tz('Europe/Istanbul').format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
-          userId: user.id,
-          assignedUser: aUser.id
-        };
-        setNotifications(prevNotifications => [notification, ...prevNotifications]);
-      });
       setTasks(prevTasks => 
         prevTasks.map(t => 
           t.task.id === response.data.task.id ? { ...response.data } : t
@@ -292,6 +255,27 @@ const HomePage = () => {
         title: 'Görev Düzenleme Başarılı',
         description: '"'+task.title+'" adlı görevi düzenleme işlemi başarıyla gerçekleştirildi.',
       });
+    })
+    .then(() => {
+      const filteredUsers = taskUser.filter(aUser => aUser[0] !== user.id);
+
+        const notificationPromises = filteredUsers.map(aUser => {
+          let notification = {
+            id: 0,
+            title: `${user.name} ${user.surname} görevini güncelledi.`,
+            detail: `${user.name} ${user.surname}, sizin "${task.title}" adlı görevinizi güncelledi.`,
+            date: dayjs().tz('Europe/Istanbul').format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
+            userId: user.id,
+            assignedUserId: aUser[0]
+          };
+          return axios.post("http://localhost:3012/Notifications", notification)
+            .then(response => {
+              notification.id = response.data.id;
+              return notification;
+            });
+        });
+      
+        return Promise.all(notificationPromises)
     })
     .catch(error => {
       console.error('Error creating task:', error);

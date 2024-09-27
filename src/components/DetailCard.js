@@ -1,5 +1,5 @@
 import React, { useState, useEffect, memo } from 'react';
-import { Card, Col, Row, Avatar, List, Button, Drawer, Input, Modal, Tag, Form, Empty } from 'antd';
+import { Card, Col, Row, Avatar, List, Button, Drawer, Input, Modal, Tag, Form, Empty, notification } from 'antd';
 import { DeleteTwoTone, ClockCircleOutlined, CloseOutlined, CommentOutlined, PlusOutlined, ExclamationCircleFilled } from '@ant-design/icons';
 import { useUser } from '../contexts/UserContext';
 import axios from 'axios';
@@ -108,22 +108,30 @@ const DetailCard = memo(({ users, data, setNotifications}) => {
         setCommentList(prevComments => [comment, ...prevComments]);
       })
       .then(() => {
-        data.assignedUsers.forEach(aUser => {
+        const filteredUsers = data.assignedUsers.filter(aUser => aUser.id !== user.id);
+      
+        const notificationPromises = filteredUsers.map(aUser => {
           let notification = {
             id: 0,
-            title: `${user.name} ${user.surname} Yeni Bir Not Yazdı`,
+            title: `${user.name} ${user.surname} yeni bir not yazdı.`,
             detail: `${user.name} ${user.surname}, sizin "${data.task.title}" adlı görevinize yeni bir not yazdı.`,
             date: dayjs().tz('Europe/Istanbul').format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
             userId: user.id,
-            assignedUser: aUser.id
+            assignedUserId: aUser.id
           };
-          setNotifications(prevNotifications => [notification, ...prevNotifications]);
-      //  return axios.post(API_URL + "Notifications/", notification)
+          return axios.post("http://localhost:3012/Notifications", notification)
+            .then(response => {
+              notification.id = response.data.id;
+              return notification;
+            });
         });
+      
+        return Promise.all(notificationPromises)
       })
       .catch(error => {
         console.error("Not gönderilirken hata oluştu:", error);
       });
+      
   };
   
 

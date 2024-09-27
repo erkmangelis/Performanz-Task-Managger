@@ -18,7 +18,7 @@ const Notification = ({data, users}) => {
         const fetchUserDetails = async () => {
           const updatedNotifications = await Promise.all(
             data.map(async (notification) => {
-    
+              
               const matchedUser = users.find(user => user.id === notification.userId);
               
               if (matchedUser) {
@@ -30,7 +30,8 @@ const Notification = ({data, users}) => {
                   url: matchedUser.url,
                 };
                 
-                return { ...notification, user };
+                let notif = { ...notification, user };
+                return notif;
               } else {
                 return notification;
               }
@@ -41,20 +42,29 @@ const Notification = ({data, users}) => {
         };
       
         fetchUserDetails();
-      }, [data]);
+      }, [data, users]);
 
 
     const handleDeleteNotification = async (notificationId) => {
         try {
-          //await axios.delete(API_URL+'Notifications/'+notificationId);
+          await axios.delete('http://localhost:3012/Notifications/'+notificationId);
           setNotificationList(prevNotifications => prevNotifications.filter(notification => notification.id !== notificationId));
         } catch (error) {
           console.error("Bildirim silinirken hata oluştu:", error);
         }
     };
 
+    const handleDeleteAllNotification = async () => {
+      try {
+        await axios.delete('http://localhost:3012/Notifications/ByUserId/'+user.id);
+        setNotificationList([]);
+      } catch (error) {
+        console.error("Bildirim silinirken hata oluştu:", error);
+      }
+  };
+
     const listMenu = (
-        <Card style={{width: 500}}>
+        <Card size="small" style={{width: 500}} extra={notificationList.length > 0 && <Button size="small" onClick={() => handleDeleteAllNotification()} type="text">Tümünü Temizle</Button>}>
             <List
                 locale={{
                     emptyText: (
@@ -67,7 +77,7 @@ const Notification = ({data, users}) => {
                 itemLayout="horizontal"
                 dataSource={notificationList}
                 renderItem={(notification, index) => (
-                    <List.Item extra={<Button onClick={() => handleDeleteNotification(notification.id)} key={notification.userId} type="text" shape="circle"><CloseOutlined /></Button>}>
+                    <List.Item extra={<Button onClick={() => handleDeleteNotification(notification.id)} key={notification.id} type="text" shape="circle"><CloseOutlined /></Button>}>
                         <List.Item.Meta
                             avatar={<Avatar style={{ backgroundColor: '#78bf9b', verticalAlign: 'middle'}} size='large' src={notification.user.url}>{notification.user.name+ " " +notification.user.surname}</Avatar>}
                             title={
