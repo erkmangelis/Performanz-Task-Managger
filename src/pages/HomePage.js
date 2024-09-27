@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Button, Avatar, theme, Segmented, Divider } from 'antd';
-import { FileAddOutlined, LogoutOutlined, UserOutlined, ScheduleOutlined, ContactsOutlined, UserAddOutlined } from '@ant-design/icons';
+import { Layout, Button, Avatar, theme, Segmented, Divider, FloatButton } from 'antd';
+import { FileAddOutlined, LogoutOutlined, UserOutlined, ScheduleOutlined, ContactsOutlined, UserAddOutlined, NotificationOutlined, RobotOutlined } from '@ant-design/icons';
 import Tasks from '../components/Tasks';
 import TaskModal from '../components/TaskModal';
 import { useNavigate } from 'react-router-dom';
@@ -589,6 +589,27 @@ const HomePage = () => {
               deleteUser={deleteUser}
             />
             }
+            <FloatButton.Group
+              trigger="click"
+              type="default"
+              tooltip={"Duyuru Yap"}
+              style={{
+                bottom: '20px',
+                right: '20px'
+              }}
+              icon={<NotificationOutlined />}
+            >
+              <FloatButton
+                type="primary"
+                tooltip={"Kendi Adına"}
+                icon={<UserOutlined />}
+              />
+              <FloatButton
+                type="primary"
+                tooltip={"Sistem Adına"}
+                icon={<RobotOutlined />}
+              />
+            </FloatButton.Group>
           </div>
         </Content>
       </div>
