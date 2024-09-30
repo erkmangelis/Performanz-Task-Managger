@@ -49,7 +49,7 @@ const Notification = ({data, users}) => {
 
     const handleDeleteNotification = async (notificationId) => {
         try {
-          await axios.delete('http://localhost:3012/Notifications/'+notificationId);
+          await axios.delete(API_URL+"Notifications/"+notificationId);
           setNotificationList(prevNotifications => prevNotifications.filter(notification => notification.id !== notificationId));
         } catch (error) {
           console.error("Bildirim silinirken hata oluştu:", error);
@@ -58,7 +58,7 @@ const Notification = ({data, users}) => {
 
     const handleDeleteAllNotification = async () => {
       try {
-        await axios.delete('http://localhost:3012/Notifications/ByUserId/'+user.id);
+        await axios.delete(API_URL+"Notifications/ByUserId/"+user.id);
         setNotificationList([]);
       } catch (error) {
         console.error("Bildirim silinirken hata oluştu:", error);

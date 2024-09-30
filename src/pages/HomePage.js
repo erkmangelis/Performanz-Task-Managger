@@ -131,7 +131,7 @@ const HomePage = () => {
           setLoading(false);
         });
 
-        axios.get("http://localhost:3012/Notifications/ByUserId/" + user.id)
+        axios.get(API_URL+"Notifications/ByUserId/" + user.id)
         .then(response => {
           setNotifications(response.data);
           setLoading(false);
@@ -206,7 +206,7 @@ const HomePage = () => {
             userId: user.id,
             assignedUserId: aUser
           };
-          return axios.post("http://localhost:3012/Notifications", notification)
+          return axios.post(API_URL+"Notifications/", notification)
             .then(response => {
               notification.id = response.data.id;
               return notification;
@@ -269,7 +269,7 @@ const HomePage = () => {
             userId: user.id,
             assignedUserId: aUser
           };
-          return axios.post("http://localhost:3012/Notifications", notification)
+          return axios.post(API_URL+"Notifications/", notification)
             .then(response => {
               notification.id = response.data.id;
               return notification;
@@ -486,7 +486,7 @@ const HomePage = () => {
         };
         const assignedUserDetail = users.find(u => u.id === user);
 
-        axios.post("http://localhost:3012/Notifications", updatedNotification)
+        axios.post(API_URL+"Notifications/", updatedNotification)
         .then(response => {
             openNotificationWithIcon({
                 type: 'success',

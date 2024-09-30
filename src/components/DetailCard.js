@@ -119,7 +119,7 @@ const DetailCard = memo(({ users, data, setNotifications}) => {
             userId: user.id,
             assignedUserId: aUser.id
           };
-          return axios.post("http://localhost:3012/Notifications", notification)
+          return axios.post(API_URL+"Notifications/", notification)
             .then(response => {
               notification.id = response.data.id;
               return notification;
