@@ -106,9 +106,13 @@ const NotificationModal = ({users, onOpen, onClose, onSave, type}) => {
                                     >
                                       <span>Seçilenler</span>
                                     </Tooltip>
-                                  )}
+                                )}
+                                showSearch
+                                filterOption={(input, option) => 
+                                    option.props.children.toString().toLowerCase().includes(input.toLowerCase())
+                                }
                             >
-                            {users.map(user => (
+                            {users.filter(u => u.id !== user.id).map(user => (
                                 <Option key={user.id} value={user.id}> {user.name +" "+ user.surname} </Option>
                             ))}
                             </Select>
