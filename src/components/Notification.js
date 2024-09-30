@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Badge, Avatar, Dropdown, List, Card, Button, Empty } from 'antd';
-import { BellOutlined, CloseOutlined } from '@ant-design/icons';
+import { BellOutlined, CloseOutlined, RobotOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import { API_URL } from '../config/Config.js';
 import { useUser } from '../contexts/UserContext';
@@ -15,6 +15,7 @@ const Notification = ({data, users}) => {
     const {user} = useUser();
 
     useEffect(() => {
+      if (data) {
         const fetchUserDetails = async () => {
           const updatedNotifications = await Promise.all(
             data.map(async (notification) => {
@@ -42,6 +43,7 @@ const Notification = ({data, users}) => {
         };
       
         fetchUserDetails();
+      };
       }, [data, users]);
 
 
@@ -79,7 +81,7 @@ const Notification = ({data, users}) => {
                 renderItem={(notification, index) => (
                     <List.Item extra={<Button onClick={() => handleDeleteNotification(notification.id)} key={notification.id} type="text" shape="circle"><CloseOutlined /></Button>}>
                         <List.Item.Meta
-                            avatar={<Avatar style={{ backgroundColor: '#78bf9b', verticalAlign: 'middle'}} size='large' src={notification.user.url}>{notification.user.name+ " " +notification.user.surname}</Avatar>}
+                            avatar={<Avatar style={{ backgroundColor: '#78bf9b', verticalAlign: 'middle'}} size='large' src={notification.user ? notification.user.url : ""}>{notification.user ? `${notification.user.name} ${notification.user.surname}` : <RobotOutlined style={{fontSize: '30px'}}/>}</Avatar>}
                             title={
                                 <span style={{display: 'flex', alignItems: 'flex-end'}}>
                                     <div>{notification.title}</div>

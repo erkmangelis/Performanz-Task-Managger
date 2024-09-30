@@ -17,6 +17,7 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import 'dayjs/locale/tr';
+import NotificationModal from '../components/NotificationModal.js';
 
 
 const { Header, Content } = Layout;
@@ -257,25 +258,25 @@ const HomePage = () => {
       });
     })
     .then(() => {
-      const filteredUsers = taskUser.filter(aUser => aUser[0] !== user.id);
-
-        const notificationPromises = filteredUsers.map(aUser => {
+      const filteredUsers = taskUser.filter(aUser => aUser !== user.id);
+      
+        const notificationPromises = filteredUsers[0].map(aUser => {
           let notification = {
             id: 0,
             title: `${user.name} ${user.surname} görevini güncelledi.`,
             detail: `${user.name} ${user.surname}, sizin "${task.title}" adlı görevinizi güncelledi.`,
             date: dayjs().tz('Europe/Istanbul').format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
             userId: user.id,
-            assignedUserId: aUser[0]
+            assignedUserId: aUser
           };
           return axios.post("http://localhost:3012/Notifications", notification)
             .then(response => {
               notification.id = response.data.id;
               return notification;
             });
-        });
+      });
       
-        return Promise.all(notificationPromises)
+      return Promise.all(notificationPromises)
     })
     .catch(error => {
       console.error('Error creating task:', error);
@@ -463,6 +464,48 @@ const HomePage = () => {
     setTaskModalVisible(false);
   };
 
+  /////////////// Notification Modal ///////////////
+  const [notificationModalVisible, setNotificationModalVisible] = useState(false);
+  const [modalType, setModalType] = useState();
+
+  const handleOpenNotificationModal = (type) => {
+    setModalType(type);
+    setNotificationModalVisible(true);
+  };
+
+  const handleCloseNotificationModal = () => {
+    setNotificationModalVisible(false);
+  };
+
+  ////////// SEND CUSTOM NOTIFICATION ///////////
+  const sendCustomNotification = (notification, assignedUsers) => {  
+    assignedUsers.forEach(user => {
+        const updatedNotification = {
+            ...notification,
+            assignedUserId: user,
+        };
+        const assignedUserDetail = users.find(u => u.id === user);
+
+        axios.post("http://localhost:3012/Notifications", updatedNotification)
+        .then(response => {
+            openNotificationWithIcon({
+                type: 'success',
+                title: 'Bildirim Gönderme Başarılı',
+                description: `Bildirim ${assignedUserDetail.name} ${assignedUserDetail.surname} isimli kullanıcıya başarıyla gönderildi.`,
+            });
+        })
+        .catch(error => {
+            console.error(`Bildirim gönderme başarısız (Kullanıcı ID: ${user}):`, error);
+            openNotificationWithIcon({
+                type: 'error',
+                title: 'Bildirim Gönderme Başarısız',
+                description: `Bildirim ${assignedUserDetail.name} ${assignedUserDetail.surname} isimli kullanıcıya gönderilemedi.`,
+            });
+        });
+    });
+  };
+
+
   //////////// STATISTIC FILTER ///////////
 
   const [filter, setFilter] = useState([1,2,3]);
@@ -563,6 +606,13 @@ const HomePage = () => {
             onClose={handleCloseUserModal}
             onSave={handleSaveUser}
           />
+          <NotificationModal
+            users={users}
+            onOpen={notificationModalVisible}
+            onClose={handleCloseNotificationModal}
+            onSave={sendCustomNotification}
+            type={modalType}
+          />
           <div
             className='main-table'
             style={{
@@ -589,6 +639,7 @@ const HomePage = () => {
               deleteUser={deleteUser}
             />
             }
+            {(user.role === ADMIN || user.id === 3) &&
             <FloatButton.Group
               trigger="click"
               type="default"
@@ -603,13 +654,16 @@ const HomePage = () => {
                 type="primary"
                 tooltip={"Kendi Adına"}
                 icon={<UserOutlined />}
+                onClick={() => handleOpenNotificationModal(1)}
               />
               <FloatButton
                 type="primary"
                 tooltip={"Sistem Adına"}
                 icon={<RobotOutlined />}
+                onClick={() => handleOpenNotificationModal(2)}
               />
             </FloatButton.Group>
+            }
           </div>
         </Content>
       </div>
