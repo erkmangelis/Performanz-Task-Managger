@@ -196,7 +196,6 @@ const HomePage = () => {
     })
     .then(() => {
       const filteredUsers = taskUser.filter(aUser => aUser !== user.id);
-      
         const notificationPromises = filteredUsers.map(aUser => {
           let notification = {
             id: 0,
@@ -258,9 +257,9 @@ const HomePage = () => {
       });
     })
     .then(() => {
-      const filteredUsers = taskUser.filter(aUser => aUser !== user.id);
-      
-        const notificationPromises = filteredUsers[0].map(aUser => {
+      let tempTaskUser = taskUser[0];
+      const filteredUsers = tempTaskUser.filter(aUser => aUser !== user.id);
+        const notificationPromises = filteredUsers.map(aUser => {
           let notification = {
             id: 0,
             title: `${user.name} ${user.surname} görevini güncelledi.`,

@@ -138,7 +138,7 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
                         "postponedCount": postponedCount
                       }
                 }
-
+                
             onSave(newTask, assignedUser, values.categories, statistic);
             onClose();
             form.resetFields();            
