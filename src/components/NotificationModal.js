@@ -41,7 +41,7 @@ const NotificationModal = ({users, onOpen, onClose, onSave, type}) => {
     const handleOk = () => {
         form.validateFields()
           .then(values => {
-            let assignedUsers = checked ? users.filter(u => u.id !== user.id).map(user => user.id) : values.userSelect;
+            let assignedUsers = checked ? users.filter(u => u.id !== user.id && u.isActive !== false).map(user => user.id) : values.userSelect;
             let newNotification = {
                 id: 0,
                 "title": type === 1 ? user.name + " " + user.surname + " bir duyuru yaptı" : "Sistem Admin bir duyuru yaptı",
