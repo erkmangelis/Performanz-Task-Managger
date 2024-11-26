@@ -540,7 +540,7 @@ const HomePage = () => {
           </Button>
 
           <>
-          {user.role === ADMIN &&
+          {user.role === ADMIN || user.id === 3 &&
             <>
               <Divider type="vertical" />
               <div className='tableSegment'>

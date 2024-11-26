@@ -187,7 +187,7 @@ const Tasks = ({ addTask, users, categories, tasks, onEditTask, deleteTask, sFil
           record.task.title.toLowerCase().includes(value.toLowerCase()),
       },
       {
-        title: (user.role === ADMIN ?
+        title: (user.role === ADMIN || user.id === 3 ?
         <>
           <Popover 
           trigger="click"
