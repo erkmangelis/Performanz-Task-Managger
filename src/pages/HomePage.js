@@ -18,6 +18,7 @@ import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import 'dayjs/locale/tr';
 import NotificationModal from '../components/NotificationModal.js';
+import { checkTokenExpiration } from '../services/expirationService.js';
 
 
 const { Header, Content } = Layout;
@@ -28,6 +29,13 @@ dayjs.extend(timezone);
 const HomePage = () => {
   const {user, setUser} = useUser();
   const [table, setTable] = useState("tasks");
+
+  //////////// TokenExpiration //////////////
+  useEffect(() => {
+    if (checkTokenExpiration(user.token)) {
+      handleLogout();
+    }
+  }, []);
 
   ///////////////// Profile ////////////////
   const [showProfile, setShowProfile] = useState(false);
