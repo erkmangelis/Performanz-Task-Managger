@@ -540,7 +540,7 @@ const HomePage = () => {
         }}
       >
         <div className='user' style={{display: 'flex', alignItems:'center', marginLeft: '-40px'}}>
-          <Notification data={notifications} users={users}/>
+          <Notification data={notifications} users={users} />
           <Divider type="vertical" />
           <Button size='large' type="text" onClick={openProfile} style={{display: 'flex', alignItems: 'center', height: '100%', paddingBottom: '6px', paddingTop: '10px'}}>
             <Avatar shape='square' style={{ backgroundColor: '#78bf9b', verticalAlign: 'middle', marginTop: '-5px'}} size='large' icon={<UserOutlined />} src={user.url}>{user.name}</Avatar>
@@ -548,7 +548,7 @@ const HomePage = () => {
           </Button>
 
           <>
-          {user.role === ADMIN || user.id === 3 &&
+          {(user.role === ADMIN || user.id === 3) &&
             <>
               <Divider type="vertical" />
               <div className='tableSegment'>

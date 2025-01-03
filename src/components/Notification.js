@@ -99,7 +99,7 @@ const Notification = ({data, users}) => {
     return (
         <Dropdown overlay={listMenu} trigger={['click']}>
             <Badge offset={[-9, 4]} size='small' count={notificationList.length} overflowCount={99}>
-                <Avatar size='large' shape='circle' style={{ backgroundColor: '#3F72AF', verticalAlign: 'middle'}}>
+                <Avatar size='large' shape='circle' style={{ backgroundColor: '#3F72AF', verticalAlign: 'middle', cursor: 'pointer'}}>
                     <BellOutlined style={{fontSize: '20px', color: 'white'}}/>
                 </Avatar>
             </Badge>

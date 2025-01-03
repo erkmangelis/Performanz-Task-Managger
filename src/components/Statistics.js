@@ -7,7 +7,7 @@ const { Text } = Typography;
 const Statistics = ({data, statisticFilter}) => {
 
     const popoverContent = (
-        <Card style={{cursor: 'default'}}>
+        <Card style={{cursor: 'pointer'}}>
             <Card.Grid onClick={() => statisticFilter([4])} style={{textAlign: 'center', width: '50%', backgroundColor: 'rgba(136, 214, 108, 0.8)'}}><Statistic title="Tamamlanan" value={data.completeCount} /></Card.Grid>
             <Card.Grid onClick={() => statisticFilter([3])} style={{textAlign: 'center', width: '50%', backgroundColor: 'rgba(0, 141, 218, 0.8)'}}><Statistic title="İşlemde" value={data.processCount} /></Card.Grid>
             <Card.Grid onClick={() => statisticFilter([2])} style={{textAlign: 'center', width: '50%', backgroundColor: 'rgba(255, 234, 32, 0.8)'}}><Statistic title="Beklemede" value={data.pendingCount} /></Card.Grid>

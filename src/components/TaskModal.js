@@ -183,8 +183,12 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
                             option.props.children.toString().toLowerCase().includes(input.toLowerCase())
                         }
                     >
-                        {users.map(user => (
-                            <Option key={user.id} value={user.id}> {user.name +" "+ user.surname} </Option>
+                        {users
+                        .filter(user => user.isActive) // Sadece isActive === true olan kullanıcılar
+                        .map(user => (
+                            <Option key={user.id} value={user.id}>
+                            {user.name + " " + user.surname}
+                            </Option>
                         ))}
                     </Select>
                 </div>

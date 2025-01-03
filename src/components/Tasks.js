@@ -157,7 +157,16 @@ const Tasks = ({ addTask, users, categories, tasks, onEditTask, deleteTask, sFil
           if (user) {
             return user.role === ADMIN ? <CrownFilled style={{color: '#F94A29'}} /> : "";
           }
-      },
+        },
+        sorter: (a, b) => {
+          const dateFormat = 'YYYY-MM-DD';
+          const dateB = dayjs(a.task.updateDate, dateFormat);
+          const dateA = dayjs(b.task.updateDate, dateFormat);
+          
+          if (dateA.isBefore(dateB)) return -1;
+          if (dateA.isAfter(dateB)) return 1;
+          return 0;
+        }
       },
       {
         title: 'Görev',
@@ -379,8 +388,10 @@ const Tasks = ({ addTask, users, categories, tasks, onEditTask, deleteTask, sFil
         title: 'Görev Sahibi',
         align: 'center',
         dataIndex: 'creator',
-        filters: users.map(user => ({
-          text: user.name +" "+ user.surname,
+        filters: users
+        .filter(user => user.isActive) // Sadece isActive === true olan kullanıcılar
+        .map(user => ({
+          text: user.name + " " + user.surname,
           value: user.id,
         })),
         onFilter: (value, record) => record.creator.id === value,
@@ -393,8 +404,10 @@ const Tasks = ({ addTask, users, categories, tasks, onEditTask, deleteTask, sFil
         title: 'Görevli Kişiler',
         align: 'center',
         dataIndex: 'assignedUsers',
-        filters: users.map(user => ({
-          text: user.name +" "+ user.surname,
+        filters: users
+        .filter(user => user.isActive) // Sadece isActive === true olan kullanıcılar
+        .map(user => ({
+          text: user.name + " " + user.surname,
           value: user.id,
         })),
         onFilter: (value, record) => {
