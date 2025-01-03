@@ -1,6 +1,6 @@
 import React from 'react';
-import { Table, Space, Modal, Divider, Button, Avatar, List } from 'antd';
-import { CrownFilled, DeleteTwoTone, EditTwoTone, ExclamationCircleFilled } from '@ant-design/icons';
+import { Table, Space, Modal, Button, Avatar, List } from 'antd';
+import { CrownFilled, EditTwoTone, ExclamationCircleFilled, CheckSquareOutlined, CloseSquareOutlined } from '@ant-design/icons';
 import { useUser } from '../contexts/UserContext';
 
 
@@ -84,10 +84,23 @@ const Users = ({ userList, deleteUser, onEditUser }) => {
             align: 'center',
             dataIndex: ["username"],
             filters: userList.map(usr => ({
-                text: usr.username,
-                value: usr.id,
-              })),
+              text: usr.username,
+              value: usr.id,
+            })),
             onFilter: (value, record) => record.id === value,
+        },
+        {
+          title: 'Hesap Durumu',
+          align: 'center',
+          dataIndex: ["isActive"],
+          filters: [
+            { text: 'Aktif', value: true },
+            { text: 'Pasif', value: false },
+          ],
+          onFilter: (value, record) => record.isActive === value,
+          render: (isActive) => {
+            return isActive ? <span><CheckSquareOutlined style={{color: 'rgba(136, 214, 108, 0.8)', fontSize: '1.5rem'}} /></span> : <span><CloseSquareOutlined style={{color: 'rgba(249, 74, 41, 0.8)', fontSize: '1.5rem'}}/></span>;
+          }
         },
         {
             title: 'Aksiyon',
