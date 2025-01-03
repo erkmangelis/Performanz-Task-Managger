@@ -152,11 +152,12 @@ const Tasks = ({ addTask, users, categories, tasks, onEditTask, deleteTask, sFil
         align: 'left',
         dataIndex: ['creator', 'id'],
         width: 30,
-        render: (item) => {
-          const user = users.find(user => user.id === item);
+        render: (id) => {
+          const user = users.find(u => u.id === id);  // Burada item.id yerine doğrudan id'yi kullanıyoruz.
           if (user) {
-            return user.role === ADMIN ? <CrownFilled style={{color: '#F94A29'}} /> : "";
+            return user.role === 1 ? <CrownFilled style={{color: '#F94A29'}} /> : null;
           }
+          return null;
         },
         sorter: (a, b) => {
           const dateFormat = 'YYYY-MM-DD';
