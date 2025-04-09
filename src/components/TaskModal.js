@@ -175,7 +175,7 @@ const TaskModal = ({ categories, users, onOpen, data, onClose, onSave }) => {
                         placeholder="Kullanıcı seçiniz"
                         mode="multiple"
                         defaultValue={data ? data.assignedUsers.map(assignedUser => assignedUser.id) : (user.role !== ADMIN ? user.id : [])}
-                        disabled={ user.role !== ADMIN}
+                        disabled={!(user.role === ADMIN || user.id === 3)}
                         style={{ width: 250, marginRight: '40px' }}
                         onChange={(value) => setAssignedUser(value)}
                         showSearch
